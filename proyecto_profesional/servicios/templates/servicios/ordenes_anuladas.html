@@ -1,0 +1,520 @@
+{% load widget_tweaks %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Órdenes Anuladas</title>
+  <!-- Bootstrap CSS -->
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+  <!-- Font Awesome para iconos -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+  <!-- Google Fonts - Montserrat -->
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      /* Variables para modo oscuro/claro */
+      --bg-color: #f8f9fa;
+      --text-color: #343a40;
+      --card-bg: #ffffff;
+      --border-color: #dee2e6;
+      --accent-color: #007bff;
+      --secondary-color: #6c757d;
+      --success-color: #28a745;
+      --info-color: #17a2b8;
+      --warning-color: #ffc107;
+      --danger-color: #dc3545;
+      --header-bg: #0056b3;
+      --header-text: #ffffff;
+    }
+    
+    [data-theme="dark"] {
+      --bg-color: #1a1d21;
+      --text-color: #e9ecef;
+      --card-bg: #2d3035;
+      --border-color: #4d5154;
+      --accent-color: #0d6efd;
+      --secondary-color: #adb5bd;
+      --header-bg: #004494;
+      --header-text: #e9ecef;
+    }
+    
+    body {
+      font-family: 'Montserrat', sans-serif;
+      background-color: var(--bg-color);
+      color: var(--text-color);
+      transition: all 0.3s ease;
+      margin: 0;
+      padding: 0;
+    }
+    
+    /* Barra superior */
+    .top-navbar {
+      background-color: var(--header-bg);
+      border-bottom: 1px solid var(--border-color);
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 1030;
+      height: 60px;
+      display: flex;
+      align-items: center;
+      padding: 0 15px;
+      transition: all 0.3s ease;
+    }
+    
+    .brand-logo {
+      display: flex;
+      align-items: center;
+      font-weight: 700;
+      font-size: 1.3rem;
+      color: var(--header-text);
+      text-decoration: none;
+      margin-left: 10px;
+    }
+    
+    .brand-logo i {
+      margin-right: 10px;
+      font-size: 1.5rem;
+    }
+    
+    .top-navbar-right {
+      margin-left: auto;
+      display: flex;
+      align-items: center;
+    }
+    
+    .theme-switch-wrapper {
+      display: flex;
+      align-items: center;
+      margin-right: 20px;
+    }
+    
+    .theme-switch {
+      display: inline-block;
+      height: 24px;
+      position: relative;
+      width: 48px;
+    }
+    
+    .theme-switch input {
+      display: none;
+    }
+    
+    .slider {
+      background-color: #ccc;
+      bottom: 0;
+      cursor: pointer;
+      left: 0;
+      position: absolute;
+      right: 0;
+      top: 0;
+      transition: .4s;
+      border-radius: 34px;
+    }
+    
+    .slider:before {
+      background-color: white;
+      bottom: 4px;
+      content: "";
+      height: 16px;
+      left: 4px;
+      position: absolute;
+      transition: .4s;
+      width: 16px;
+      border-radius: 50%;
+    }
+    
+    input:checked + .slider {
+      background-color: var(--accent-color);
+    }
+    
+    input:checked + .slider:before {
+      transform: translateX(24px);
+    }
+    
+    .nav-icon {
+      font-size: 1.2rem;
+      color: var(--header-text);
+      cursor: pointer;
+      width: 40px;
+      height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+      transition: all 0.3s;
+      margin-left: 10px;
+      background-color: rgba(255,255,255,0.1);
+    }
+    
+    .nav-icon:hover {
+      background-color: rgba(255,255,255,0.2);
+    }
+    
+    /* Contenido principal */
+    .content-wrapper {
+      margin-top: 70px;
+      padding: 20px;
+      min-height: calc(100vh - 70px);
+    }
+    
+    /* Encabezado de página */
+    .page-header {
+      margin-bottom: 1.5rem;
+      padding-bottom: 1rem;
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+    }
+    
+    .page-header h1 {
+      font-weight: 600;
+      color: var(--accent-color);
+      font-size: 1.8rem;
+      margin-bottom: 0.5rem;
+      display: flex;
+      align-items: center;
+    }
+    
+    .page-header h1 i {
+      margin-right: 10px;
+    }
+    
+    /* Filtros y búsqueda */
+    .filters-container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 20px;
+      align-items: center;
+    }
+    
+    .search-container {
+      position: relative;
+      flex-grow: 1;
+      max-width: 400px;
+    }
+    
+    .search-container input {
+      padding-left: 35px;
+      border-radius: 20px;
+      border: 1px solid var(--border-color);
+      background-color: var(--card-bg);
+      color: var(--text-color);
+    }
+    
+    .search-icon {
+      position: absolute;
+      left: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--secondary-color);
+    }
+    
+    /* Tarjetas de órdenes */
+    .order-card {
+      background-color: var(--card-bg);
+      border-radius: 10px;
+      padding: 15px;
+      margin-bottom: 15px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+      transition: all 0.3s;
+    }
+    
+    .order-card:hover {
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+      transform: translateY(-2px);
+    }
+    
+    .order-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 15px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid var(--border-color);
+    }
+    
+    .order-number {
+      font-weight: 600;
+      font-size: 1.2rem;
+      color: var(--danger-color);
+      display: flex;
+      align-items: center;
+    }
+    
+    .order-number i {
+      margin-right: 8px;
+    }
+    
+    .order-status {
+      font-size: 0.85rem;
+      padding: 4px 10px;
+      border-radius: 20px;
+      background-color: rgba(220, 53, 69, 0.1);
+      color: var(--danger-color);
+      font-weight: 500;
+    }
+    
+    .order-details {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 10px;
+      margin-bottom: 15px;
+    }
+    
+    .detail-item {
+      display: flex;
+      flex-direction: column;
+    }
+    
+    .detail-label {
+      font-size: 0.85rem;
+      color: var(--secondary-color);
+      margin-bottom: 5px;
+      font-weight: 600;
+    }
+    
+    .detail-value {
+      font-size: 1rem;
+    }
+    
+    .order-footer {
+      display: flex;
+      justify-content: flex-end;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+    
+    /* Botones y acciones */
+    .btn {
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 12px;
+      border-radius: 5px;
+      transition: all 0.2s;
+    }
+    
+    /* No hay órdenes */
+    .no-orders {
+      background-color: var(--card-bg);
+      border-radius: 10px;
+      padding: 30px;
+      text-align: center;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    }
+    
+    .no-orders i {
+      font-size: 3rem;
+      color: var(--secondary-color);
+      margin-bottom: 15px;
+    }
+    
+    /* Responsive */
+    @media (max-width: 768px) {
+      .page-header {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+      
+      .filters-container {
+        flex-direction: column;
+        align-items: flex-start;
+        width: 100%;
+      }
+      
+      .search-container {
+        width: 100%;
+        max-width: none;
+      }
+      
+      .order-header {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+      
+      .order-status {
+        margin-top: 5px;
+      }
+      
+      .order-details {
+        grid-template-columns: 1fr;
+      }
+      
+      .order-footer {
+        justify-content: space-between;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Barra de navegación superior -->
+  <nav class="top-navbar">
+    <a href="{% url 'home' %}" class="brand-logo">
+      <i class="fas fa-cogs"></i>
+      Control de Servicios
+    </a>
+    <div class="top-navbar-right">
+      <div class="theme-switch-wrapper">
+        <label class="theme-switch" for="checkbox">
+          <input type="checkbox" id="checkbox" />
+          <div class="slider"></div>
+        </label>
+      </div>
+      <a href="{% url 'lista_ordenes' %}" class="nav-icon" title="Lista de Órdenes">
+        <i class="fas fa-clipboard-list"></i>
+      </a>
+      <a href="{% url 'home' %}" class="nav-icon" title="Panel de Control">
+        <i class="fas fa-th-large"></i>
+      </a>
+    </div>
+  </nav>
+
+  <!-- Contenido principal -->
+  <div class="content-wrapper">
+    <div class="container">
+      <!-- Encabezado de la página -->
+      <div class="page-header">
+        <h1><i class="fas fa-ban"></i> Órdenes Anuladas</h1>
+        
+        <!-- Filtros y búsqueda -->
+        <div class="filters-container">
+          <div class="search-container">
+            <i class="fas fa-search search-icon"></i>
+            <input type="text" id="orderSearch" class="form-control" placeholder="Buscar orden...">
+          </div>
+        </div>
+      </div>
+      
+      <!-- Lista de órdenes anuladas -->
+      {% if orders %}
+        <div class="orders-container">
+          {% for order in orders %}
+            <div class="order-card">
+              <div class="order-header">
+                <div class="order-number">
+                  <i class="fas fa-file-alt"></i>
+                  Orden: {{ order.numero_orden }}
+                </div>
+                <div class="order-status">
+                  {{ order.get_estado_general_display }}
+                </div>
+              </div>
+              <div class="order-details">
+                <div class="detail-item">
+                  <div class="detail-label">
+                    <i class="fas fa-user mr-1"></i> Cliente
+                  </div>
+                  <div class="detail-value">{{ order.cliente }}</div>
+                </div>
+                {% if order.modelo_motor %}
+                <div class="detail-item">
+                  <div class="detail-label">
+                    <i class="fas fa-cogs mr-1"></i> Modelo
+                  </div>
+                  <div class="detail-value">{{ order.modelo_motor }}</div>
+                </div>
+                {% endif %}
+                {% if order.ruta %}
+                <div class="detail-item">
+                  <div class="detail-label">
+                    <i class="fas fa-route mr-1"></i> Ruta
+                  </div>
+                  <div class="detail-value">{{ order.ruta }}</div>
+                </div>
+                {% endif %}
+                {% if order.fecha_ingreso %}
+                <div class="detail-item">
+                  <div class="detail-label">
+                    <i class="fas fa-calendar-alt mr-1"></i> Fecha
+                  </div>
+                  <div class="detail-value">{{ order.fecha_ingreso|date:"d/m/Y" }}</div>
+                </div>
+                {% endif %}
+              </div>
+              <div class="order-footer">
+                <a href="{% url 'orden_detalle' order.id %}" class="btn btn-info btn-sm">
+                  <i class="fas fa-eye"></i> Ver Detalles
+                </a>
+                {% if user.is_superuser %}
+                  <a href="{% url 'editar_orden' order.id %}" class="btn btn-warning btn-sm">
+                    <i class="fas fa-edit"></i> Editar Orden
+                  </a>
+                {% endif %}
+              </div>
+            </div>
+          {% endfor %}
+        </div>
+      {% else %}
+        <div class="no-orders">
+          <i class="fas fa-ban"></i>
+          <h4>No hay órdenes anuladas</h4>
+          <p class="text-muted">No se encontraron órdenes en estado anulado</p>
+        </div>
+      {% endif %}
+      
+      <!-- Botones de acción -->
+      <div class="mt-4">
+        <a href="{% url 'home' %}" class="btn btn-secondary">
+          <i class="fas fa-arrow-left"></i> Volver al Panel de Control
+        </a>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Scripts -->
+  <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+  <script>
+    $(document).ready(function(){
+      // Búsqueda de órdenes
+      $('#orderSearch').on('input', function() {
+        var searchText = $(this).val().toLowerCase();
+        
+        $('.order-card').each(function() {
+          var orderContent = $(this).text().toLowerCase();
+          if (orderContent.includes(searchText)) {
+            $(this).show();
+          } else {
+            $(this).hide();
+          }
+        });
+      });
+      
+      // Cambio de tema (claro/oscuro)
+      const toggleSwitch = document.querySelector('#checkbox');
+      
+      // Verificar si hay una preferencia guardada
+      const currentTheme = localStorage.getItem('theme') ? localStorage.getItem('theme') : null;
+      
+      if (currentTheme) {
+        document.documentElement.setAttribute('data-theme', currentTheme);
+        
+        if (currentTheme === 'dark') {
+          toggleSwitch.checked = true;
+        }
+      }
+      
+      function switchTheme(e) {
+        if (e.target.checked) {
+          document.documentElement.setAttribute('data-theme', 'dark');
+          localStorage.setItem('theme', 'dark');
+        } else {
+          document.documentElement.setAttribute('data-theme', 'light');
+          localStorage.setItem('theme', 'light');
+        }
+      }
+      
+      toggleSwitch.addEventListener('change', switchTheme);
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,774 @@
+{% load widget_tweaks custom_filters static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Editar Orden de Servicio - {{ order.numero_provisional }}</title>
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <!-- Font Awesome para iconos -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <!-- Google Fonts - Montserrat -->
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            /* Variables para modo oscuro/claro */
+            --bg-color: #f8f9fa;
+            --text-color: #343a40;
+            --card-bg: #ffffff;
+            --border-color: #dee2e6;
+            --accent-color: #007bff;
+            --secondary-color: #6c757d;
+            --success-color: #28a745;
+            --info-color: #17a2b8;
+            --warning-color: #ffc107;
+            --danger-color: #dc3545;
+            --header-bg: #0056b3;
+            --header-text: #ffffff;
+        }
+        
+        [data-theme="dark"] {
+            --bg-color: #1a1d21;
+            --text-color: #e9ecef;
+            --card-bg: #2d3035;
+            --border-color: #4d5154;
+            --accent-color: #0d6efd;
+            --secondary-color: #adb5bd;
+            --header-bg: #004494;
+            --header-text: #e9ecef;
+        }
+        
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            transition: all 0.3s ease;
+            margin: 0;
+            padding: 0;
+        }
+        
+        /* Barra superior */
+        .top-navbar {
+            background-color: var(--header-bg);
+            border-bottom: 1px solid var(--border-color);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1030;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            padding: 0 15px;
+            transition: all 0.3s ease;
+        }
+        
+        .brand-logo {
+            display: flex;
+            align-items: center;
+            font-weight: 700;
+            font-size: 1.3rem;
+            color: var(--header-text);
+            text-decoration: none;
+            margin-left: 10px;
+        }
+        
+        .brand-logo i {
+            margin-right: 10px;
+            font-size: 1.5rem;
+        }
+        
+        .top-navbar-right {
+            margin-left: auto;
+            display: flex;
+            align-items: center;
+        }
+        
+        .theme-switch-wrapper {
+            display: flex;
+            align-items: center;
+            margin-right: 20px;
+        }
+        
+        .theme-switch {
+            display: inline-block;
+            height: 24px;
+            position: relative;
+            width: 48px;
+        }
+        
+        .theme-switch input {
+            display: none;
+        }
+        
+        .slider {
+            background-color: #ccc;
+            bottom: 0;
+            cursor: pointer;
+            left: 0;
+            position: absolute;
+            right: 0;
+            top: 0;
+            transition: .4s;
+            border-radius: 34px;
+        }
+        
+        .slider:before {
+            background-color: white;
+            bottom: 4px;
+            content: "";
+            height: 16px;
+            left: 4px;
+            position: absolute;
+            transition: .4s;
+            width: 16px;
+            border-radius: 50%;
+        }
+        
+        input:checked + .slider {
+            background-color: var(--accent-color);
+        }
+        
+        input:checked + .slider:before {
+            transform: translateX(24px);
+        }
+        
+        .nav-icon {
+            font-size: 1.2rem;
+            color: var(--header-text);
+            cursor: pointer;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            transition: all 0.3s;
+            margin-left: 10px;
+            background-color: rgba(255,255,255,0.1);
+        }
+        
+        .nav-icon:hover {
+            background-color: rgba(255,255,255,0.2);
+        }
+        
+        /* Contenido principal */
+        .content-wrapper {
+            margin-top: 70px;
+            padding: 20px;
+            min-height: calc(100vh - 70px);
+        }
+        
+        /* Encabezado de página */
+        .page-header {
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .page-header h1 {
+            font-weight: 600;
+            color: var(--accent-color);
+            font-size: 1.8rem;
+            margin-bottom: 0;
+            display: flex;
+            align-items: center;
+        }
+        
+        .page-header h1 .order-number {
+            background-color: var(--accent-color);
+            color: white;
+            padding: 0.2rem 0.6rem;
+            border-radius: 4px;
+            font-size: 1.1rem;
+            margin-left: 0.7rem;
+        }
+        
+        /* Tarjetas */
+        .card {
+            background-color: var(--card-bg);
+            border: none;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            margin-bottom: 1.5rem;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+        
+        .card:hover {
+            box-shadow: 0 6px 12px rgba(0,0,0,0.1);
+        }
+        
+        .card-header {
+            background-color: rgba(0,0,0,0.03);
+            border-bottom: 1px solid var(--border-color);
+            padding: 0.75rem 1.25rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+        }
+        
+        .card-header i {
+            margin-right: 10px;
+            font-size: 1.2rem;
+            color: var(--accent-color);
+        }
+        
+        .card-body {
+            padding: 1.25rem;
+        }
+        
+        /* Formularios */
+        .form-control {
+            border-radius: 5px;
+            border: 1px solid var(--border-color);
+            padding: 8px 12px;
+            height: auto;
+            background-color: var(--card-bg);
+            color: var(--text-color);
+            transition: all 0.2s;
+        }
+        
+        .form-control:focus {
+            box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+            border-color: var(--accent-color);
+        }
+        
+        .form-group label {
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+            color: var(--text-color);
+        }
+        
+        /* Botones */
+        .btn {
+            font-weight: 500;
+            padding: 8px 16px;
+            border-radius: 5px;
+            transition: all 0.3s;
+            box-shadow: none;
+        }
+        
+        .btn-primary {
+            background-color: var(--accent-color);
+            border-color: var(--accent-color);
+        }
+        
+        .btn-primary:hover {
+            background-color: #0069d9;
+            border-color: #0062cc;
+        }
+        
+        .btn-secondary {
+            background-color: var(--secondary-color);
+            border-color: var(--secondary-color);
+        }
+        
+        .btn-success {
+            background-color: var(--success-color);
+            border-color: var(--success-color);
+        }
+        
+        .btn-success:hover {
+            background-color: #218838;
+            border-color: #1e7e34;
+        }
+        
+        .btn-info {
+            background-color: var(--info-color);
+            border-color: var(--info-color);
+        }
+        
+        .btn-info:hover {
+            background-color: #138496;
+            border-color: #117a8b;
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 1.5rem;
+        }
+        
+        /* Campos específicos */
+        .observacion-field {
+            min-height: 38px;
+            transition: all 0.3s;
+            resize: vertical;
+        }
+        
+        .observacion-field:focus {
+            min-height: 80px;
+        }
+        
+        /* Modales */
+        .modal-content {
+            background-color: var(--card-bg);
+            color: var(--text-color);
+            border: none;
+            border-radius: 10px;
+            box-shadow: 0 15px 30px rgba(0,0,0,0.2);
+        }
+        
+        .modal-header {
+            border-bottom: 1px solid var(--border-color);
+            background-color: rgba(0,0,0,0.03);
+        }
+        
+        .modal-footer {
+            border-top: 1px solid var(--border-color);
+        }
+        
+        .modal-xl {
+            max-width: 90% !important;
+        }
+        
+        .modal-xl .modal-content {
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+        
+        /* Inventario y Servicios Grid */
+        .inventario-grid,
+        .servicios-grid-form {
+            display: grid;
+            gap: 0.75rem;
+            font-size: 0.9rem;
+        }
+        
+        .inventario-grid {
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        }
+        
+        .servicios-grid-form {
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+        }
+        
+        .list-group-item {
+            padding: 10px 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            background-color: rgba(0,0,0,0.02);
+            transition: all 0.2s;
+        }
+        
+        .list-group-item:hover {
+            background-color: rgba(0,0,0,0.04);
+        }
+        
+        .cantidad-field {
+            width: 70px;
+            text-align: center;
+            padding: 4px 8px;
+            height: 32px;
+        }
+        
+        /* Estilos responsivos */
+        @media (max-width: 992px) {
+            .card-body {
+                padding: 1rem;
+            }
+            
+            .inventario-grid,
+            .servicios-grid-form {
+                grid-template-columns: 1fr;
+            }
+            
+            .action-buttons {
+                flex-direction: column;
+            }
+            
+            .action-buttons .btn {
+                margin-bottom: 0.5rem;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .content-wrapper {
+                padding: 15px;
+            }
+            
+            .page-header h1 {
+                font-size: 1.5rem;
+            }
+            
+            .card-header {
+                padding: 0.6rem 1rem;
+            }
+            
+            .form-group {
+                margin-bottom: 0.75rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Barra de navegación superior -->
+    <nav class="top-navbar">
+        <a href="{% url 'home' %}" class="brand-logo">
+            <i class="fas fa-cogs"></i>
+            Control de Servicios
+        </a>
+        <div class="top-navbar-right">
+            <div class="theme-switch-wrapper">
+                <label class="theme-switch" for="checkbox">
+                    <input type="checkbox" id="checkbox" />
+                    <div class="slider"></div>
+                </label>
+            </div>
+            <a href="{% url 'lista_ordenes' %}" class="nav-icon" title="Lista de Órdenes">
+                <i class="fas fa-clipboard-list"></i>
+            </a>
+            <a href="{% url 'home' %}" class="nav-icon" title="Tablero">
+                <i class="fas fa-th-large"></i>
+            </a>
+        </div>
+    </nav>
+
+    <!-- Contenido principal -->
+    <div class="content-wrapper">
+        <div class="container-fluid">
+            <!-- Encabezado de la página -->
+            <div class="page-header">
+                <h1>
+                    <i class="fas fa-edit"></i> Editar Orden 
+                    <span class="order-number">{{ order.numero_provisional }}</span>
+                </h1>
+                <div class="order-status">
+                    <span class="badge badge-primary">Estado: {{ order.get_estado_display }}</span>
+                </div>
+            </div>
+            
+            <!-- Formulario principal (incluye modales) -->
+            <form id="formEditarOrden" method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                
+                <!-- Sección de Datos de la Orden -->
+                <div class="card">
+                    <div class="card-header">
+                        <i class="fas fa-info-circle"></i> Datos Generales
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    {{ form.cliente.label_tag }}
+                                    {{ form.cliente|add_class:"form-control" }}
+                                </div>
+                                <div class="form-group">
+                                    {{ form.telefono.label_tag }}
+                                    {{ form.telefono|add_class:"form-control" }}
+                                </div>
+                                <div class="form-group">
+                                    {{ form.ruta.label_tag }}
+                                    {{ form.ruta|add_class:"form-control" }}
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    {{ form.modelo_motor.label_tag }}
+                                    {{ form.modelo_motor|add_class:"form-control" }}
+                                </div>
+                                <div class="form-group">
+                                    {{ form.fecha_programada.label_tag }}
+                                    {{ form.fecha_programada|add_class:"form-control" }}
+                                </div>
+                                <div class="form-group">
+                                    {# Recuadro de notificacion renombrado a "Observaciones" #}
+                                    <label for="{{ form.notificacion.id_for_label }}">Observaciones</label>
+                                    {{ form.notificacion|add_class:"form-control observacion-field"|attr:"placeholder:Observaciones" }}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            {{ form.observaciones.label_tag }}
+                            {{ form.observaciones|add_class:"form-control observacion-field" }}
+                        </div>
+                        <div class="form-group">
+                            {{ form.imagen.label_tag }}
+                            <div class="custom-file">
+                                {{ form.imagen|add_class:"custom-file-input" }}
+                                <label class="custom-file-label" for="{{ form.imagen.id_for_label }}">
+                                    {% if order.imagen %}{{ order.imagen.name }}{% else %}Seleccionar archivo{% endif %}
+                                </label>
+                            </div>
+                            {% if order.imagen %}
+                                <div class="mt-2">
+                                    <small class="text-muted">Imagen actual: {{ order.imagen.name }}</small>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Botones para abrir modales de Inventario y Servicios -->
+                <div class="card">
+                    <div class="card-header">
+                        <i class="fas fa-list-check"></i> Componentes y Servicios
+                    </div>
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between">
+                            <button type="button" class="btn btn-info" data-toggle="modal" data-target="#modalInventario">
+                                <i class="fas fa-boxes mr-2"></i> Inventario
+                            </button>
+                            <button type="button" class="btn btn-info" data-toggle="modal" data-target="#modalServicios">
+                                <i class="fas fa-tools mr-2"></i> Servicios
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Modales de Inventario y Servicios (ahora dentro del formulario) -->
+                <!-- Modal para Inventario -->
+                <div class="modal fade" id="modalInventario" tabindex="-1" role="dialog" aria-labelledby="modalInventarioLabel" aria-hidden="true">
+                    <div class="modal-dialog modal-xl" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="modalInventarioLabel">
+                                    <i class="fas fa-boxes mr-2"></i> Inventario
+                                </h5>
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Cerrar">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                            <div class="modal-body">
+                                {% if inv_form.item_list %}
+                                    <div class="inventario-grid">
+                                        {% for item in inv_form.item_list %}
+                                            {% if item|length == 4 %}
+                                                {% with checkbox_name=item.0 quantity_name=item.1 comment_name=item.2 label=item.3 %}
+                                                    <div class="list-group-item d-flex align-items-center justify-content-between">
+                                                        <div class="d-flex align-items-center">
+                                                            {% with field=inv_form|get_item:checkbox_name %}
+                                                                {{ field }}
+                                                                <label for="{{ field.id_for_label }}" class="mb-0 ml-2">{{ label }}</label>
+                                                            {% endwith %}
+                                                        </div>
+                                                        <div class="d-flex align-items-center">
+                                                            <small class="text-muted mr-2">Cant:</small>
+                                                            {% with qty_field=inv_form|get_item:quantity_name %}
+                                                                {{ qty_field|add_class:"form-control cantidad-field" }}
+                                                            {% endwith %}
+                                                            <div class="ml-2">
+                                                                {% with comment_field=inv_form|get_item:comment_name %}
+                                                                    {{ comment_field|add_class:"form-control observacion-field"|attr:"placeholder:Observaciones" }}
+                                                                {% endwith %}
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                {% endwith %}
+                                            {% elif item|length == 5 %}
+                                                {% with checkbox_name=item.0 name_field=item.1 quantity_name=item.2 comment_name=item.3 label=item.4 %}
+                                                    <div class="list-group-item d-flex align-items-center justify-content-between">
+                                                        <div class="d-flex align-items-center flex-grow-1">
+                                                            {% with field=inv_form|get_item:checkbox_name %}
+                                                                {{ field }}
+                                                                <label for="{{ field.id_for_label }}" class="mb-0 ml-2">{{ label }}</label>
+                                                            {% endwith %}
+                                                            {% with field_name=inv_form|get_item:name_field %}
+                                                                {{ field_name|add_class:"form-control ml-2" }}
+                                                            {% endwith %}
+                                                        </div>
+                                                        <div class="d-flex align-items-center ml-2">
+                                                            <small class="text-muted mr-2">Cant:</small>
+                                                            {% with qty_field=inv_form|get_item:quantity_name %}
+                                                                {{ qty_field|add_class:"form-control cantidad-field" }}
+                                                            {% endwith %}
+                                                            <div class="ml-2">
+                                                                {% with comment_field=inv_form|get_item:comment_name %}
+                                                                    {{ comment_field|add_class:"form-control observacion-field"|attr:"placeholder:Observaciones" }}
+                                                                {% endwith %}
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                {% endwith %}
+                                            {% endif %}
+                                        {% endfor %}
+                                    </div>
+                                {% else %}
+                                    <div class="alert alert-info">
+                                        <i class="fas fa-info-circle mr-2"></i> No hay ítems en el inventario.
+                                    </div>
+                                {% endif %}
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-dismiss="modal">
+                                    <i class="fas fa-times mr-2"></i> Cerrar
+                                </button>
+                                <button type="button" class="btn btn-primary" data-dismiss="modal" id="guardarInventario">
+                                    <i class="fas fa-save mr-2"></i> Guardar Inventario
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Modal para Servicios -->
+                <div class="modal fade" id="modalServicios" tabindex="-1" role="dialog" aria-labelledby="modalServiciosLabel" aria-hidden="true">
+                    <div class="modal-dialog modal-xl" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="modalServiciosLabel">
+                                    <i class="fas fa-tools mr-2"></i> Servicios
+                                </h5>
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Cerrar">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                            <div class="modal-body">
+                                {% if serv_form.serv_list %}
+                                    <div class="servicios-grid-form">
+                                        {% for item in serv_form.serv_list %}
+                                            {% if item|length == 4 %}
+                                                {% with selected_field=item.0 quantity_required_field=item.1 quantity_field=item.2 label=item.3 %}
+                                                    <div class="list-group-item">
+                                                        <div class="d-flex align-items-center justify-content-between">
+                                                            <div class="d-flex align-items-center">
+                                                                {% with field=serv_form|get_item:selected_field %}
+                                                                    {{ field }}
+                                                                    <label for="{{ field.id_for_label }}" class="mb-0 ml-2">{{ label }}</label>
+                                                                {% endwith %}
+                                                            </div>
+                                                            <div class="d-flex align-items-center">
+                                                                {% with field=serv_form|get_item:quantity_required_field %}
+                                                                    <div class="custom-control custom-checkbox">
+                                                                        {{ field }}
+                                                                        <label for="{{ field.id_for_label }}" class="custom-control-label">Especificar cantidad</label>
+                                                                    </div>
+                                                                {% endwith %}
+                                                                {% with field=serv_form|get_item:quantity_field %}
+                                                                    {{ field|add_class:"form-control cantidad-field ml-2" }}
+                                                                {% endwith %}
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                {% endwith %}
+                                            {% elif item|length == 5 %}
+                                                {% with selected_field=item.0 name_field=item.1 quantity_required_field=item.2 quantity_field=item.3 label=item.4 %}
+                                                    <div class="list-group-item">
+                                                        <div class="d-flex align-items-center justify-content-between">
+                                                            <div class="d-flex align-items-center flex-grow-1">
+                                                                {% with field=serv_form|get_item:selected_field %}
+                                                                    {{ field }}
+                                                                    <label for="{{ field.id_for_label }}" class="mb-0 ml-2">{{ label }}</label>
+                                                                {% endwith %}
+                                                                {% with field=serv_form|get_item:name_field %}
+                                                                    {{ field|add_class:"form-control ml-2" }}
+                                                                {% endwith %}
+                                                            </div>
+                                                            <div class="d-flex align-items-center ml-2">
+                                                                {% with field=serv_form|get_item:quantity_required_field %}
+                                                                    <div class="custom-control custom-checkbox">
+                                                                        {{ field }}
+                                                                        <label for="{{ field.id_for_label }}" class="custom-control-label">Especificar</label>
+                                                                    </div>
+                                                                {% endwith %}
+                                                                {% with field=serv_form|get_item:quantity_field %}
+                                                                    {{ field|add_class:"form-control cantidad-field ml-2" }}
+                                                                {% endwith %}
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                {% endwith %}
+                                            {% endif %}
+                                        {% endfor %}
+                                    </div>
+                                {% else %}
+                                    <div class="alert alert-info">
+                                        <i class="fas fa-info-circle mr-2"></i> No hay servicios disponibles.
+                                    </div>
+                                {% endif %}
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-dismiss="modal">
+                                    <i class="fas fa-times mr-2"></i> Cerrar
+                                </button>
+                                <button type="button" class="btn btn-primary" data-dismiss="modal" id="guardarServicios">
+                                    <i class="fas fa-save mr-2"></i> Guardar Servicios
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Botones de acción -->
+                <div class="action-buttons">
+                    <a href="{% url 'lista_ordenes' %}" class="btn btn-secondary">
+                        <i class="fas fa-arrow-left mr-2"></i> Volver a la Lista
+                    </a>
+                    <a href="{% url 'home' %}" class="btn btn-secondary">
+                        <i class="fas fa-th-large mr-2"></i> Ir al Tablero
+                    </a>
+                    <button type="submit" class="btn btn-success">
+                        <i class="fas fa-save mr-2"></i> Guardar Cambios
+                    </button>
+                </div>
+            </form>  {# Fin del formulario principal (incluyendo modales) #}
+        </div>
+    </div>
+    
+    <!-- Incluir jQuery, Popper.js y Bootstrap JS -->
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script src="{% static 'js/sincronizacion.js' %}"></script>
+    <script>
+        $(document).ready(function(){
+            // Funciones opcionales para guardar datos en los modales
+            $("#guardarInventario").click(function(){
+                console.log("Inventario guardado.");
+                showNotification("Inventario guardado correctamente");
+            });
+            
+            $("#guardarServicios").click(function(){
+                console.log("Servicios guardados.");
+                showNotification("Servicios guardados correctamente");
+            });
+            
+            // Mostrar el nombre del archivo seleccionado en el input file
+            $(".custom-file-input").on("change", function() {
+                var fileName = $(this).val().split("\\").pop();
+                $(this).siblings(".custom-file-label").addClass("selected").html(fileName || "Seleccionar archivo");
+            });
+            
+            // Función para mostrar notificaciones
+            function showNotification(message) {
+                var notification = $('<div class="alert alert-success alert-dismissible fade show position-fixed" style="top: 70px; right: 10px; z-index: 9999;">' +
+                    '<i class="fas fa-check-circle mr-2"></i>' + message +
+                    '<button type="button" class="close" data-dismiss="alert" aria-label="Close">' +
+                    '<span aria-hidden="true">&times;</span>' +
+                    '</button></div>');
+                $("body").append(notification);
+                setTimeout(function() {
+                    notification.alert('close');
+                }, 3000);
+            }
+            
+            // Cambio de tema (claro/oscuro)
+            const toggleSwitch = document.querySelector('#checkbox');
+            const currentTheme = localStorage.getItem('theme') ? localStorage.getItem('theme') : null;
+            if (currentTheme) {
+                document.documentElement.setAttribute('data-theme', currentTheme);
+                if (currentTheme === 'dark') {
+                    toggleSwitch.checked = true;
+                }
+            }
+            function switchTheme(e) {
+                if (e.target.checked) {
+                    document.documentElement.setAttribute('data-theme', 'dark');
+                    localStorage.setItem('theme', 'dark');
+                } else {
+                    document.documentElement.setAttribute('data-theme', 'light');
+                    localStorage.setItem('theme', 'light');
+                }
+            }
+            toggleSwitch.addEventListener('change', switchTheme);
+        });
+    </script>
+</body>
+</html>

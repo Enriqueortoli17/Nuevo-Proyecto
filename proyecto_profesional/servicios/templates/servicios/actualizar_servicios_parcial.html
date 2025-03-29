@@ -1,0 +1,30 @@
+{% load static %}
+{% for grupo, orders in ordered_groups %}
+<div class="seccion-dia">
+  <div class="seccion-header">{{ grupo }}</div>
+  <div class="ordenes-row sortable-group" data-grupo="{{ grupo }}">
+    {% for order in orders %}
+    <div class="orden-card" id="order-card-{{ order.id }}" data-order-id="{{ order.id }}" data-old-pos="{{ order.posicion }}">
+      <div class="orden-basica">
+        <span class="orden-numero">{{ order.numero_orden }}</span>
+        <span class="orden-estado">{{ order.get_estado_general_display }}</span>
+      </div>
+      <div class="servicios-list">
+        {% for servicio in order.servicio_set.all %}
+        <div class="servicio-item servicio-{{ servicio.estado|lower }}">
+          <span class="nombre-servicio">{{ servicio.nombre }}</span>
+          <select class="estado-select" data-service-id="{{ servicio.id }}">
+            {% for val, display in service_state_choices %}
+              <option value="{{ val }}" {% if servicio.estado == val %}selected{% endif %}>{{ display }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+    {% empty %}
+      <span class="sin-ordenes">Sin órdenes para {{ grupo }}</span>
+    {% endfor %}
+  </div>
+</div>
+{% endfor %}

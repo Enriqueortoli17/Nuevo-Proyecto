@@ -1,0 +1,947 @@
+{% extends 'base.html' %}
+{% load widget_tweaks custom_filters %}
+
+{% block title %}Actualización de Estados de Servicios{% endblock %}
+
+{% block body_class %}tablero-layout fullscreen-view{% endblock %}
+
+{% block extra_head_css %}
+  <style>
+    /* --- Ocultar Sidebar y Ajustar Contenido SOLO para esta página --- */
+    #sidebar { display: none !important; }
+    #mainContent { margin-left: 0 !important; }
+    #sidebarToggle { display: none !important; } /* Ocultar botón de sidebar */
+    
+    /* --- Variables Específicas para Estilos de Servicio --- */
+    :root {
+      /* Estados de servicios - Colores para modo claro */
+      --estado-terminado-bg: var(--success-color);
+      --estado-terminado-text: #ffffff;
+      --estado-no-realizado-bg: var(--danger-color);
+      --estado-no-realizado-text: #ffffff;
+      --estado-pendiente-bg: var(--secondary-color);
+      --estado-pendiente-text: #ffffff;
+      --estado-proceso-bg: var(--warning-color);
+      --estado-proceso-text: #000000; /* Texto oscuro para mejor contraste con fondo amarillo */
+      
+      /* Tamaños de fuente */
+      --min-font: 0.7rem;
+      --max-font: 0.9rem;
+    }
+    
+    [data-theme="dark"] {
+      /* Estados de servicios - Colores para modo oscuro con mejor contraste */
+      --estado-terminado-bg: #2eae57; /* Verde más brillante */
+      --estado-terminado-text: #ffffff;
+      --estado-no-realizado-bg: #e74c5e; /* Rojo más brillante */
+      --estado-no-realizado-text: #ffffff;
+      --estado-pendiente-bg: #adb5bd; /* Gris más claro */
+      --estado-pendiente-text: #000000; /* Texto negro para contraste */
+      --estado-proceso-bg: #ffca32; /* Amarillo más brillante */
+      --estado-proceso-text: #000000; /* Texto oscuro */
+    }
+    
+    /* Contenido principal */
+    .content-wrapper {
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      height: calc(100vh - 60px); /* Altura total menos la barra superior */
+    }
+    
+    /* Encabezado de página */
+    .page-header {
+      padding: 15px 20px;
+      background-color: var(--card-bg);
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      z-index: 100;
+      flex-shrink: 0; /* Para que no se encoja */
+    }
+    
+    .page-title {
+      font-weight: 600;
+      color: var(--accent-color);
+      font-size: 1.4rem;
+      margin: 0;
+      display: flex;
+      align-items: center;
+    }
+    
+    .page-title i {
+      margin-right: 10px;
+    }
+    
+    /* Grupos de órdenes */
+    .tablero-container {
+      flex: 1; /* Ocupa todo el espacio disponible */
+      overflow-y: auto; /* Permite scroll vertical */
+      display: flex;
+      flex-direction: column;
+    }
+    
+    .group-container {
+      margin-bottom: 1px;
+      display: flex;
+      flex-direction: column;
+    }
+    
+    .group-header {
+      background-color: var(--accent-color);
+      color: white;
+      padding: 8px 15px;
+      font-size: clamp(var(--min-font), 1vw, var(--max-font));
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+    
+    .group-header i {
+      margin-right: 8px;
+    }
+    
+    /* Contenedor de órdenes (sortable) */
+    .ordenes-group {
+      padding: 10px;
+      display: flex;
+      flex-wrap: wrap; /* Cambiado a wrap para mejor responsividad */
+      gap: 10px;
+      min-height: 100px;
+      background-color: var(--bg-color);
+    }
+    
+    /* Tarjeta de cada orden */
+    .orden-card {
+      background-color: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 12px;
+      font-size: clamp(var(--min-font), 1vw, var(--max-font));
+      cursor: move;
+      flex: 1 0 300px; /* Base de 300px, crece pero no se encoge */
+      max-width: 100%; /* En móvil puede ocupar todo el ancho */
+      position: relative;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+      transition: all 0.2s;
+    }
+    
+    .orden-card:hover {
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+      transform: translateY(-2px);
+    }
+    
+    .orden-basica {
+      margin-bottom: 8px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid var(--border-color);
+      font-weight: 600;
+      display: flex;
+      flex-direction: column;
+    }
+    
+    .orden-basica .orden-titulo {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 4px;
+    }
+    
+    .orden-basica .orden-numero {
+      color: var(--accent-color);
+    }
+    
+    .orden-basica .orden-cliente,
+    .orden-basica .orden-modelo {
+      font-size: clamp(var(--min-font) - 0.05rem, 1vw, var(--max-font) - 0.05rem);
+      display: flex;
+      align-items: center;
+    }
+    
+    .orden-basica i {
+      margin-right: 5px;
+      color: var(--secondary-color);
+      width: 14px;
+    }
+    
+    /* Cuadrícula para servicios dentro de cada orden */
+    .servicios-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+    
+    .servicio-item {
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      padding: 6px;
+      font-size: clamp(var(--min-font) - 0.1rem, 1vw, var(--max-font) - 0.1rem);
+      overflow: hidden;
+      background-color: var(--card-bg); /* Fondo neutral por defecto */
+    }
+    
+    .servicio-item .servicio-nombre {
+      margin-bottom: 4px;
+      text-align: center;
+      font-weight: 500;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    
+    .servicio-item select {
+      width: 100%;
+      font-size: inherit;
+      padding: 2px 4px;
+      background-color: var(--card-bg);
+      color: var(--text-color);
+      border: 1px solid var(--border-color);
+      border-radius: 4px;
+    }
+    
+    /* Estilos para los estados de servicio con mejor contraste */
+    .estado-terminado {
+      background-color: var(--estado-terminado-bg);
+      color: var(--estado-terminado-text);
+    }
+    
+    .estado-no-realizado {
+      background-color: var(--estado-no-realizado-bg);
+      color: var(--estado-no-realizado-text);
+    }
+    
+    .estado-pendiente {
+      background-color: var(--estado-pendiente-bg);
+      color: var(--estado-pendiente-text);
+    }
+    
+    .estado-proceso {
+      background-color: var(--estado-proceso-bg);
+      color: var(--estado-proceso-text);
+    }
+    
+    /* Botón "Agregar Servicio" dentro de la tarjeta */
+    .agregar-servicio-btn {
+      padding: 4px 8px;
+      font-size: 0.75rem;
+      background-color: var(--info-color);
+      color: white;
+      border: none;
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      margin-left: auto;
+      transition: all 0.2s;
+    }
+    
+    .agregar-servicio-btn:hover {
+      background-color: #138496;
+    }
+    
+    .agregar-servicio-btn i {
+      margin-right: 4px;
+    }
+    
+    /* Placeholder para drag-and-drop */
+    .ui-state-highlight {
+      min-height: 150px;
+      min-width: 250px;
+      background-color: rgba(0,123,255,0.1);
+      border: 2px dashed var(--accent-color);
+      border-radius: 8px;
+    }
+    
+    /* Modal para Agregar Servicio */
+    .modal-content {
+      background-color: var(--card-bg);
+      color: var(--text-color);
+      border: none;
+      border-radius: 10px;
+    }
+    
+    .modal-header {
+      border-bottom: 1px solid var(--border-color);
+      background-color: rgba(0,0,0,0.03);
+    }
+    
+    .modal-footer {
+      border-top: 1px solid var(--border-color);
+    }
+    
+    /* Footer */
+    .footer {
+      padding: 15px;
+      background-color: var(--card-bg);
+      border-top: 1px solid var(--border-color);
+      display: flex;
+      justify-content: center;
+      flex-shrink: 0; /* Para que no se encoja */
+    }
+    
+    .btn-secondary {
+      display: flex;
+      align-items: center;
+      font-weight: 500;
+    }
+    
+    .btn-secondary i {
+      margin-right: 8px;
+    }
+    
+    /* Notificaciones */
+    .notification {
+      position: fixed;
+      top: 70px;
+      right: 20px;
+      z-index: 2000;
+      background-color: var(--success-color);
+      color: white;
+      padding: 10px 15px;
+      border-radius: 6px;
+      box-shadow: 0 3px 6px rgba(0,0,0,0.1);
+      display: flex;
+      align-items: center;
+      max-width: 300px;
+      animation: slideIn 0.3s ease-out;
+    }
+    
+    .notification i {
+      margin-right: 8px;
+    }
+    
+    @keyframes slideIn {
+      from {
+        transform: translateX(100%);
+        opacity: 0;
+      }
+      to {
+        transform: translateX(0);
+        opacity: 1;
+      }
+    }
+    
+    @keyframes fadeOut {
+      from {
+        opacity: 1;
+      }
+      to {
+        opacity: 0;
+      }
+    }
+    
+    /* Mensajes de "No hay órdenes" */
+    .no-orders {
+      padding: 20px;
+      text-align: center;
+      color: var(--secondary-color);
+      background-color: var(--card-bg);
+      border-radius: 8px;
+      margin: 15px;
+      border: 1px dashed var(--border-color);
+    }
+    
+    /* Responsive para diferentes tamaños de pantalla */
+    @media (max-width: 576px) {
+      /* Ajustes para móviles pequeños */
+      .page-header {
+        flex-direction: column;
+        align-items: flex-start;
+        padding: 10px;
+      }
+      
+      .page-title {
+        margin-bottom: 10px;
+        font-size: 1.2rem;
+      }
+      
+      .servicios-grid {
+        grid-template-columns: 1fr; /* Una sola columna en móviles */
+      }
+      
+      .orden-card {
+        flex: 1 0 100%; /* Ocupar todo el ancho */
+        min-width: unset;
+        padding: 10px;
+      }
+      
+      .ordenes-group {
+        padding: 8px;
+      }
+    }
+    
+    @media (min-width: 577px) and (max-width: 991px) {
+      /* Ajustes para tablets */
+      .orden-card {
+        flex: 1 0 45%; /* Dos tarjetas por fila aprox */
+      }
+    }
+    
+    @media (min-width: 992px) and (max-width: 1399px) {
+      /* Pantallas medianas */
+      .orden-card {
+        flex: 1 0 30%; /* Tres tarjetas por fila aprox */
+      }
+    }
+    
+    @media (min-width: 1400px) {
+      /* Pantallas muy grandes */
+      .ordenes-group {
+        max-width: 1800px;
+        margin: 0 auto;
+      }
+      
+      .orden-card {
+        flex: 1 0 23%; /* Cuatro tarjetas por fila aprox */
+        max-width: 400px; /* Limitar ancho máximo */
+      }
+      
+      .page-header {
+        padding: 20px 30px;
+      }
+      
+      .page-title {
+        font-size: 1.5rem;
+      }
+    }
+  </style>
+{% endblock %}
+
+{% block content %}
+  <div class="page-header">
+    <h1 class="page-title">
+      <i class="fas fa-tasks"></i> Actualización de Estados de Servicios
+    </h1>
+  </div>
+  
+  <!-- Tablero de actualización -->
+  <div id="tablero-container" class="tablero-container">
+    {% if ordered_groups %}
+      {% for grupo, orders in ordered_groups %}
+        <div class="group-container">
+          <div class="group-header">
+            {% if grupo == 'Pendientes' %}
+              <i class="fas fa-hourglass-half"></i>
+            {% elif grupo == 'Hoy' %}
+              <i class="fas fa-calendar-day"></i>
+            {% elif grupo == 'Lunes' or grupo == 'Martes' or grupo == 'Miércoles' or grupo == 'Jueves' or grupo == 'Viernes' %}
+              <i class="fas fa-calendar-week"></i>
+            {% else %}
+              <i class="fas fa-calendar-alt"></i>
+            {% endif %}
+            {{ grupo }}
+          </div>
+          <!-- Contenedor sortable para el grupo -->
+          <div class="ordenes-group sortable-group" data-grupo="{{ grupo }}">
+            {% if orders %}
+              {% for order in orders %}
+                <div id="order-card-{{ order.id }}" class="orden-card" data-order-id="{{ order.id }}" data-old-pos="{{ order.posicion }}">
+                  <div class="orden-basica">
+                    <div class="orden-titulo">
+                      <span class="orden-numero">{{ order.numero_orden }}</span>
+                      <span class="orden-estado badge badge-secondary">{{ order.get_estado_general_display }}</span>
+                    </div>
+                    <span class="orden-cliente">
+                      <i class="fas fa-user"></i> {{ order.cliente }}
+                    </span>
+                    <span class="orden-modelo">
+                      <i class="fas fa-cog"></i> {{ order.modelo_motor }}
+                    </span>
+                  </div>
+                  <div class="servicios-grid">
+                    {% for servicio in order.servicios_detalle.all %}
+                      {% if servicio.estado == "TERMINADO" %}
+                        <div class="servicio-item estado-terminado" data-service-id="{{ servicio.id }}">
+                      {% elif servicio.estado == "NO_REALIZADO" %}
+                        <div class="servicio-item estado-no-realizado" data-service-id="{{ servicio.id }}">
+                      {% elif servicio.estado == "PROCESO" %}
+                        <div class="servicio-item estado-proceso" data-service-id="{{ servicio.id }}">
+                      {% else %}
+                        <div class="servicio-item estado-pendiente" data-service-id="{{ servicio.id }}">
+                      {% endif %}
+                          <div class="servicio-nombre">
+                            {{ servicio.catalogo_servicio.nombre }}
+                            {% if servicio.cantidad|stringformat:"s"|cut:" " != "" and servicio.cantidad|stringformat:"s"|cut:" " != "0" %}
+                              ({{ servicio.cantidad }})
+                            {% endif %}
+                          </div>
+                          <div>
+                            <select class="estado-select" data-service-id="{{ servicio.id }}">
+                              {% for key, value in service_state_choices %}
+                                <option value="{{ key }}" {% if servicio.estado == key %}selected{% endif %}>
+                                  {{ value }}
+                                </option>
+                              {% endfor %}
+                            </select>
+                          </div>
+                        </div>
+                    {% empty %}
+                      <div class="servicio-item" style="grid-column: span 2; background-color: var(--bg-color);">
+                        <div class="servicio-nombre">Sin servicios asignados</div>
+                      </div>
+                    {% endfor %}
+                  </div>
+                  <!-- Botón para agregar servicio -->
+                  <button type="button" class="agregar-servicio-btn" data-order-id="{{ order.id }}">
+                    <i class="fas fa-plus"></i> Agregar Servicio
+                  </button>
+                </div>                        
+              {% endfor %}
+            {% else %}
+              <div class="no-orders">
+                <p class="text-center">No hay órdenes para {{ grupo }}.</p>
+              </div>
+            {% endif %}
+          </div>
+        </div>
+      {% endfor %}
+    {% else %}
+      <div class="no-orders text-center py-5">
+        <i class="fas fa-clipboard-list mb-3" style="font-size: 2rem; color: var(--secondary-color);"></i>
+        <h4>No hay órdenes disponibles para actualizar</h4>
+        <p class="text-muted">No se encontraron órdenes en estado Aceptada o En Proceso</p>
+      </div>
+    {% endif %}
+  </div>
+  
+  <!-- Footer -->
+  <div class="footer">
+    <a href="{% url 'home' %}" class="btn btn-secondary">
+      <i class="fas fa-arrow-left"></i> Volver al Panel de Control
+    </a>
+  </div>
+
+  <!-- Modal para Agregar Servicio -->
+  <div class="modal fade" id="modalAgregarServicio" tabindex="-1" role="dialog" aria-labelledby="modalAgregarServicioLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="modalAgregarServicioLabel">
+            <i class="fas fa-plus-circle mr-2"></i> Agregar Servicio a la Orden
+          </h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Cerrar">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <!-- Formulario para agregar servicio -->
+          <form id="formAgregarServicio">
+            <input type="hidden" name="order_id" id="order_id">
+            <div class="form-group">
+              <label for="servicio_select">
+                <i class="fas fa-tools mr-1"></i> Servicio
+              </label>
+              <select class="form-control" id="servicio_select" name="servicio_id">
+                <option value="">Seleccione un servicio</option>
+                {% for serv in servicios_list %}
+                  <option value="{{ serv.id }}">{{ serv.nombre }}</option>
+                {% endfor %}
+                <option value="custom">Otro (no registrado)</option>
+              </select>
+            </div>
+            <div class="form-group" id="div_nombre_custom" style="display: none;">
+              <label for="nombre_custom">
+                <i class="fas fa-edit mr-1"></i> Nombre del servicio
+              </label>
+              <input type="text" class="form-control" id="nombre_custom" name="nombre_custom" placeholder="Ingrese el nombre del servicio">
+            </div>
+            <div class="form-group">
+              <label for="cantidad_servicio">
+                <i class="fas fa-sort-numeric-up mr-1"></i> Cantidad
+              </label>
+              <input type="text" class="form-control" id="cantidad_servicio" name="cantidad" placeholder="Opcional">
+            </div>
+            <div class="form-group">
+              <label for="observacion_servicio">
+                <i class="fas fa-comment-alt mr-1"></i> Observación
+              </label>
+              <textarea class="form-control" id="observacion_servicio" name="observacion" rows="2" placeholder="Observaciones adicionales"></textarea>
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">
+            <i class="fas fa-times mr-1"></i> Cancelar
+          </button>
+          <button type="button" class="btn btn-primary" id="btnGuardarServicio">
+            <i class="fas fa-save mr-1"></i> Guardar Servicio
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}
+
+{% block extra_scripts %}
+  <script>
+    $(document).ready(function(){
+        // Inicializar sortable para cada contenedor individualmente
+        $('.sortable-group').each(function() {
+            var grupo = $(this).data('grupo');
+            if (grupo === "Pendientes") {
+                // Deshabilitar drag & drop para "Pendientes"
+                $(this).sortable({
+                    disabled: true,
+                    placeholder: "ui-state-highlight"
+                });
+            } else {
+                $(this).sortable({
+                    connectWith: ".sortable-group",
+                    placeholder: "ui-state-highlight",
+                    handle: ".orden-basica",
+                    helper: function(e, ui) {
+                        var $clone = ui.clone();
+                        $clone.css({
+                            'width': ui.width(),
+                            'height': ui.height()
+                        });
+                        return $clone;
+                    },
+                    forcePlaceholderSize: true,
+                    // Función update para enviar el nuevo orden vía AJAX
+                    update: function(event, ui) {
+                        var grupo = $(this).data('grupo');
+                        var nuevoOrden = [];
+                        $(this).children('.orden-card').each(function(index) {
+                            var orderId = $(this).data('order-id');
+                            // Asigna una posición basada en el índice (por ejemplo, 10, 20, 30, ...)
+                            nuevoOrden.push({
+                                id: orderId,
+                                newPos: (index + 1) * 10
+                            });
+                        });
+
+                        $.ajax({
+                            url: "{% url 'actualizar_orden_manual' %}",
+                            method: "POST",
+                            data: JSON.stringify({
+                                grupo: grupo,
+                                nuevo_orden: nuevoOrden
+                            }),
+                            contentType: "application/json",
+                            dataType: "json",
+                            headers: {
+                                "X-CSRFToken": "{{ csrf_token }}"
+                            },
+                            success: function(response) {
+                                showNotification("Orden actualizado correctamente");
+                                $('.orden-card').each(function(index) {
+                                    $(this).attr('data-old-pos', (index + 1) * 10);
+                                });
+                            },
+                            error: function(xhr, status, error) {
+                                showNotification("Error al actualizar el orden: " + error, "error");
+                            }
+                        });
+                    }
+                });
+            }
+        });
+
+      // Delegar el clic del botón Agregar Servicio
+      $(document).on('click', '.agregar-servicio-btn', function(){
+        var orderId = $(this).data('order-id');
+        $('#order_id').val(orderId);
+        $('#formAgregarServicio')[0].reset();
+        $('#div_nombre_custom').hide();
+        $('#modalAgregarServicio').modal('show');
+      });
+
+      // Actualización de estado de servicios vía AJAX
+      $(document).on('change', '.estado-select', function(){
+        var serviceId = $(this).data('service-id');
+        var nuevoEstado = $(this).val();
+        var select = $(this);
+        
+        select.prop('disabled', true);
+        
+        $.ajax({
+          url: "{% url 'actualizar_estado_servicio' %}",
+          method: "POST",
+          data: JSON.stringify({
+            service_id: serviceId,
+            estado: nuevoEstado
+          }),
+          contentType: "application/json",
+          dataType: "json",
+          headers: {
+            "X-CSRFToken": "{{ csrf_token }}"
+          },
+          success: function(response){
+            select.prop('disabled', false);
+            showNotification("Estado actualizado correctamente");
+            
+            var servicioItem = select.closest('.servicio-item');
+            servicioItem.removeClass('estado-pendiente estado-proceso estado-terminado estado-no-realizado');
+            if (nuevoEstado === 'TERMINADO') {
+              servicioItem.addClass('estado-terminado');
+            } else if (nuevoEstado === 'PROCESO') {
+              servicioItem.addClass('estado-proceso');
+            } else if (nuevoEstado === 'NO_REALIZADO') {
+              servicioItem.addClass('estado-no-realizado');
+            } else {
+              servicioItem.addClass('estado-pendiente');
+            }
+          },
+          error: function(xhr, status, error){
+            select.prop('disabled', false);
+            showNotification("Error en la actualización: " + error, "error");
+          }
+        });
+      });
+
+      // Conexión WebSocket para notificaciones en tiempo real
+      var ws_scheme = window.location.protocol === "https:" ? "wss" : "ws";
+      var socket_ordenes = new WebSocket(ws_scheme + '://' + window.location.host + '/ws/ordenes/');
+      
+      socket_ordenes.onmessage = function(e) {
+        var data = JSON.parse(e.data);
+        if (data.type === "servicio_agregado") {
+          actualizarTarjetaOrden(data.order_id);
+        } else if (data.tipo === "orden_reorder") {
+          console.log("Orden reordenada por WebSocket, ignorando actualización completa");
+        }
+        // Si el mensaje indica que una orden ha terminado, elimínala de esta vista
+        if (data.type === "orden_terminada") {
+          $("#order-card-" + data.order_id).fadeOut(300, function() {
+            $(this).remove();
+          });
+        }
+        // Bloque para órdenes aceptadas: actualiza el tablero en esta vista
+        else if (data.type === "orden_aceptada") {
+            console.log("Orden aceptada recibida:", data);
+            actualizarTableroServicios();
+        }
+        else if (data.type === "orden_update") {
+            var $orderCard = $("#order-card-" + data.order_id);
+            $orderCard.attr("data-status", "proceso");
+            var $statusLabel = $orderCard.find(".order-status");
+            $statusLabel.text(data.nuevo_estado);
+            $statusLabel.removeClass("badge-secondary badge-success badge-info").addClass("badge badge-warning");
+        }
+      };      
+      
+      socket_ordenes.onclose = function(e) {
+        console.error("La conexión WebSocket de órdenes se cerró inesperadamente");
+        setTimeout(function() {
+          socket_ordenes = new WebSocket(ws_scheme + '://' + window.location.host + '/ws/ordenes/');
+        }, 3000);
+      };
+
+      // Función para actualizar la tarjeta de una orden mediante AJAX
+      function actualizarTarjetaOrden(orderId) {
+        $.ajax({
+          url: "/servicios/orden_parcial/" + orderId + "/",
+          method: "GET",
+          success: function(response) {
+            $("#order-card-" + orderId).html(response);
+          },
+          error: function(xhr, status, error) {
+            showNotification("Error al actualizar la tarjeta de orden", "error");
+          }
+        });
+      }
+
+      // Función para actualizar el tablero parcial vía AJAX
+      function actualizarTablero() {
+          $.ajax({
+              url: "{% url 'tablero_parcial' %}?t=" + new Date().getTime(),
+              method: "GET",
+              success: function(response) {
+                  $("#tablero-container").html(response);
+                  $('.sortable-group').each(function() {
+                      var grupo = $(this).data('grupo');
+                      if (grupo === "Pendientes") {
+                          $(this).sortable({
+                              disabled: true,
+                              placeholder: "ui-state-highlight"
+                          });
+                      } else {
+                          $(this).sortable({
+                              connectWith: ".sortable-group",
+                              placeholder: "ui-state-highlight",
+                              handle: ".orden-basica",
+                              helper: function(e, ui) {
+                                  var $clone = ui.clone();
+                                  $clone.css({
+                                      'width': ui.width(),
+                                      'height': ui.height()
+                                  });
+                                  return $clone;
+                              },
+                              forcePlaceholderSize: true
+                          });
+                      }
+                  });
+              },
+              error: function(xhr, status, error) {
+                  showNotification("Error al actualizar el Tablero", "error");
+              }
+          });
+      }
+      
+      // FUNCION MODIFICADA: Actualizar el tablero de servicios en tiempo real en esta vista
+      function actualizarTableroServicios() {
+          $.ajax({
+              url: "{% url 'actualizar_servicios_parcial' %}?t=" + new Date().getTime(),
+              method: "GET",
+              success: function(response) {
+                  // Aquí se actualiza el contenedor de órdenes, que en este template es "#tablero-container"
+                  $("#tablero-container").html(response);
+                  
+                  // Reinicializa sortable después de actualizar el contenido
+                  initSortable();
+              },
+              error: function(xhr, status, error) {
+                  showNotification("Error al actualizar servicios: " + error, "error");
+              }
+          });
+      }
+      
+      // Función para inicializar sortable (extraída para reutilizar)
+      function initSortable() {
+          $('.sortable-group').each(function() {
+              var grupo = $(this).data('grupo');
+              if (grupo === "Pendientes") {
+                  $(this).sortable({
+                      disabled: true,
+                      placeholder: "ui-state-highlight"
+                  });
+              } else {
+                  $(this).sortable({
+                      connectWith: ".sortable-group",
+                      placeholder: "ui-state-highlight",
+                      handle: ".orden-basica",
+                      helper: function(e, ui) {
+                          var $clone = ui.clone();
+                          $clone.css({
+                              'width': ui.width(),
+                              'height': ui.height()
+                          });
+                          return $clone;
+                      },
+                      forcePlaceholderSize: true,
+                      update: function(event, ui) {
+                          if (this === ui.item.parent()[0]) {
+                              var grupo = $(this).data('grupo');
+                              var nuevoOrden = [];
+                              $(this).children('.orden-card').each(function(index) {
+                                  var orderId = $(this).data('order-id');
+                                  nuevoOrden.push({
+                                      id: orderId,
+                                      newPos: (index + 1) * 10
+                                  });
+                              });
+                              
+                              $.ajax({
+                                  url: "{% url 'actualizar_orden_manual' %}",
+                                  method: "POST",
+                                  data: JSON.stringify({
+                                      grupo: grupo,
+                                      nuevo_orden: nuevoOrden
+                                  }),
+                                  contentType: "application/json",
+                                  dataType: "json",
+                                  headers: {
+                                      "X-CSRFToken": "{{ csrf_token }}"
+                                  },
+                                  success: function(response) {
+                                      showNotification("Orden actualizado correctamente");
+                                  },
+                                  error: function(xhr, status, error) {
+                                      showNotification("Error al actualizar el orden: " + error, "error");
+                                  }
+                              });
+                          }
+                      }
+                  });
+              }
+          });
+      }
+      
+      // Funcionalidad del modal para agregar servicio
+      $('#servicio_select').change(function(){
+        if ($(this).val() == "custom") {
+          $('#div_nombre_custom').show();
+        } else {
+          $('#div_nombre_custom').hide();
+        }
+      });
+
+      $('#btnGuardarServicio').click(function(){
+        var data = {
+          order_id: $('#order_id').val(),
+          servicio_id: $('#servicio_select').val(),
+          nombre_custom: $('#nombre_custom').val(),
+          cantidad: $('#cantidad_servicio').val(),
+          observacion: $('#observacion_servicio').val()
+        };
+        
+        if (data.servicio_id === "") {
+          showNotification("Debe seleccionar un servicio", "error");
+          return;
+        }
+        
+        if (data.servicio_id === "custom" && !data.nombre_custom.trim()) {
+          showNotification("Debe ingresar el nombre del servicio personalizado", "error");
+          return;
+        }
+        
+        var btnGuardar = $(this);
+        btnGuardar.prop('disabled', true).html('<i class="fas fa-spinner fa-spin mr-1"></i> Guardando...');
+        
+        $.ajax({
+          url: "{% url 'agregar_servicio_orden' %}",
+          method: "POST",
+          data: JSON.stringify(data),
+          contentType: "application/json",
+          dataType: "json",
+          headers: {
+            "X-CSRFToken": "{{ csrf_token }}"
+          },
+          success: function(response){
+            if(response.status == "ok"){
+              $('#modalAgregarServicio').modal('hide');
+              actualizarTarjetaOrden(data.order_id);
+              showNotification("Servicio agregado correctamente");
+            } else {
+              showNotification("Error: " + response.error, "error");
+            }
+            btnGuardar.prop('disabled', false).html('<i class="fas fa-save mr-1"></i> Guardar Servicio');
+          },
+          error: function(xhr, status, error){
+            showNotification("Error al agregar el servicio: " + error, "error");
+            btnGuardar.prop('disabled', false).html('<i class="fas fa-save mr-1"></i> Guardar Servicio');
+          }
+        });
+      });
+
+      // Función para mostrar notificaciones
+      function showNotification(message, type = "success") {
+        $('.notification').remove();
+        var icon = type === "success" ? "check-circle" : "exclamation-triangle";
+        var bgColor = type === "success" ? "var(--success-color)" : "var(--danger-color)";
+        
+        var notification = $('<div class="notification"></div>')
+          .css('background-color', bgColor)
+          .html('<i class="fas fa-' + icon + '"></i> ' + message);
+        
+        $('body').append(notification);
+        
+        setTimeout(function() {
+          notification.css('animation', 'fadeOut 0.5s forwards');
+          setTimeout(function() {
+            notification.remove();
+          }, 500);
+        }, 3000);
+      }
+      
+      // Inicializar sortable al cargar la página
+      initSortable();
+    });
+  </script>
+{% endblock %}

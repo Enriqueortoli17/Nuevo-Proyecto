@@ -1,0 +1,101 @@
+{% load widget_tweaks %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Crear Orden de Servicio</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        .form-section {
+            margin-bottom: 20px;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            background-color: #fff;
+        }
+    </style>
+</head>
+<body class="container">
+    <h1 class="mt-4">Crear Orden de Servicio</h1>
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        <!-- Sección de Datos de la Orden -->
+        <div class="form-section">
+            <h3>Datos de la Orden</h3>
+            <div class="form-group">
+                {{ form.numero_orden.label_tag }}
+                {{ form.numero_orden|add_class:"form-control" }}
+            </div>
+            <div class="form-group">
+                {{ form.cliente.label_tag }}
+                {{ form.cliente|add_class:"form-control" }}
+            </div>
+            <div class="form-group">
+                {{ form.telefono.label_tag }}
+                {{ form.telefono|add_class:"form-control" }}
+            </div>
+            <div class="form-group">
+                {{ form.modelo_motor.label_tag }}
+                {{ form.modelo_motor|add_class:"form-control" }}
+            </div>
+            <div class="form-group">
+                {{ form.ruta.label_tag }}
+                {{ form.ruta|add_class:"form-control" }}
+            </div>
+            <div class="form-group">
+                {{ form.fecha_programada.label_tag }}
+                {{ form.fecha_programada|add_class:"form-control" }}
+            </div>
+            <div class="form-group">
+                {{ form.observaciones.label_tag }}
+                {{ form.observaciones|add_class:"form-control" }}
+            </div>
+            <div class="form-group">
+                {{ form.imagen.label_tag }}
+                {{ form.imagen|add_class:"form-control-file" }}
+            </div>
+            <div class="form-group">
+                {{ form.notificacion.label_tag }}
+                {{ form.notificacion|add_class:"form-control" }}
+            </div>
+        </div>
+        <!-- Sección de Inventario -->
+        <div class="form-section">
+            <h3>Inventario</h3>
+            {{ inventario_formset.management_form }}
+            {% for form in inventario_formset %}
+                <div class="form-row">
+                    <div class="form-group col-md-8">
+                        {{ form.inventario_item.label_tag }}
+                        {{ form.inventario_item }}
+                    </div>
+                    <div class="form-group col-md-4">
+                        {{ form.cantidad.label_tag }}
+                        {{ form.cantidad }}
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+        <!-- Sección de Servicios -->
+        <div class="form-section">
+            <h3>Servicios</h3>
+            {{ servicio_formset.management_form }}
+            {% for form in servicio_formset %}
+                <div class="form-row">
+                    <div class="form-group col-md-8">
+                        {{ form.catalogo_servicio.label_tag }}
+                        {{ form.catalogo_servicio }}
+                    </div>
+                    <div class="form-group col-md-4">
+                        {{ form.cantidad.label_tag }}
+                        {{ form.cantidad }}
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+        <button type="submit" class="btn btn-success">Guardar Orden</button>
+    </form>
+    <br>
+    <a href="{% url 'lista_ordenes' %}" class="btn btn-secondary">Volver a la Lista de Órdenes</a>
+</body>
+</html>

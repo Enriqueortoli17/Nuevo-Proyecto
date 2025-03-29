@@ -1,0 +1,35 @@
+<div id="order-card-{{ order.id }}" class="orden-card" data-order-id="{{ order.id }}" data-old-pos="{{ order.posicion }}">
+    <div class="orden-basica">
+        {{ order.numero_orden }} | {{ order.cliente }} | {{ order.modelo_motor }}
+    </div>
+    <div class="servicios-grid">
+        {% for servicio in order.servicios_detalle.all %}
+            <div class="servicio-item" data-service-id="{{ servicio.id }}">
+                <div>
+                    {{ servicio.catalogo_servicio.nombre }}
+                    {% if servicio.cantidad and servicio.cantidad|stringformat:"s"|cut:" " != "0" %}
+                      ({{ servicio.cantidad }})
+                    {% endif %}
+                </div>
+                <div>
+                    <select class="form-control estado-select" data-service-id="{{ servicio.id }}">
+                        {% for key, value in service_state_choices %}
+                            <option value="{{ key }}" {% if servicio.estado == key %}selected{% endif %}>
+                                {{ value }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+        {% empty %}
+            <div class="servicio-item" style="background-color:#ccc;">
+                Sin servicios
+            </div>
+        {% endfor %}
+    </div>
+    <div class="text-right mt-1">
+        <button type="button" class="btn btn-primary btn-sm agregar-servicio-btn" data-order-id="{{ order.id }}">
+            Agregar Servicio
+        </button>
+    </div>
+</div>

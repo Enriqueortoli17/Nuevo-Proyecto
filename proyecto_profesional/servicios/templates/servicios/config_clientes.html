@@ -1,0 +1,245 @@
+{% extends 'base.html' %}
+{% load static widget_tweaks %}
+
+{% block title %}Configuración de Clientes{% endblock %}
+
+{% block extra_head_css %}
+    <link rel="stylesheet" href="{% static 'css/components.css' %}">
+    <link rel="stylesheet" href="{% static 'css/responsive.css' %}">
+    <style>
+        /* Estilos específicos para config_clientes.html */
+        .client-card {
+            transition: all 0.3s;
+        }
+        
+        .client-card:hover {
+            transform: translateY(-3px);
+            box-shadow: var(--shadow-md);
+        }
+        
+        #buscarCliente {
+            padding-left: 35px;
+            border-radius: 20px;
+        }
+        
+        .search-wrapper {
+            position: relative;
+            width: 100%;
+            max-width: 300px;
+        }
+        
+        .search-icon {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--secondary-color);
+        }
+        
+        .action-btn {
+            min-width: 90px;
+        }
+        
+        /* Correcciones para móvil */
+        @media (max-width: 767.98px) {
+            .client-list-card {
+                margin-top: 1.5rem;
+            }
+            
+            .container {
+                padding-left: 10px;
+                padding-right: 10px;
+                max-width: 100%;
+                width: 100%;
+            }
+            
+            .table {
+                font-size: 0.85rem;
+            }
+            
+            .card-body {
+                padding: 0.75rem;
+            }
+            
+            .table td, .table th {
+                padding: 0.5rem;
+            }
+            
+            .btn-sm {
+                padding: 0.25rem 0.4rem;
+                font-size: 0.75rem;
+            }
+            
+            .card-header {
+                padding: 0.75rem;
+            }
+            
+            .action-btn {
+                min-width: 70px;
+            }
+        }
+        
+        /* Eliminar scroll horizontal en móviles */
+        .table-responsive {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+    {% include 'includes/page_header.html' with title='Configuración de Clientes' icon='users' %}
+    
+    <div class="container">
+        <div class="row">
+            <!-- Formulario para agregar clientes -->
+            <div class="col-lg-5">
+                <div class="card">
+                    <div class="card-header">
+                        <i class="fas {% if cliente_editar %}fa-user-edit{% else %}fa-user-plus{% endif %}"></i> 
+                        {% if cliente_editar %}Editar{% else %}Agregar Nuevo{% endif %} Cliente
+                    </div>
+                    <div class="card-body">
+                        <form method="post">
+                            {% csrf_token %}
+                            {% if cliente_editar %}
+                            <input type="hidden" name="cliente_id" value="{{ cliente_editar.id }}">
+                            {% endif %}
+                            <div class="form-group">
+                                <label for="{{ form.nombre.id_for_label }}">
+                                    <i class="fas fa-user mr-2"></i>{{ form.nombre.label }}
+                                </label>
+                                {{ form.nombre|add_class:"form-control" }}
+                            </div>
+                            <div class="form-group">
+                                <label for="{{ form.telefono.id_for_label }}">
+                                    <i class="fas fa-phone mr-2"></i>{{ form.telefono.label }}
+                                </label>
+                                {{ form.telefono|add_class:"form-control" }}
+                            </div>
+                            <div class="form-group">
+                                <label for="{{ form.ruta.id_for_label }}">
+                                    <i class="fas fa-route mr-2"></i>{{ form.ruta.label }}
+                                </label>
+                                {{ form.ruta|add_class:"form-control" }}
+                            </div>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save"></i> {% if cliente_editar %}Actualizar{% else %}Guardar{% endif %} Cliente
+                            </button>
+                            {% if cliente_editar %}
+                            <a href="{% url 'config_clientes' %}" class="btn btn-secondary">
+                                <i class="fas fa-times"></i> Cancelar
+                            </a>
+                            {% endif %}
+                        </form>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Tabla de clientes -->
+            <div class="col-lg-7">
+                <div class="card client-list-card">
+                    <div class="card-header d-flex justify-content-between align-items-center flex-wrap">
+                        <div class="mb-2 mb-md-0">
+                            <i class="fas fa-table"></i> Listado de Clientes
+                        </div>
+                        <div class="search-wrapper">
+                            <i class="fas fa-search search-icon"></i>
+                            <input type="text" id="buscarCliente" class="form-control" placeholder="Buscar cliente...">
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-bordered table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Nombre</th>
+                                        <th>Teléfono</th>
+                                        <th>Ruta</th>
+                                        <th>Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for cliente in clientes %}
+                                    <tr class="client-row">
+                                        <td>{{ cliente.nombre }}</td>
+                                        <td>{{ cliente.telefono|default:"-" }}</td>
+                                        <td>{{ cliente.ruta|default:"-" }}</td>
+                                        <td>
+                                            <form action="{% url 'config_clientes' %}" method="get" style="display:inline;">
+                                                <input type="hidden" name="editar_id" value="{{ cliente.id }}">
+                                                <button type="submit" class="btn btn-sm btn-info action-btn">
+                                                    <i class="fas fa-edit"></i> Editar
+                                                </button>
+                                            </form>
+                                        </td>
+                                    </tr>
+                                    {% empty %}
+                                    <tr>
+                                        <td colspan="4" class="text-center">
+                                            <div class="py-4">
+                                                <i class="fas fa-users fa-2x mb-3 text-muted"></i>
+                                                <p>No hay clientes registrados</p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="d-flex justify-content-center mt-4 mb-3">
+            <a href="{% url 'home' %}" class="btn btn-secondary">
+                <i class="fas fa-arrow-left"></i> Volver al Panel Principal
+            </a>
+        </div>
+    </div>
+    
+    {% include 'includes/notifications.html' %}
+{% endblock %}
+
+{% block extra_scripts %}
+    <script src="{% static 'js/theme.js' %}"></script>
+    <script src="{% static 'js/notifications.js' %}"></script>
+    <script>
+        $(document).ready(function(){
+            // Funcionalidad del buscador
+            $("#buscarCliente").on("keyup", function() {
+                var value = $(this).val().toLowerCase();
+                $(".client-row").filter(function() {
+                    $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1);
+                });
+                
+                // Mostrar mensaje si no hay resultados
+                if ($(".client-row:visible").length === 0) {
+                    if ($("#no-results-message").length === 0) {
+                        $("table tbody").append(
+                            '<tr id="no-results-message"><td colspan="4" class="text-center py-3">' +
+                            '<i class="fas fa-search fa-2x mb-2 text-muted"></i><br>' +
+                            'No se encontraron resultados para "' + value + '"</td></tr>'
+                        );
+                    } else {
+                        $("#no-results-message td").html(
+                            '<i class="fas fa-search fa-2x mb-2 text-muted"></i><br>' +
+                            'No se encontraron resultados para "' + value + '"'
+                        );
+                    }
+                } else {
+                    $("#no-results-message").remove();
+                }
+            });
+            
+            // Mostrar notificación al guardar o actualizar un cliente
+            {% if messages %}
+                {% for message in messages %}
+                    showNotification("{{ message }}", "{{ message.tags }}");
+                {% endfor %}
+            {% endif %}
+        });
+    </script>
+{% endblock %}

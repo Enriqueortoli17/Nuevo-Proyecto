@@ -1,0 +1,7 @@
+proyecto_profesional_env\Scripts\activate
+
+python manage.py runserver
+
+daphne -b 0.0.0.0 -p 8000 nuevo_proyecto_mejorado.asgi:application
+
+La funcionalidad es correcta. Quiero modificar los botones que sales cuando decido editar (actualizar y cancelar) pues aparecen muy juntos. Tambien el boton "Nuevo" tiene buen color pero la "+" no se ve por el color que tiene.

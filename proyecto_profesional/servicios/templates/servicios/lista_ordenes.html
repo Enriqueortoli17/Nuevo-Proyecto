@@ -1,0 +1,382 @@
+{% extends 'base.html' %}
+{% load static widget_tweaks %}
+
+{% block title %}Lista de Órdenes{% endblock %}
+
+{% block extra_head_css %}
+    <link rel="stylesheet" href="{% static 'css/components.css' %}">
+    <link rel="stylesheet" href="{% static 'css/responsive.css' %}">
+    <style>
+        /* Estilos específicos para lista_ordenes.html */
+        .order-card {
+            background-color: var(--card-bg);
+            border: none;
+            border-radius: 10px;
+            padding: 16px;
+            margin-bottom: 16px;
+            box-shadow: var(--shadow-sm);
+            transition: all 0.3s;
+        }
+        
+        .order-card:hover {
+            box-shadow: var(--shadow-md);
+            transform: translateY(-2px);
+        }
+        
+        .order-card h5 {
+            font-weight: 600;
+            font-size: 1.1rem;
+            margin-bottom: 12px;
+            color: var(--accent-color);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .order-card h5 i {
+            margin-right: 8px;
+        }
+        
+        .order-card .order-info {
+            display: flex;
+            flex-wrap: wrap;
+            margin-bottom: 10px;
+            gap: 15px;
+        }
+        
+        .order-card .info-item {
+            margin-bottom: 8px;
+        }
+        
+        .order-card .info-label {
+            font-weight: 600;
+            font-size: 0.85rem;
+            color: var(--secondary-color);
+            margin-bottom: 2px;
+        }
+        
+        .order-card .info-value {
+            font-size: 0.95rem;
+        }
+        
+        .order-card .btn-group-custom {
+            display: flex;
+            flex-wrap: wrap;
+            margin-top: 12px;
+            gap: 8px;
+        }
+        
+        .order-card .btn-group-custom .btn {
+            border-radius: 5px;
+            padding: 6px 12px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+        }
+        
+        .order-card .btn-group-custom .btn i {
+            margin-right: 5px;
+        }
+        
+        .order-status {
+            display: inline-block;
+            padding: 4px 8px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            border-radius: 4px;
+            text-transform: uppercase;
+        }
+        
+        .status-espera {
+            background-color: rgba(108, 117, 125, 0.15);
+            color: var(--secondary-color);
+        }
+        
+        .status-aceptada {
+            background-color: rgba(0, 123, 255, 0.15);
+            color: var(--accent-color);
+        }
+        
+        .status-proceso {
+            background-color: rgba(255, 193, 7, 0.15);
+            color: var(--warning-color);
+        }
+        
+        .status-listo {
+            background-color: rgba(40, 167, 69, 0.15);
+            color: var(--success-color);
+        }
+        
+        .status-entregado {
+            background-color: rgba(23, 162, 184, 0.15);
+            color: var(--info-color);
+        }
+        
+        .status-anulada {
+            background-color: rgba(220, 53, 69, 0.15);
+            color: var(--danger-color);
+        }
+        
+        .filters-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .filter-item {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            padding: 6px 12px;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .filter-item:hover, .filter-item.active {
+            background-color: var(--accent-color);
+            color: white;
+            border-color: var(--accent-color);
+        }
+        
+        .search-container {
+            position: relative;
+            margin: 0.5rem 0;
+            flex-grow: 1;
+            max-width: 400px;
+        }
+        
+        .search-container input {
+            padding-left: 35px;
+            border-radius: 20px;
+            border: 1px solid var(--border-color);
+            background-color: var(--card-bg);
+            color: var(--text-color);
+        }
+        
+        .search-icon {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--secondary-color);
+        }
+    </style>
+{% endblock %}
+
+{% block navbar_right %}
+    {# Switch de tema #}
+    <div class="theme-switch-wrapper">
+        <label class="theme-switch" for="theme-checkbox"> <input type="checkbox" id="theme-checkbox" /> <div class="slider"></div> </label>
+    </div>
+
+    {# Icono para ir al Tablero (específico para lista_ordenes) #}
+    <a href="{% url 'tablero_ordenes' %}" class="nav-icon" title="Tablero de Órdenes">
+        <i class="fas fa-th"></i>
+    </a>
+{% endblock navbar_right %}
+
+{% block content %}
+    {% include 'includes/page_header.html' with title='Lista de Órdenes' icon='clipboard-list' %}
+    
+    {% block header_actions %}
+        <div class="search-container">
+            <i class="fas fa-search search-icon"></i>
+            <input type="text" id="orderSearch" class="form-control" placeholder="Buscar orden...">
+        </div>
+    {% endblock %}
+    
+    <div class="filters-container">
+        <div class="filter-item active" data-filter="espera">En Espera</div>
+        <div class="filter-item" data-filter="aceptada">Aceptadas</div>
+        <div class="filter-item" data-filter="proceso">En Proceso</div>
+        <div class="filter-item" data-filter="listo">Listas</div>
+    </div>
+    
+    <div class="orders-container">
+        {% if orders %}
+            {% for order in orders %}
+                <div class="order-card" data-status="{{ order.estado_general|lower }}">
+                    <h5>
+                        <span><i class="fas fa-file-alt"></i> Orden: {{ order.numero_provisional }}</span>
+                        <span class="order-status status-{{ order.estado_general|lower }}">
+                            {{ order.get_estado_general_display }}
+                        </span>
+                    </h5>
+                    <div class="order-info">
+                        <div class="info-item">
+                            <div class="info-label">Cliente</div>
+                            <div class="info-value">{{ order.cliente }}</div>
+                        </div>
+                        {% if order.modelo_motor %}
+                        <div class="info-item">
+                            <div class="info-label">Motor</div>
+                            <div class="info-value">{{ order.modelo_motor }}</div>
+                        </div>
+                        {% endif %}
+                        {% if order.fecha_ingreso %}
+                        <div class="info-item">
+                            <div class="info-label">Fecha de Ingreso</div>
+                            <div class="info-value">{{ order.fecha_ingreso|date:"d/m/Y H:i" }}</div>
+                        </div>
+                        {% endif %}
+                        {% if order.ruta %}
+                        <div class="info-item">
+                            <div class="info-label">Ruta</div>
+                            <div class="info-value">{{ order.ruta }}</div>
+                        </div>
+                        {% endif %}
+                    </div>
+                    <div class="btn-group-custom">
+                        <a href="{% url 'orden_detalle' order.id %}" class="btn btn-info btn-sm">
+                            <i class="fas fa-eye"></i> Ver Detalles
+                        </a>
+                        {% if order.estado_general|lower == "espera" %}
+                        <button type="button" class="btn btn-success btn-sm accept-btn" 
+                                data-order-id="{{ order.id }}" 
+                                data-order-num="{{ order.numero_provisional }}">
+                            <i class="fas fa-check"></i> Aceptar Orden
+                        </button>
+                        {% endif %}
+                        {% if user.is_superuser %}
+                        <a href="{% url 'editar_orden' order.id %}" class="btn btn-warning btn-sm">
+                            <i class="fas fa-edit"></i> Editar
+                        </a>
+                        <a href="#" class="btn btn-danger btn-sm anular-btn" 
+                           data-anular-url="{% url 'anular_orden' order.id %}" 
+                           onclick="AppNotifications.showConfirmation('¿Seguro que deseas anular la orden {{ order.numero_provisional }}?', function() { window.location.href = '{% url 'anular_orden' order.id %}'; }); return false;">
+                            <i class="fas fa-times"></i> Anular
+                        </a>
+                        {% endif %}
+                    </div>
+                </div>
+            {% endfor %}
+        {% else %}
+            <div class="no-data">
+                <i class="fas fa-clipboard"></i>
+                <h4>No hay órdenes registradas</h4>
+                <p class="text-muted">Crea una nueva orden para comenzar a trabajar</p>
+                <a href="{% url 'crear_orden' %}" class="btn btn-primary mt-3">
+                    <i class="fas fa-plus mr-2"></i> Crear Nueva Orden
+                </a>
+            </div>
+        {% endif %}
+    </div>
+    
+    <div class="mt-4">
+        <a href="{% url 'home' %}" class="btn btn-secondary">
+            <i class="fas fa-arrow-left mr-2"></i> Volver Panel de Control
+        </a>
+    </div>
+    
+    <a href="{% url 'crear_orden' %}" class="floating-btn" title="Crear Nueva Orden">
+        <i class="fas fa-plus"></i>
+    </a>
+    
+    <!-- Modal de confirmación -->
+    <div class="modal fade" id="confirmModal" tabindex="-1" role="dialog">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <form id="acceptForm" method="post" action="">
+                    {% csrf_token %}
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="confirmModalLabel">
+                            <i class="fas fa-check-circle mr-2"></i> Confirmar Aceptación
+                        </h5>
+                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    </div>
+                    <div class="modal-body">
+                        <p>¿Estás seguro de que deseas aceptar la orden <strong id="modalOrderNum"></strong>?</p>
+                        <p class="text-muted small">Esta acción asignará un número de orden definitivo y programará su fecha de producción.</p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">
+                            <i class="fas fa-times mr-1"></i> Cancelar
+                        </button>
+                        <button type="submit" class="btn btn-success">
+                            <i class="fas fa-check mr-1"></i> Confirmar
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    {% include 'includes/notifications.html' %}
+{% endblock %}
+
+{% block extra_scripts %}
+    <script src="{% static 'js/theme.js' %}"></script>
+    <script src="{% static 'js/notifications.js' %}"></script>
+    <script>
+    $(document).ready(function(){
+        // Manejo del botón de aceptar orden
+        $('.accept-btn').click(function(){
+            var orderId = $(this).data('order-id');
+            var orderNum = $(this).data('order-num');
+            $('#modalOrderNum').text(orderNum);
+            $('#acceptForm').attr('action', '/servicios/aceptar/' + orderId + '/');
+            $('#confirmModal').modal('show');
+        });
+        
+        // Búsqueda de órdenes
+        $('#orderSearch').on('input', function() {
+            var searchText = $(this).val().toLowerCase();
+            $('.order-card').each(function() {
+                var currentFilter = $('.filter-item.active').data('filter');
+                var cardStatus = $(this).data('status');
+                var matchesFilter = (cardStatus === currentFilter);
+                
+                if ($(this).text().toLowerCase().includes(searchText) && matchesFilter) {
+                    $(this).show();
+                } else {
+                    $(this).hide();
+                }
+            });
+            
+            toggleNoResultsMessage();
+        });
+        
+        // Filtrado por estado
+        $('.filter-item').click(function() {
+            $('.filter-item').removeClass('active');
+            $(this).addClass('active');
+            
+            var filter = $(this).data('filter');
+            var searchText = $('#orderSearch').val().toLowerCase();
+            
+            $('.order-card').each(function() {
+                var cardStatus = $(this).data('status');
+                var matchesText = $(this).text().toLowerCase().includes(searchText);
+                
+                if (cardStatus === filter && matchesText) {
+                    $(this).show();
+                } else {
+                    $(this).hide();
+                }
+            });
+            
+            toggleNoResultsMessage();
+        });
+        
+        // Mostrar mensaje cuando no hay resultados
+        function toggleNoResultsMessage() {
+            $('.no-results-found').remove();
+            
+            if ($('.order-card:visible').length === 0 && $('.no-data').length === 0) {
+                var message = '<div class="no-data no-results-found">' +
+                              '<i class="fas fa-search"></i>' +
+                              '<h4>No se encontraron órdenes</h4>' +
+                              '<p class="text-muted">Intenta ajustar la búsqueda o el filtro.</p>' +
+                              '</div>';
+                              
+                $('.orders-container').append(message);
+            }
+        }
+        
+        // Iniciar con el filtro "En Espera" activo
+        $('.filter-item[data-filter="espera"]').trigger('click');
+    });
+    </script>
+{% endblock %}

@@ -1,0 +1,190 @@
+{% extends 'base.html' %}
+{% load static widget_tweaks custom_filters %}
+
+{% block title %}Crear Orden de Servicio{% endblock %}
+
+{% block extra_head_css %}
+    <style>
+        /* --- Estilos Específicos Crear/Editar Orden --- */
+        .page-header { margin-bottom: 1.5rem; padding-bottom: 1rem; border-bottom: 1px solid var(--border-color); }
+        .page-header h1 { font-weight: 600; color: var(--accent-color); font-size: 1.8rem; margin-bottom: 0; display: flex; align-items: center; }
+        .page-header h1 i { margin-right: 10px; }
+        .card { background-color: var(--card-bg); border: none; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); margin-bottom: 1.5rem; overflow: hidden; transition: all 0.3s ease; }
+        .card:hover { box-shadow: 0 6px 12px rgba(0,0,0,0.1); }
+        .card-header { background-color: rgba(0,0,0,0.03); border-bottom: 1px solid var(--border-color); padding: 0.75rem 1.25rem; font-weight: 600; display: flex; align-items: center; }
+        .card-header i { margin-right: 10px; font-size: 1.2rem; color: var(--accent-color); }
+        .card-body { padding: 1.25rem; }
+        .form-control { border-radius: 5px; border: 1px solid var(--border-color); padding: 8px 12px; height: auto; background-color: var(--card-bg); color: var(--text-color); transition: all 0.2s; }
+        .form-control:focus { box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25); border-color: var(--accent-color); }
+        .form-group label { font-weight: 500; margin-bottom: 0.5rem; color: var(--text-color); }
+        .btn { font-weight: 500; padding: 8px 16px; border-radius: 5px; transition: all 0.3s; box-shadow: none; display: inline-flex; align-items: center; }
+        .btn i { margin-right: 8px; }
+        .action-buttons { display: flex; justify-content: space-between; margin-top: 1.5rem; flex-wrap: wrap; gap: 10px; /* Añadido wrap y gap */ }
+        .observacion-field { min-height: 38px; transition: all 0.3s; resize: vertical; }
+        .observacion-field:focus { min-height: 80px; }
+        .modal-content { background-color: var(--card-bg); color: var(--text-color); border: none; border-radius: 10px; box-shadow: 0 15px 30px rgba(0,0,0,0.2); }
+        .modal-header { border-bottom: 1px solid var(--border-color); background-color: rgba(0,0,0,0.03); }
+        .modal-footer { border-top: 1px solid var(--border-color); }
+        .modal-xl { max-width: 90% !important; }
+        .modal-xl .modal-body { max-height: 70vh; overflow-y: auto; } /* Scroll solo en el body del modal */
+        .inventario-grid, .servicios-grid-form { display: grid; gap: 0.75rem; font-size: 0.9rem; }
+        .inventario-grid { grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); }
+        .servicios-grid-form { grid-template-columns: repeat(auto-fill, minmax(380px, 1fr)); }
+        .list-group-item { padding: 10px 12px; border: 1px solid var(--border-color); border-radius: 6px; background-color: rgba(0,0,0,0.01); transition: all 0.2s; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; }
+        [data-theme="dark"] .list-group-item { background-color: rgba(255,255,255,0.02); }
+        .list-group-item:hover { background-color: rgba(0,0,0,0.03); }
+        [data-theme="dark"] .list-group-item:hover { background-color: rgba(255,255,255,0.04); }
+        .item-label-group { display: flex; align-items: center; flex-grow: 1; margin-right: 10px; margin-bottom: 5px; min-width: 180px; /* Evita que se encoja demasiado */ }
+        .item-label-group label { margin-bottom: 0 !important; margin-left: 8px !important; }
+        .item-controls { display: flex; align-items: center; gap: 8px; margin-left: auto; flex-shrink: 0; margin-bottom: 5px; }
+        .cantidad-field { width: 60px; /* Un poco más pequeño */ text-align: center; padding: 4px 8px; height: 32px; flex-shrink: 0; }
+        .custom-file-label { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .custom-file-label::after { content: "Elegir"; }
+
+         /* Autocomplete Styles */
+        .ui-autocomplete { background-color: var(--card-bg); border: 1px solid var(--border-color); border-radius: 5px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); max-height: 200px; overflow-y: auto; overflow-x: hidden; z-index: 1100 !important; padding: 5px 0; }
+        .ui-menu-item { padding: 0; }
+        .ui-menu-item-wrapper { color: var(--text-color); padding: 8px 12px; display: block; text-decoration: none; cursor: pointer; }
+        .ui-menu-item-wrapper.ui-state-active { background-color: var(--accent-color); color: white; border-radius: 0; }
+        [data-theme="dark"] .ui-autocomplete { background-color: #3a3f44; border-color: #555; }
+        [data-theme="dark"] .ui-menu-item-wrapper { color: #e9ecef; }
+        [data-theme="dark"] .ui-menu-item-wrapper.ui-state-active { background-color: var(--accent-color); color: white; }
+
+        /* --- Media Queries para Responsividad Adicional --- */
+        @media (max-width: 768px) {
+            .card-body { padding: 1rem; }
+            .action-buttons { flex-direction: column; } /* Apilar botones */
+            .action-buttons .btn { width: 100%; justify-content: center; }
+            .modal-xl .modal-body { max-height: 80vh; } /* Más altura en móvil */
+            .page-header h1 { font-size: 1.5rem; }
+        }
+
+        @media (max-width: 576px) {
+            /* Reducir minmax en grids de modales */
+            .inventario-grid { grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); }
+            .servicios-grid-form { grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); }
+             /* Ajustar tamaño de controles internos en modales */
+             .list-group-item { flex-direction: column; align-items: stretch; } /* Apilar label y controles */
+             .item-label-group { margin-right: 0; min-width: unset; }
+             .item-controls { margin-left: 0; justify-content: space-between; }
+             .cantidad-field { width: 50px; }
+             .observacion-field { font-size: 0.85rem; }
+        }
+
+    </style>
+{% endblock %}
+
+{# No define navbar_right para usar el default (Switch + Lista) #}
+
+{% block content %}
+    <div class="container-fluid">
+        <div class="page-header">
+            <h1><i class="fas fa-plus-circle"></i> Crear Orden de Servicio</h1>
+        </div>
+
+        <form id="formCrearOrden" method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+
+            <div class="card">
+                <div class="card-header"><i class="fas fa-user-circle"></i> Datos del Cliente</div>
+                <div class="card-body">
+                    {# Usamos col-12 col-md-6 etc para mejor control #}
+                    <div class="row">
+                        <div class="col-12 col-md-6 form-group"> {# Ocupa 12 en <md, 6 en >=md #}
+                            {{ form.cliente.label_tag }}
+                            {{ form.cliente|add_class:"form-control"|attr:"list:clientes-list" }}
+                             <datalist id="clientes-list">
+                                {% for c in clientes %} <option value="{{ c.nombre }}"> {% endfor %}
+                            </datalist>
+                        </div>
+                        <div class="col-12 col-md-3 form-group"> {# Ocupa 12 en <md, 3 en >=md #}
+                            {{ form.telefono.label_tag }}
+                            {{ form.telefono|add_class:"form-control" }}
+                        </div>
+                         <div class="col-12 col-md-3 form-group"> {# Ocupa 12 en <md, 3 en >=md #}
+                            {{ form.ruta.label_tag }}
+                            {{ form.ruta|add_class:"form-control" }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                 <div class="card-header"><i class="fas fa-cogs"></i> Datos del Motor y Orden</div>
+                <div class="card-body">
+                     <div class="row">
+                        <div class="col-12 col-lg-6 form-group"> {# 12 en <lg, 6 en >=lg #}
+                            {{ form.modelo_motor.label_tag }}
+                            {{ form.modelo_motor|add_class:"form-control"|attr:"list:motores-list" }}
+                            <datalist id="motores-list">
+                                {% for m in motores %} <option value="{{ m.nombre }}"> {% endfor %}
+                            </datalist>
+                        </div>
+                         <div class="col-12 col-lg-6 form-group"> {# 12 en <lg, 6 en >=lg #}
+                             {{ form.fecha_programada.label_tag }}
+                             {{ form.fecha_programada|add_class:"form-control"|attr:"type:date" }}
+                        </div>
+                         <div class="col-12 form-group">
+                             <label for="{{ form.notificacion.id_for_label }}">Observaciones Generales</label>
+                             {{ form.notificacion|add_class:"form-control observacion-field" }}
+                         </div>
+                         <div class="col-12 form-group">
+                             {{ form.imagen.label_tag }}
+                             <div class="custom-file">
+                                 {{ form.imagen|add_class:"custom-file-input" }}
+                                 <label class="custom-file-label" for="{{ form.imagen.id_for_label }}">Seleccionar archivo...</label>
+                             </div>
+                         </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header"><i class="fas fa-list-check"></i> Componentes y Servicios</div>
+                <div class="card-body">
+                    {# Usamos d-flex con flex-wrap para mejor responsividad de botones #}
+                    <div class="d-flex justify-content-around flex-wrap gap-2">
+                        <button type="button" class="btn btn-info" data-toggle="modal" data-target="#modalInventario">
+                            <i class="fas fa-boxes mr-2"></i> Seleccionar Inventario
+                        </button>
+                        <button type="button" class="btn btn-info" data-toggle="modal" data-target="#modalServicios">
+                            <i class="fas fa-tools mr-2"></i> Seleccionar Servicios
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            {# --- Modales (dentro del form) --- #}
+            <div class="modal fade" id="modalInventario" tabindex="-1" role="dialog"> <div class="modal-dialog modal-xl"> <div class="modal-content"> <div class="modal-header"> <h5 class="modal-title"><i class="fas fa-boxes mr-2"></i> Inventario</h5> <button type="button" class="close" data-dismiss="modal">&times;</button> </div> <div class="modal-body"> <div class="inventario-grid"> {% for item in inv_form.item_list %}{% if item|length == 4 %}{% with checkbox_name=item.0 quantity_name=item.1 comment_name=item.2 label=item.3 %} <div class="list-group-item"> <div class="item-label-group"> {% with field=inv_form|get_item:checkbox_name %}{{ field|add_class:"mr-2" }} <label for="{{ field.id_for_label }}">{{ label }}</label>{% endwith %} </div> <div class="item-controls"> <small class="text-muted">Cant:</small> {% with qty_field=inv_form|get_item:quantity_name %}{{ qty_field|add_class:"form-control cantidad-field" }}{% endwith %} {% with comment_field=inv_form|get_item:comment_name %}{{ comment_field|add_class:"form-control observacion-field flex-grow-1"|attr:"placeholder:Obs."|attr:"rows:1" }}{% endwith %} </div> </div> {% endwith %}{% elif item|length == 5 %}{% with checkbox_name=item.0 name_field=item.1 quantity_name=item.2 comment_name=item.3 label=item.4 %} <div class="list-group-item"> <div class="item-label-group"> {% with field=inv_form|get_item:checkbox_name %}{{ field|add_class:"mr-2" }}<label for="{{ field.id_for_label }}">{{ label }}</label>{% endwith %} {% with field_name=inv_form|get_item:name_field %}{{ field_name|add_class:"form-control form-control-sm ml-2 flex-grow-1"|attr:"placeholder:Nombre item" }}{% endwith %} </div> <div class="item-controls"> <small class="text-muted">Cant:</small> {% with qty_field=inv_form|get_item:quantity_name %}{{ qty_field|add_class:"form-control cantidad-field" }}{% endwith %} {% with comment_field=inv_form|get_item:comment_name %}{{ comment_field|add_class:"form-control observacion-field flex-grow-1"|attr:"placeholder:Obs."|attr:"rows:1" }}{% endwith %} </div> </div> {% endwith %}{% endif %}{% empty %}<p class="text-muted">No hay ítems definidos.</p>{% endfor %} </div> </div> <div class="modal-footer"> <button type="button" class="btn btn-secondary" data-dismiss="modal"><i class="fas fa-times mr-1"></i> Cerrar</button> <button type="button" class="btn btn-primary" data-dismiss="modal" id="guardarInventario"><i class="fas fa-check mr-1"></i> Aceptar</button> </div> </div> </div> </div>
+            <div class="modal fade" id="modalServicios" tabindex="-1" role="dialog"> <div class="modal-dialog modal-xl"> <div class="modal-content"> <div class="modal-header"> <h5 class="modal-title"><i class="fas fa-tools mr-2"></i> Servicios</h5> <button type="button" class="close" data-dismiss="modal">&times;</button> </div> <div class="modal-body"> <div class="servicios-grid-form"> {% for item in serv_form.serv_list %}{% if item|length == 4 %}{% with selected_field=item.0 quantity_required_field=item.1 quantity_field=item.2 label=item.3 %} <div class="list-group-item"> <div class="item-label-group"> {% with field=serv_form|get_item:selected_field %}{{ field|add_class:"mr-2" }}<label for="{{ field.id_for_label }}">{{ label }}</label>{% endwith %} </div> <div class="item-controls"> {% with field=serv_form|get_item:quantity_required_field %}<div class="custom-control custom-checkbox custom-control-inline"><input type="checkbox" name="{{ field.name }}" id="{{ field.id_for_label }}" class="custom-control-input" {% if field.value %}checked{% endif %}><label class="custom-control-label" for="{{ field.id_for_label }}"><small>Cant.</small></label></div>{% endwith %} {% with field=serv_form|get_item:quantity_field %}{{ field|add_class:"form-control cantidad-field"|attr:"placeholder:Ej: 1.5" }}{% endwith %} </div> </div> {% endwith %}{% elif item|length == 5 %}{% with selected_field=item.0 name_field=item.1 quantity_required_field=item.2 quantity_field=item.3 label=item.4 %} <div class="list-group-item"> <div class="item-label-group"> {% with field=serv_form|get_item:selected_field %}{{ field|add_class:"mr-2" }}<label for="{{ field.id_for_label }}">{{ label }}</label>{% endwith %} {% with field=serv_form|get_item:name_field %}{{ field|add_class:"form-control form-control-sm ml-2 flex-grow-1"|attr:"placeholder:Nombre servicio" }}{% endwith %} </div> <div class="item-controls"> {% with field=serv_form|get_item:quantity_required_field %}<div class="custom-control custom-checkbox custom-control-inline"><input type="checkbox" name="{{ field.name }}" id="{{ field.id_for_label }}" class="custom-control-input" {% if field.value %}checked{% endif %}><label class="custom-control-label" for="{{ field.id_for_label }}"><small>Cant.</small></label></div>{% endwith %} {% with field=serv_form|get_item:quantity_field %}{{ field|add_class:"form-control cantidad-field"|attr:"placeholder:Ej: 1.5" }}{% endwith %} </div> </div> {% endwith %}{% endif %}{% empty %}<p class="text-muted">No hay servicios definidos.</p>{% endfor %} </div> </div> <div class="modal-footer"> <button type="button" class="btn btn-secondary" data-dismiss="modal"><i class="fas fa-times mr-1"></i> Cerrar</button> <button type="button" class="btn btn-primary" data-dismiss="modal" id="guardarServicios"><i class="fas fa-check mr-1"></i> Aceptar</button> </div> </div> </div> </div>
+            {# --- Fin Modales --- #}
+
+            <div class="action-buttons">
+                <a href="{% url 'lista_ordenes' %}" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left"></i> Volver a la Lista
+                </a>
+                <button type="submit" class="btn btn-success">
+                    <i class="fas fa-save"></i> Guardar Orden
+                </button>
+            </div>
+        </form>
+    </div>
+{% endblock %}
+
+{% block extra_scripts %}
+    <script src="{% static 'js/sincronizacion.js' %}"></script>
+    {# Script para autocompletar, nombre archivo, notificaciones (igual que antes) #}
+    <script>
+        $(document).ready(function(){
+            $(".custom-file-input").on("change", function() { var fileName = $(this).val().split("\\").pop(); $(this).siblings(".custom-file-label").addClass("selected").html(fileName || "Seleccionar archivo..."); });
+            $("#guardarInventario").click(function(){ showNotification("Selección de inventario actualizada."); });
+            $("#guardarServicios").click(function(){ showNotification("Selección de servicios actualizada."); });
+            function showNotification(message) { $('.toast-notification').remove(); var notification = $('<div class="toast toast-notification" role="alert" aria-live="assertive" aria-atomic="true" data-delay="3000" style="position: fixed; top: 80px; right: 20px; z-index: 1050; min-width: 250px;"><div class="toast-header"><strong class="mr-auto">Notificación</strong><button type="button" class="ml-2 mb-1 close" data-dismiss="toast">&times;</button></div><div class="toast-body"><i class="fas fa-info-circle mr-2"></i>' + message + '</div></div>'); $('body').append(notification); notification.toast('show'); }
+            var clientesData = { {% for c in clientes %}"{{ c.nombre|escapejs }}": {"telefono": "{{ c.telefono|default_if_none:''|escapejs }}", "ruta": "{{ c.ruta|default_if_none:''|escapejs }}"}{% if not forloop.last %},{% endif %}{% endfor %} };
+            var clientNames = Object.keys(clientesData);
+            $("#id_cliente").autocomplete({ source: clientNames, minLength: 1, select: function(event, ui) { var n = ui.item.value; if(clientesData[n]){ $("#id_telefono").val(clientesData[n].telefono); $("#id_ruta").val(clientesData[n].ruta); } $(this).val(n); return false; }, change: function(event, ui) { var n = $(this).val(); if (!ui.item && clientesData[n]) { $("#id_telefono").val(clientesData[n].telefono); $("#id_ruta").val(clientesData[n].ruta); } } });
+            var motorNames = [ {% for m in motores %}"{{ m.nombre|escapejs }}"{% if not forloop.last %},{% endif %}{% endfor %} ];
+            $("#id_modelo_motor").autocomplete({ source: motorNames, minLength: 1 });
+        });
+    </script>
+{% endblock %}

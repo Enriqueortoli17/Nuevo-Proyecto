@@ -1,0 +1,89 @@
+{% for grupo, orders in ordered_groups %}
+  <div class="seccion-dia">
+    <div class="seccion-header">
+      {% if grupo == 'Pendientes' %}
+        <i class="fas fa-hourglass-half"></i>
+      {% elif grupo == 'Hoy' %}
+        <i class="fas fa-calendar-day"></i>
+      {% elif grupo == 'Lunes' or grupo == 'Martes' or grupo == 'Miércoles' or grupo == 'Jueves' or grupo == 'Viernes' %}
+        <i class="fas fa-calendar-week"></i>
+      {% else %}
+        <i class="fas fa-calendar-alt"></i>
+      {% endif %}
+      {{ grupo }}
+    </div>
+    <div class="seccion-tarjetas">
+      <div class="ordenes-row">
+        {% if orders %}
+          {% for order in orders %}
+            <div id="order-card-{{ order.id }}" class="orden-card" data-order-id="{{ order.id }}">
+              <div class="orden-header">
+                <span class="orden-numero">{{ order.numero_orden }}</span>
+                <span class="orden-estado">{{ order.get_estado_general_display }}</span>
+              </div>
+              <div class="orden-info">
+                <div class="info-item">
+                  <i class="fas fa-user"></i>
+                  <span>{{ order.cliente }}</span>
+                </div>
+                <div class="info-item">
+                  <i class="fas fa-cogs"></i>
+                  <span>{{ order.modelo_motor }}</span>
+                </div>
+                <div class="info-item">
+                  <i class="fas fa-route"></i>
+                  <span>{{ order.ruta }}</span>
+                </div>
+              </div>
+              <div class="servicios-header">
+                <i class="fas fa-tools"></i> Servicios
+              </div>
+              <div class="servicios-grid">
+                {% for servicio in order.servicios_detalle.all %}
+                  {% if servicio.estado == "TERMINADO" %}
+                    <div class="servicio-item estado-terminado" data-service-id="{{ servicio.id }}">
+                      {{ servicio.catalogo_servicio.nombre }}
+                      {% if servicio.cantidad|stringformat:"s"|cut:" " != "" and servicio.cantidad|stringformat:"s"|cut:" " != "0" %}
+                        ({{ servicio.cantidad }})
+                      {% endif %}
+                    </div>
+                  {% elif servicio.estado == "NO_REALIZADO" %}
+                    <div class="servicio-item estado-no-realizado" data-service-id="{{ servicio.id }}">
+                      {{ servicio.catalogo_servicio.nombre }}
+                      {% if servicio.cantidad|stringformat:"s"|cut:" " != "" and servicio.cantidad|stringformat:"s"|cut:" " != "0" %}
+                        ({{ servicio.cantidad }})
+                      {% endif %}
+                    </div>
+                  {% elif servicio.estado == "PROCESO" %}
+                    <div class="servicio-item estado-proceso" data-service-id="{{ servicio.id }}">
+                      {{ servicio.catalogo_servicio.nombre }}
+                      {% if servicio.cantidad|stringformat:"s"|cut:" " != "" and servicio.cantidad|stringformat:"s"|cut:" " != "0" %}
+                        ({{ servicio.cantidad }})
+                      {% endif %}
+                    </div>
+                  {% else %}
+                    <div class="servicio-item estado-pendiente" data-service-id="{{ servicio.id }}">
+                      {{ servicio.catalogo_servicio.nombre }}
+                      {% if servicio.cantidad|stringformat:"s"|cut:" " != "" and servicio.cantidad|stringformat:"s"|cut:" " != "0" %}
+                        ({{ servicio.cantidad }})
+                      {% endif %}
+                    </div>
+                  {% endif %}
+                {% empty %}
+                  <div class="servicio-item estado-pendiente">
+                    Sin servicios
+                  </div>
+                {% endfor %}
+              </div>
+            </div>
+          {% endfor %}
+        {% else %}
+          <div class="no-orders">
+            <i class="fas fa-clipboard-check fa-2x mb-3"></i>
+            <p>No hay órdenes para {{ grupo }}.</p>
+          </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+{% endfor %}

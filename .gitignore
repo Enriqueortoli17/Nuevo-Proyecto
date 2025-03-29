@@ -1,0 +1,34 @@
+# Entorno Virtual
+proyecto_profesional_env/
+venv/
+env/
+*/venv/
+*/env/
+.venv/
+
+# Bases de datos
+*.sqlite3
+db.sqlite3
+db_mejorado.sqlite3
+db_profesional.sqlite3 # Añade el nombre de tu nueva DB si es diferente
+
+# Archivos compilados de Python
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Archivos de configuración local/secretos
+.env
+*.env
+
+# Archivos de sistema operativo
+.DS_Store
+Thumbs.db
+
+# Archivos de logs
+*.log
+
+# Archivos de IDEs/Editores
+.vscode/
+.idea/
+*.swp

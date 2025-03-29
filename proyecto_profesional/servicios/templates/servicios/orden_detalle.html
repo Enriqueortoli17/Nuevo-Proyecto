@@ -1,0 +1,592 @@
+{% load widget_tweaks custom_filters %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Detalle de la Orden {{ orden.numero_provisional }}</title>
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <!-- Font Awesome para iconos -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <!-- Google Fonts - Montserrat -->
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            /* Variables para modo oscuro/claro */
+            --bg-color: #f8f9fa;
+            --text-color: #343a40;
+            --card-bg: #ffffff;
+            --border-color: #dee2e6;
+            --accent-color: #007bff;
+            --secondary-color: #6c757d;
+            --success-color: #28a745;
+            --info-color: #17a2b8;
+            --warning-color: #ffc107;
+            --danger-color: #dc3545;
+            --header-bg: #0056b3;
+            --header-text: #ffffff;
+        }
+        
+        [data-theme="dark"] {
+            --bg-color: #1a1d21;
+            --text-color: #e9ecef;
+            --card-bg: #2d3035;
+            --border-color: #4d5154;
+            --accent-color: #0d6efd;
+            --secondary-color: #adb5bd;
+            --header-bg: #004494;
+            --header-text: #e9ecef;
+        }
+        
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            transition: all 0.3s ease;
+            margin: 0;
+            padding: 0;
+        }
+        
+        /* Barra superior */
+        .top-navbar {
+            background-color: var(--header-bg);
+            border-bottom: 1px solid var(--border-color);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1030;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            padding: 0 15px;
+            transition: all 0.3s ease;
+        }
+        
+        .brand-logo {
+            display: flex;
+            align-items: center;
+            font-weight: 700;
+            font-size: 1.3rem;
+            color: var(--header-text);
+            text-decoration: none;
+            margin-left: 10px;
+        }
+        
+        .brand-logo i {
+            margin-right: 10px;
+            font-size: 1.5rem;
+        }
+        
+        .top-navbar-right {
+            margin-left: auto;
+            display: flex;
+            align-items: center;
+        }
+        
+        .theme-switch-wrapper {
+            display: flex;
+            align-items: center;
+            margin-right: 20px;
+        }
+        
+        .theme-switch {
+            display: inline-block;
+            height: 24px;
+            position: relative;
+            width: 48px;
+        }
+        
+        .theme-switch input {
+            display: none;
+        }
+        
+        .slider {
+            background-color: #ccc;
+            bottom: 0;
+            cursor: pointer;
+            left: 0;
+            position: absolute;
+            right: 0;
+            top: 0;
+            transition: .4s;
+            border-radius: 34px;
+        }
+        
+        .slider:before {
+            background-color: white;
+            bottom: 4px;
+            content: "";
+            height: 16px;
+            left: 4px;
+            position: absolute;
+            transition: .4s;
+            width: 16px;
+            border-radius: 50%;
+        }
+        
+        input:checked + .slider {
+            background-color: var(--accent-color);
+        }
+        
+        input:checked + .slider:before {
+            transform: translateX(24px);
+        }
+        
+        .nav-icon {
+            font-size: 1.2rem;
+            color: var(--header-text);
+            cursor: pointer;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            transition: all 0.3s;
+            margin-left: 10px;
+            background-color: rgba(255,255,255,0.1);
+        }
+        
+        .nav-icon:hover {
+            background-color: rgba(255,255,255,0.2);
+        }
+        
+        /* Contenido principal */
+        .content-wrapper {
+            margin-top: 70px;
+            padding: 20px;
+            min-height: calc(100vh - 70px);
+        }
+        
+        /* Encabezado de página */
+        .page-header {
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+        }
+        
+        .page-header h1 {
+            font-weight: 600;
+            color: var(--accent-color);
+            font-size: 1.8rem;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+        }
+        
+        .page-header h1 i {
+            margin-right: 10px;
+        }
+        
+        .page-header .order-number {
+            background-color: var(--accent-color);
+            color: white;
+            padding: 0.2rem 0.6rem;
+            border-radius: 4px;
+            font-size: 1.1rem;
+            margin-left: 0.7rem;
+        }
+        
+        .order-status {
+            display: inline-block;
+            padding: 6px 12px;
+            border-radius: 4px;
+            font-weight: 600;
+            font-size: 0.85rem;
+        }
+        
+        .status-espera {
+            background-color: rgba(108, 117, 125, 0.15);
+            color: var(--secondary-color);
+        }
+        
+        .status-aceptada {
+            background-color: rgba(0, 123, 255, 0.15);
+            color: var(--accent-color);
+        }
+        
+        .status-proceso {
+            background-color: rgba(255, 193, 7, 0.15);
+            color: var(--warning-color);
+        }
+        
+        .status-listo {
+            background-color: rgba(40, 167, 69, 0.15);
+            color: var(--success-color);
+        }
+        
+        /* Tarjetas */
+        .card {
+            background-color: var(--card-bg);
+            border: none;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            margin-bottom: 1.5rem;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+        
+        .card:hover {
+            box-shadow: 0 6px 12px rgba(0,0,0,0.1);
+        }
+        
+        .card-header {
+            background-color: rgba(0,0,0,0.03);
+            border-bottom: 1px solid var(--border-color);
+            padding: 0.75rem 1.25rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+        }
+        
+        .card-header i {
+            margin-right: 10px;
+            font-size: 1.2rem;
+            color: var(--accent-color);
+        }
+        
+        .card-body {
+            padding: 1.25rem;
+        }
+        
+        /* Info grid */
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 1rem;
+        }
+        
+        .info-item {
+            margin-bottom: 0.5rem;
+        }
+        
+        .info-label {
+            font-weight: 600;
+            font-size: 0.85rem;
+            color: var(--secondary-color);
+            margin-bottom: 0.2rem;
+        }
+        
+        .info-value {
+            font-size: 1rem;
+        }
+        
+        /* Tablas */
+        .table {
+            color: var(--text-color);
+            margin-bottom: 0;
+        }
+        
+        .table th {
+            border-top: none;
+            background-color: rgba(0,0,0,0.02);
+            font-weight: 600;
+        }
+        
+        .table td, .table th {
+            border-color: var(--border-color);
+            padding: 0.75rem 1rem;
+            vertical-align: middle;
+        }
+        
+        .table-striped tbody tr:nth-of-type(odd) {
+            background-color: rgba(0,0,0,0.01);
+        }
+        
+        .table-hover tbody tr:hover {
+            background-color: rgba(0,0,0,0.03);
+        }
+        
+        /* Imagen de la orden */
+        .order-image {
+            width: 100%;
+            max-width: 300px;
+            border-radius: 5px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        /* Botones de acción */
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 1.5rem;
+        }
+        
+        .btn {
+            font-weight: 500;
+            padding: 8px 16px;
+            border-radius: 5px;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+        }
+        
+        .btn i {
+            margin-right: 8px;
+        }
+        
+        /* Observaciones */
+        .observaciones {
+            background-color: rgba(0,0,0,0.02);
+            padding: 15px;
+            border-radius: 5px;
+            margin-top: 15px;
+            border-left: 3px solid var(--accent-color);
+        }
+        
+        /* Estilos responsivos */
+        @media (max-width: 768px) {
+            .page-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .info-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .action-buttons {
+                flex-direction: column;
+            }
+            
+            .action-buttons .btn {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Barra de navegación superior -->
+    <nav class="top-navbar">
+        <a href="{% url 'home' %}" class="brand-logo">
+            <i class="fas fa-cogs"></i>
+            Control de Servicios
+        </a>
+        <div class="top-navbar-right">
+            <div class="theme-switch-wrapper">
+                <label class="theme-switch" for="checkbox">
+                    <input type="checkbox" id="checkbox" />
+                    <div class="slider"></div>
+                </label>
+            </div>
+            <a href="{% url 'lista_ordenes' %}" class="nav-icon" title="Lista de Órdenes">
+                <i class="fas fa-clipboard-list"></i>
+            </a>
+            <a href="{% url 'home' %}" class="nav-icon" title="Tablero">
+                <i class="fas fa-th-large"></i>
+            </a>
+        </div>
+    </nav>
+
+    <!-- Contenido principal -->
+    <div class="content-wrapper">
+        <div class="container">
+            <!-- Encabezado de la página -->
+            <div class="page-header">
+                <h1>
+                    <i class="fas fa-file-alt"></i> Detalle de Orden
+                    <span class="order-number">{{ orden.numero_provisional }}</span>
+                </h1>
+                <div class="order-status status-{{ orden.estado_general|lower }}">
+                    <i class="fas fa-circle mr-1"></i> {{ orden.get_estado_general_display }}
+                </div>
+            </div>
+            
+            <!-- Información general de la orden -->
+            <div class="card">
+                <div class="card-header">
+                    <i class="fas fa-info-circle"></i> Información General
+                </div>
+                <div class="card-body">
+                    <div class="info-grid">
+                        <div class="info-item">
+                            <div class="info-label">Cliente</div>
+                            <div class="info-value">{{ orden.cliente }}</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">Teléfono</div>
+                            <div class="info-value">{{ orden.telefono }}</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">Modelo de Motor</div>
+                            <div class="info-value">{{ orden.modelo_motor }}</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">Ruta</div>
+                            <div class="info-value">{{ orden.ruta }}</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">Usuario</div>
+                            <div class="info-value">{% if orden.chofer %}{{ orden.chofer.username }}{% else %}Sin asignar{% endif %}</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">Fecha de Ingreso</div>
+                            <div class="info-value">{{ orden.fecha_ingreso|date:"d/m/Y H:i" }}</div>
+                        </div>
+                        {% if orden.fecha_programada %}
+                        <div class="info-item">
+                            <div class="info-label">Fecha de Aceptación</div>
+                            <div class="info-value">{{ orden.fecha_programada|date:"d/m/Y" }}</div>
+                        </div>
+                        {% endif %}
+                    </div>
+                    
+                    {% if orden.notificacion %}
+                    <div class="observaciones">
+                        <div class="info-label">Notificación</div>
+                        <div class="info-value">{{ orden.notificacion }}</div>
+                    </div>
+                    {% endif %}
+                    
+                    {% if orden.observaciones %}
+                    <div class="observaciones mt-3">
+                        <div class="info-label">Observaciones</div>
+                        <div class="info-value">{{ orden.observaciones }}</div>
+                    </div>
+                    {% endif %}
+                    
+                    {% if orden.imagen %}
+                    <div class="mt-4">
+                        <div class="info-label mb-2">Imagen</div>
+                        <img src="{{ orden.imagen.url }}" alt="Imagen de la orden" class="order-image">
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <!-- Inventario -->
+            <div class="card">
+                <div class="card-header">
+                    <i class="fas fa-boxes"></i> Inventario Seleccionado
+                </div>
+                <div class="card-body">
+                    {% if inventario_items %}
+                        <div class="table-responsive">
+                            <table class="table table-striped table-hover">
+                                <thead>
+                                    <tr>
+                                        <th style="width: 50%">Ítem</th>
+                                        <th style="width: 20%">Cantidad</th>
+                                        <th style="width: 30%">Comentario</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for item in inventario_items %}
+                                        <tr>
+                                            <td>{{ item.inventario_item.nombre }}</td>
+                                            <td>{{ item.cantidad }}</td>
+                                            <td>{{ item.comentario|default:"Sin comentario" }}</td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <div class="text-center py-4">
+                            <i class="fas fa-box-open fa-3x mb-3 text-muted"></i>
+                            <p class="mb-0">No se seleccionaron ítems de inventario.</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <!-- Servicios -->
+            <div class="card">
+                <div class="card-header">
+                    <i class="fas fa-tools"></i> Servicios Seleccionados
+                </div>
+                <div class="card-body">
+                    {% if servicios %}
+                        <div class="table-responsive">
+                            <table class="table table-striped table-hover">
+                                <thead>
+                                    <tr>
+                                        <th style="width: 70%">Servicio</th>
+                                        <th style="width: 30%">Cantidad</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for serv in servicios %}
+                                        <tr>
+                                            <td>{{ serv.catalogo_servicio.nombre }}</td>
+                                            <td>
+                                                {% if serv.cantidad and serv.cantidad|stringformat:"s"|cut:" " != "0" %}
+                                                    {{ serv.cantidad }}
+                                                {% else %}
+                                                    <span class="text-muted">—</span>
+                                                {% endif %}
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <div class="text-center py-4">
+                            <i class="fas fa-wrench fa-3x mb-3 text-muted"></i>
+                            <p class="mb-0">No se seleccionaron servicios.</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <!-- Botones de acción -->
+            <div class="action-buttons">
+                <a href="{% url 'lista_ordenes' %}" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left"></i> Volver a la Lista
+                </a>
+                {% if orden.estado_general == 'ESPERA' %}
+                <a href="{% url 'editar_orden' orden.id %}" class="btn btn-primary">
+                    <i class="fas fa-edit"></i> Editar Orden
+                </a>
+                {% endif %}
+                <a href="{% url 'home' %}" class="btn btn-info">
+                    <i class="fas fa-th-large"></i> Ir al Tablero
+                </a>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Scripts -->
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script>
+        $(document).ready(function(){
+            // Cambio de tema (claro/oscuro)
+            const toggleSwitch = document.querySelector('#checkbox');
+            
+            // Verificar si hay una preferencia guardada
+            const currentTheme = localStorage.getItem('theme') ? localStorage.getItem('theme') : null;
+            
+            if (currentTheme) {
+                document.documentElement.setAttribute('data-theme', currentTheme);
+                
+                if (currentTheme === 'dark') {
+                    toggleSwitch.checked = true;
+                }
+            }
+            
+            function switchTheme(e) {
+                if (e.target.checked) {
+                    document.documentElement.setAttribute('data-theme', 'dark');
+                    localStorage.setItem('theme', 'dark');
+                } else {
+                    document.documentElement.setAttribute('data-theme', 'light');
+                    localStorage.setItem('theme', 'light');
+                }
+            }
+            
+            toggleSwitch.addEventListener('change', switchTheme);
+        });
+    </script>
+</body>
+</html>

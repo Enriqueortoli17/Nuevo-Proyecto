@@ -1,0 +1,237 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Dashboard - Control de Servicios{% endblock %}
+
+{% block body_class %}dashboard-layout{% endblock %}
+
+{% block extra_head_css %}
+    <link rel="stylesheet" href="{% static 'css/components.css' %}">
+    <link rel="stylesheet" href="{% static 'css/responsive.css' %}">
+{% endblock %}
+
+{% block navbar_right %}
+    {# SOLO para el dashboard: Switch + Notif + User #}
+    <div class="theme-switch-wrapper">
+        <label class="theme-switch" for="theme-checkbox"> <input type="checkbox" id="theme-checkbox" /> <div class="slider"></div> </label>
+    </div>
+    <button class="nav-icon" id="notificationBtn"> <i class="fas fa-bell"></i> </button>
+    <button class="nav-icon"> <i class="fas fa-user-circle"></i> </button>
+{% endblock navbar_right %}
+
+{% block content %}
+    {% include 'includes/page_header.html' with title='Panel de Control' icon='tachometer-alt' actions=False %}
+    
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-lg-4 col-md-6"> 
+                <div class="counter-card counter-total"> 
+                    <i class="fas fa-clipboard-list counter-icon"></i> 
+                    <div class="counter-title">Total Órdenes</div> 
+                    <div class="counter-value">{{ total_ordenes }}</div> 
+                    <div class="counter-subtitle">Órdenes en el sistema</div> 
+                </div> 
+            </div>
+            <div class="col-lg-4 col-md-6"> 
+                <div class="counter-card counter-aceptadas"> 
+                    <i class="fas fa-check-circle counter-icon"></i> 
+                    <div class="counter-title">Órdenes Aceptadas</div> 
+                    <div class="counter-value">{{ ordenes_aceptadas }}</div> 
+                    <div class="counter-subtitle">Órdenes confirmadas</div> 
+                </div> 
+            </div>
+            <div class="col-lg-4 col-md-6"> 
+                <div class="counter-card counter-proceso"> 
+                    <i class="fas fa-sync-alt fa-spin counter-icon"></i> 
+                    <div class="counter-title">Órdenes en Proceso</div> 
+                    <div class="counter-value">{{ ordenes_en_proceso }}</div> 
+                    <div class="counter-subtitle">Actualmente trabajando</div> 
+                </div> 
+            </div>
+            <div class="col-lg-4 col-md-6"> 
+                <div class="counter-card counter-terminadas"> 
+                    <i class="fas fa-flag-checkered counter-icon"></i> 
+                    <div class="counter-title">Órdenes Terminadas</div> 
+                    <div class="counter-value">{{ ordenes_terminadas }}</div> 
+                    <div class="counter-subtitle">Listas para entrega</div> 
+                </div> 
+            </div>
+            <div class="col-lg-4 col-md-6"> 
+                <div class="counter-card counter-entregadas"> 
+                    <i class="fas fa-truck counter-icon"></i> 
+                    <div class="counter-title">Órdenes Entregadas</div> 
+                    <div class="counter-value">{{ ordenes_entregadas }}</div> 
+                    <div class="counter-subtitle">Completamente finalizadas</div> 
+                </div> 
+            </div>
+            <div class="col-lg-4 col-md-6"> 
+                <div class="counter-card counter-anuladas"> 
+                    <i class="fas fa-times-circle counter-icon"></i> 
+                    <div class="counter-title">Órdenes Anuladas</div> 
+                    <div class="counter-value">{{ ordenes_anuladas }}</div> 
+                    <div class="counter-subtitle">Canceladas o rechazadas</div> 
+                </div> 
+            </div>
+        </div>
+        
+        <!-- Análisis de rendimiento (opcional) -->
+        <div class="row mt-4">
+            <div class="col-lg-8">
+                <div class="card">
+                    <div class="card-header">
+                        <i class="fas fa-chart-line"></i> Rendimiento Semanal
+                    </div>
+                    <div class="card-body">
+                        <div id="performanceChart" style="height: 280px;"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-4">
+                <div class="card">
+                    <div class="card-header">
+                        <i class="fas fa-tasks"></i> Servicios Populares
+                    </div>
+                    <div class="card-body">
+                        <div id="servicesChart" style="height: 280px;"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Acciones rápidas -->
+        <div class="row mt-4">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header">
+                        <i class="fas fa-bolt"></i> Acciones Rápidas
+                    </div>
+                    <div class="card-body">
+                        <div class="btn-group-spaced">
+                            <a href="{% url 'crear_orden' %}" class="btn btn-primary">
+                                <i class="fas fa-plus"></i> Nueva Orden
+                            </a>
+                            <a href="{% url 'tablero_ordenes' %}" class="btn btn-info">
+                                <i class="fas fa-th"></i> Tablero
+                            </a>
+                            <a href="{% url 'lista_ordenes' %}" class="btn btn-secondary">
+                                <i class="fas fa-clipboard-list"></i> Lista de Órdenes
+                            </a>
+                            <a href="{% url 'actualizar_servicios' %}" class="btn btn-warning">
+                                <i class="fas fa-tasks"></i> Actualizar Estados
+                            </a>
+                            <a href="{% url 'ordenes_terminadas' %}" class="btn btn-success">
+                                <i class="fas fa-check-circle"></i> Órdenes Terminadas
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    {% include 'includes/notifications.html' %}
+{% endblock %}
+
+{% block extra_scripts %}
+    <script src="{% static 'js/theme.js' %}"></script>
+    <script src="{% static 'js/notifications.js' %}"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.7.1/dist/chart.min.js"></script>
+    <script>
+        $(document).ready(function(){
+            // Notificaciones
+            $('#notificationBtn').click(function() {
+                AppNotifications.showNotification('Sistema de notificaciones en desarrollo', 'info');
+            });
+            
+            // Gráfico de rendimiento semaonal (ejemplo)
+            const performanceCtx = document.getElementById('performanceChart').getContext('2d');
+            const performanceChart = new Chart(performanceCtx, {
+                type: 'line',
+                data: {
+                    labels: ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo'],
+                    datasets: [{
+                        label: 'Órdenes Completadas',
+                        data: [5, 8, 12, 7, 10, 4, 2],
+                        borderColor: 'rgba(40, 167, 69, 1)',
+                        backgroundColor: 'rgba(40, 167, 69, 0.1)',
+                        tension: 0.4,
+                        fill: true
+                    }, {
+                        label: 'Órdenes Nuevas',
+                        data: [8, 10, 6, 9, 12, 3, 1],
+                        borderColor: 'rgba(0, 123, 255, 1)',
+                        backgroundColor: 'rgba(0, 123, 255, 0.1)',
+                        tension: 0.4,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            grid: {
+                                color: 'rgba(0, 0, 0, 0.05)'
+                            }
+                        },
+                        x: {
+                            grid: {
+                                display: false
+                            }
+                        }
+                    }
+                }
+            });
+            
+            // Gráfico de servicios populares (ejemplo)
+            const servicesCtx = document.getElementById('servicesChart').getContext('2d');
+            const servicesChart = new Chart(servicesCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Reparación', 'Mantenimiento', 'Diagnóstico', 'Instalación', 'Otro'],
+                    datasets: [{
+                        data: [30, 25, 20, 15, 10],
+                        backgroundColor: [
+                            'rgba(40, 167, 69, 0.8)',
+                            'rgba(0, 123, 255, 0.8)',
+                            'rgba(255, 193, 7, 0.8)',
+                            'rgba(23, 162, 184, 0.8)',
+                            'rgba(108, 117, 125, 0.8)'
+                        ],
+                        borderColor: [
+                            'rgba(40, 167, 69, 1)',
+                            'rgba(0, 123, 255, 1)',
+                            'rgba(255, 193, 7, 1)',
+                            'rgba(23, 162, 184, 1)',
+                            'rgba(108, 117, 125, 1)'
+                        ],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'right',
+                        }
+                    }
+                }
+            });
+            
+            // Adaptar gráficos en cambio de tema
+            $('#theme-checkbox').change(function() {
+                setTimeout(function() {
+                    performanceChart.update();
+                    servicesChart.update();
+                }, 300);
+            });
+        });
+    </script>
+{% endblock %}

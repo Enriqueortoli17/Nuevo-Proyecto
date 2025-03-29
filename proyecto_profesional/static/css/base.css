@@ -1,0 +1,386 @@
+/**
+ * Base.css - Estilos base y variables globales
+ * Este archivo contiene variables CSS, reset y estilos básicos de layout
+ */
+
+/* Variables globales para tema claro */
+:root {
+    /* Colores base */
+    --bg-color: #f8f9fa;
+    --text-color: #343a40;
+    --card-bg: #ffffff;
+    --border-color: #dee2e6;
+    
+    /* Colores de acento */
+    --accent-color: #007bff;
+    --secondary-color: #6c757d;
+    --success-color: #28a745;
+    --info-color: #17a2b8;
+    --warning-color: #ffc107;
+    --danger-color: #dc3545;
+    
+    /* Colores de interfaz */
+    --header-bg: #0056b3;
+    --header-text: #ffffff;
+    --sidebar-bg: #ffffff;
+    --sidebar-text: #495057;
+    --hover-bg: #e9ecef;
+    
+    /* Estados de servicio */
+    --estado-terminado-bg: var(--success-color);
+    --estado-terminado-text: #ffffff;
+    --estado-no-realizado-bg: var(--danger-color);
+    --estado-no-realizado-text: #ffffff;
+    --estado-pendiente-bg: var(--secondary-color);
+    --estado-pendiente-text: #ffffff;
+    --estado-proceso-bg: var(--warning-color);
+    --estado-proceso-text: #000000;
+    
+    /* Tamaños */
+    --navbar-height: 60px;
+    --sidebar-width: 250px;
+    --min-font: 0.7rem;
+    --max-font: 0.9rem;
+    
+    /* Sombras */
+    --shadow-sm: 0 2px 4px rgba(0,0,0,0.05);
+    --shadow-md: 0 4px 8px rgba(0,0,0,0.1);
+    --shadow-lg: 0 8px 16px rgba(0,0,0,0.1);
+    
+    /* Transiciones */
+    --transition-speed: 0.3s;
+    --transition-timing: ease;
+}
+
+/* Variables para tema oscuro */
+[data-theme="dark"] {
+    /* Colores base */
+    --bg-color: #1a1d21;
+    --text-color: #e9ecef;
+    --card-bg: #2d3035;
+    --border-color: #4d5154;
+    
+    /* Colores de acento */
+    --accent-color: #0d6efd;
+    --secondary-color: #adb5bd;
+    --success-color: #2eae57;
+    --info-color: #34aadc;
+    --warning-color: #ffca32;
+    --danger-color: #e74c5e;
+    
+    /* Colores de interfaz */
+    --header-bg: #004494;
+    --header-text: #e9ecef;
+    --sidebar-bg: #2d3035;
+    --sidebar-text: #c9cdd1;
+    --hover-bg: #3a3f44;
+    
+    /* Estados de servicio */
+    --estado-terminado-bg: #2eae57;
+    --estado-terminado-text: #ffffff;
+    --estado-no-realizado-bg: #e74c5e;
+    --estado-no-realizado-text: #ffffff;
+    --estado-pendiente-bg: #adb5bd;
+    --estado-pendiente-text: #000000;
+    --estado-proceso-bg: #ffca32;
+    --estado-proceso-text: #000000;
+}
+
+/* Reset y estilos base */
+body {
+    font-family: 'Montserrat', sans-serif;
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    transition: background-color var(--transition-speed) var(--transition-timing),
+                color var(--transition-speed) var(--transition-timing);
+    margin: 0;
+    padding-top: var(--navbar-height);
+    display: flex;
+    min-height: 100vh;
+    overflow-x: hidden;
+}
+
+a {
+    color: var(--accent-color);
+    text-decoration: none;
+    transition: color var(--transition-speed) var(--transition-timing);
+}
+
+a:hover {
+    color: var(--accent-color);
+    text-decoration: none;
+}
+
+/* Barra de navegación superior */
+.top-navbar {
+    background-color: var(--header-bg);
+    border-bottom: 1px solid var(--border-color);
+    box-shadow: var(--shadow-sm);
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 1030;
+    height: var(--navbar-height);
+    display: flex;
+    align-items: center;
+    padding: 0 15px;
+    transition: background-color var(--transition-speed) var(--transition-timing);
+}
+
+.top-navbar .brand-logo {
+    color: var(--header-text);
+    display: flex;
+    align-items: center;
+    font-weight: 700;
+    font-size: 1.3rem;
+    text-decoration: none;
+    margin-left: 10px;
+}
+
+.top-navbar .brand-logo:hover {
+    color: var(--header-text);
+    text-decoration: none;
+}
+
+.top-navbar .brand-logo i {
+    margin-right: 10px;
+    font-size: 1.5rem;
+}
+
+.top-navbar-right {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+}
+
+/* Botones y controles en la navbar */
+.top-navbar .nav-icon,
+.top-navbar #sidebarToggle {
+    color: var(--header-text);
+    background-color: rgba(255, 255, 255, 0.15);
+    font-size: 1.2rem;
+    cursor: pointer;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    transition: all var(--transition-speed);
+    margin-left: 10px;
+    text-decoration: none;
+    border: none;
+    padding: 0;
+    position: relative;
+    z-index: 1040;
+}
+
+.top-navbar .nav-icon:hover,
+.top-navbar #sidebarToggle:hover {
+    background-color: rgba(255, 255, 255, 0.25);
+    color: var(--header-text);
+    text-decoration: none;
+}
+
+/* Selector de tema (switch) */
+.theme-switch-wrapper {
+    display: flex;
+    align-items: center;
+    margin-right: 10px;
+}
+
+.theme-switch {
+    display: inline-block;
+    height: 24px;
+    position: relative;
+    width: 48px;
+}
+
+.theme-switch input {
+    display: none;
+}
+
+.slider {
+    background-color: #ccc;
+    bottom: 0;
+    cursor: pointer;
+    left: 0;
+    position: absolute;
+    right: 0;
+    top: 0;
+    transition: .4s;
+    border-radius: 34px;
+}
+
+.slider:before {
+    background-color: white;
+    bottom: 4px;
+    content: "";
+    height: 16px;
+    left: 4px;
+    position: absolute;
+    transition: .4s;
+    width: 16px;
+    border-radius: 50%;
+}
+
+input:checked + .slider {
+    background-color: var(--accent-color);
+}
+
+input:checked + .slider:before {
+    transform: translateX(24px);
+}
+
+/* Sidebar */
+.sidebar {
+    background-color: var(--sidebar-bg);
+    border-right: 1px solid var(--border-color);
+    width: var(--sidebar-width);
+    height: 100vh;
+    position: fixed;
+    top: 0;
+    padding-top: var(--navbar-height);
+    left: 0;
+    z-index: 1020;
+    transition: transform var(--transition-speed) ease-in-out;
+    overflow-y: auto;
+    box-shadow: var(--shadow-sm);
+    /* Por defecto, la sidebar aparece cerrada */
+    transform: translateX(-250px);
+}
+
+.sidebar.expanded {
+    /* Cuando tiene la clase expanded, se muestra */
+    transform: translateX(0);
+}
+
+.sidebar-menu {
+    padding: 15px 0;
+}
+
+.menu-heading {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 20px;
+    color: var(--sidebar-text);
+    font-weight: 600;
+    cursor: pointer;
+    border-left: 3px solid transparent;
+    transition: all var(--transition-speed);
+}
+
+.menu-heading:hover {
+    background-color: var(--hover-bg);
+    border-left: 3px solid var(--accent-color);
+}
+
+.menu-heading i {
+    margin-right: 10px;
+    width: 20px;
+    text-align: center;
+}
+
+.menu-heading .arrow {
+    font-size: 0.8rem;
+    transition: transform var(--transition-speed);
+}
+
+.menu-heading.active .arrow {
+    transform: rotate(90deg);
+}
+
+.menu-link {
+    display: block;
+    padding: 10px 25px 10px 53px;
+    color: var(--sidebar-text);
+    text-decoration: none;
+    font-weight: 500;
+    font-size: 0.9rem;
+    transition: all var(--transition-speed);
+    border-left: 3px solid transparent;
+}
+
+.menu-link:hover {
+    color: var(--accent-color);
+    background-color: var(--hover-bg);
+    border-left: 3px solid var(--accent-color);
+    text-decoration: none;
+}
+
+.home-link {
+    padding-left: 20px;
+}
+
+.home-link i {
+    margin-right: 10px;
+    width: 20px;
+    text-align: center;
+}
+
+.submenu {
+    display: none;
+    background-color: rgba(0,0,0,0.01);
+}
+
+[data-theme="dark"] .submenu {
+    background-color: rgba(255,255,255,0.03);
+}
+
+/* Contenido principal */
+.content-wrapper {
+    flex-grow: 1;
+    padding: 20px;
+    margin-left: var(--sidebar-width);
+    transition: margin-left var(--transition-speed) ease-in-out;
+}
+
+.content-wrapper.expanded {
+    margin-left: 0;
+}
+
+/* Overlay para sidebar en móvil */
+.sidebar-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 1015;
+}
+
+.sidebar-overlay.active {
+    display: block;
+}
+
+/* Clases especiales */
+.fullscreen-view #sidebar {
+    display: none !important;
+}
+
+.fullscreen-view #mainContent {
+    margin-left: 0 !important;
+}
+
+.fullscreen-view #sidebarToggle {
+    display: none !important;
+}
+
+/* Responsive */
+@media (max-width: 992px) {
+    .sidebar {
+        transform: translateX(-250px);
+    }
+    
+    .sidebar.mobile-visible {
+        transform: translateX(0);
+    }
+    
+    .content-wrapper {
+        margin-left: 0 !important;
+    }
+}

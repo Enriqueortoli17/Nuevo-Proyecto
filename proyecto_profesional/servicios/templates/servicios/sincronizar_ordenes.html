@@ -1,0 +1,24 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Sincronizar Órdenes</title>
+  <!-- Puedes incluir aquí CSS adicional o links a Bootstrap si lo requieres -->
+</head>
+<body class="container">
+  <h1>Sincronizar Órdenes Capturadas</h1>
+  <button id="btnSincronizar" class="btn btn-primary">Sincronizar Órdenes</button>
+
+  <!-- Incluir jQuery -->
+  <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+  <!-- Incluir el archivo JavaScript de sincronización -->
+  <script src="{% static 'js/sincronizacion.js' %}"></script>
+  <script>
+    // Asocia la función de sincronización al botón
+    $("#btnSincronizar").click(function(){
+        sincronizarOrdenes();
+    });
+  </script>
+</body>
+</html>

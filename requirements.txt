@@ -1,0 +1,65 @@
+# -------------------------------------
+# Dependencias Principales de Django
+# -------------------------------------
+Django==5.1.6            # El framework web principal
+django-widget-tweaks==1.5.0  # Ayuda a renderizar campos de formulario en plantillas
+
+# -------------------------------------
+# Dependencias de Django Channels (WebSockets)
+# -------------------------------------
+channels==4.2.0          # Framework para WebSockets y otras tareas asíncronas
+daphne==4.1.2            # Servidor ASGI para Channels (desarrollo/producción)
+# Dependencias de bajo nivel para Channels/ASGI/Twisted:
+asgiref==3.8.1
+Twisted==24.11.0         # Framework de red asíncrono (requerido por Autobahn/Channels)
+autobahn==24.4.2         # Implementación de WebSocket y WAMP
+attrs==25.1.0
+Automat==24.8.1
+constantly==23.10.4
+hyperlink==21.0.0
+incremental==24.7.0
+txaio==23.1.1
+zope.interface==7.2
+
+# -------------------------------------
+# Dependencias de Criptografía y Red
+# (A menudo requeridas por Twisted/SSL)
+# -------------------------------------
+cryptography==44.0.2
+pyOpenSSL==25.0.0
+service-identity==24.2.0
+idna==3.10               # Soporte para nombres de dominio internacionalizados
+pyasn1==0.6.1            # Implementación de ASN.1
+pyasn1_modules==0.4.1
+cffi==1.17.1             # Interfaz para código C (usado por cryptography)
+pycparser==2.22          # Parser de C (usado por cffi)
+
+# -------------------------------------
+# Utilidades de Base de Datos y Otros
+# -------------------------------------
+sqlparse==0.5.3          # Usado por la barra de debug de Django
+tzdata==2025.1           # Datos de zonas horarias
+
+# -------------------------------------
+# Herramientas de Desarrollo y Profesionalización (Nuevas)
+# -------------------------------------
+django-environ==0.11.2   # Para gestionar settings y secretos desde .env (¡Nuevo!)
+flake8==7.1.0            # Linter: Revisa estilo y errores en el código Python (¡Nuevo!)
+black==24.4.2            # Formateador de código Python (¡Nuevo!)
+ipython==8.26.0          # Shell interactivo de Python mejorado (¡Nuevo!)
+
+# -------------------------------------
+# Despliegue (Opcional por ahora, pero común)
+# -------------------------------------
+gunicorn==22.0.0         # Servidor WSGI popular para producción
+whitenoise==6.7.0        # Para servir archivos estáticos eficientemente en producción
+
+# -------------------------------------
+# Setuptools (Generalmente gestionado por pip/entorno virtual)
+# -------------------------------------
+setuptools==75.8.2 # Lo comentamos ya que suele venir con el entorno
+
+# -------------------------------------
+# Servicios Externos
+# -------------------------------------
+twilio>=9.5.1 # O la versión que se haya instalado, o simplemente 'twilio'

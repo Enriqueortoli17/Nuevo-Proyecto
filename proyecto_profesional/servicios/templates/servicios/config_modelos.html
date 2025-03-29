@@ -1,0 +1,701 @@
+{% extends 'base.html' %}
+{% load static widget_tweaks %}
+
+{% block title %}Configuración de Modelos de Motor{% endblock %}
+
+{% block extra_head_css %}
+    <link rel="stylesheet" href="{% static 'css/components.css' %}">
+    <link rel="stylesheet" href="{% static 'css/responsive.css' %}">
+    <style>
+        /* Estilos específicos para config_modelos.html */
+        .spec-item {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 10px;
+            transition: all 0.2s;
+        }
+        
+        .spec-item:hover {
+            box-shadow: var(--shadow-sm);
+        }
+        
+        .spec-label {
+            font-weight: 500;
+            font-size: 0.85rem;
+            color: var(--secondary-color);
+            margin-bottom: 3px;
+        }
+        
+        .spec-value {
+            font-weight: 600;
+            font-size: 1rem;
+        }
+        
+        .search-container {
+            position: relative;
+            max-width: 300px;
+            margin-bottom: 15px;
+        }
+        
+        .search-container input {
+            padding-left: 35px;
+            border-radius: 20px;
+        }
+        
+        .search-icon {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--secondary-color);
+        }
+        
+        .nav-tabs .nav-link {
+            color: var(--text-color);
+            font-weight: 500;
+            padding: 0.5rem 1rem;
+            border-radius: 0.25rem 0.25rem 0 0;
+            transition: all 0.2s;
+        }
+        
+        .nav-tabs .nav-link.active {
+            color: var(--accent-color);
+            font-weight: 600;
+            background-color: var(--card-bg);
+            border-color: var(--border-color) var(--border-color) var(--card-bg);
+        }
+        
+        .table-header-dark {
+            background-color: var(--accent-color) !important;
+            color: white !important;
+        }
+        
+        .motor-card {
+            transition: all 0.3s;
+        }
+        
+        .motor-card:hover {
+            transform: translateY(-3px);
+            box-shadow: var(--shadow-md);
+        }
+        
+        @media (max-width: 767.98px) {
+            .motor-list-card {
+                margin-top: 1.5rem;
+            }
+            
+            .spec-item {
+                padding: 8px;
+            }
+            
+            .spec-value {
+                font-size: 0.9rem;
+            }
+            
+            .nav-tabs .nav-link {
+                padding: 0.4rem 0.6rem;
+                font-size: 0.85rem;
+            }
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+    {% include 'includes/page_header.html' with title='Configuración de Modelos de Motor' icon='cog' %}
+    
+    <div class="container">
+        <div class="row">
+            <!-- Formulario para agregar/editar motores -->
+            <div class="col-lg-4">
+                <div class="card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <div>
+                            <i class="fas {% if motor_editar %}fa-edit{% else %}fa-plus-circle{% endif %} mr-2"></i> 
+                            {% if motor_editar %}Editar{% else %}Agregar Nuevo{% endif %} Motor
+                        </div>
+                        {% if motor_editar %}
+                        <a href="{% url 'config_modelos' %}" class="btn btn-success">
+                            <i class="fas fa-plus-circle"></i> Nuevo
+                        </a>
+                        {% endif %}
+                    </div>
+                    <div class="card-body">
+                        <form method="post">
+                            {% csrf_token %}
+                            {% if motor_editar %}
+                            <input type="hidden" name="motor_id" value="{{ motor_editar.id }}">
+                            {% endif %}
+                            <div class="form-group">
+                                <label for="{{ form.nombre.id_for_label }}">
+                                    <i class="fas fa-tag mr-2"></i>{{ form.nombre.label }}
+                                </label>
+                                {{ form.nombre|add_class:"form-control" }}
+                            </div>
+                            
+                            <!-- Formulario con pestañas para las especificaciones -->
+                            <ul class="nav nav-tabs" id="especificaciones-tabs" role="tablist">
+                                <li class="nav-item">
+                                    <a class="nav-link active" id="pistones-tab" data-toggle="tab" href="#pistones" role="tab">
+                                        Pistones
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" id="valvulas-tab" data-toggle="tab" href="#valvulas" role="tab">
+                                        Válvulas
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" id="bancada-tab" data-toggle="tab" href="#bancada" role="tab">
+                                        Bancada
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" id="ciguenial-tab" data-toggle="tab" href="#ciguenial" role="tab">
+                                        Cigüeñal
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" id="cabeza-tab" data-toggle="tab" href="#cabeza" role="tab">
+                                        Cabeza
+                                    </a>
+                                </li>
+                            </ul>
+                            
+                            <div class="tab-content py-3" id="especificaciones-content">
+                                <!-- Pistones -->
+                                <div class="tab-pane fade show active" id="pistones" role="tabpanel">
+                                    <div class="form-group">
+                                        <label for="{{ form.diametro_cilindro.id_for_label }}">
+                                            Diámetro de cilindro
+                                        </label>
+                                        {{ form.diametro_cilindro|add_class:"form-control" }}
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="{{ form.carrera.id_for_label }}">
+                                            Carrera
+                                        </label>
+                                        {{ form.carrera|add_class:"form-control" }}
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="{{ form.diametro_piston.id_for_label }}">
+                                            Diámetro del pistón
+                                        </label>
+                                        {{ form.diametro_piston|add_class:"form-control" }}
+                                    </div>
+                                </div>
+                                
+                                <!-- Válvulas (incluye Escape y Admisión) -->
+                                <div class="tab-pane fade" id="valvulas" role="tabpanel">
+                                    <h6 class="mt-2 mb-3">Válvulas de Escape</h6>
+                                    <div class="form-group">
+                                        <label for="{{ form.diametro_cabeza_escape.id_for_label }}">
+                                            Diámetro de cabeza
+                                        </label>
+                                        {{ form.diametro_cabeza_escape|add_class:"form-control" }}
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="{{ form.distancia_valvula_escape.id_for_label }}">
+                                            Distancia válvula
+                                        </label>
+                                        {{ form.distancia_valvula_escape|add_class:"form-control" }}
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="{{ form.diametro_vastago_escape.id_for_label }}">
+                                            Diámetro vástago
+                                        </label>
+                                        {{ form.diametro_vastago_escape|add_class:"form-control" }}
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="{{ form.angulo_asiento_escape.id_for_label }}">
+                                            Ángulo de asiento
+                                        </label>
+                                        {{ form.angulo_asiento_escape|add_class:"form-control" }}
+                                    </div>
+                                    
+                                    <h6 class="mt-4 mb-3">Válvulas de Admisión</h6>
+                                    <div class="form-group">
+                                        <label for="{{ form.diametro_cabeza_admision.id_for_label }}">
+                                            Diámetro de cabeza
+                                        </label>
+                                        {{ form.diametro_cabeza_admision|add_class:"form-control" }}
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="{{ form.distancia_valvula_admision.id_for_label }}">
+                                            Distancia válvula
+                                        </label>
+                                        {{ form.distancia_valvula_admision|add_class:"form-control" }}
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="{{ form.diametro_vastago_admision.id_for_label }}">
+                                            Diámetro vástago
+                                        </label>
+                                        {{ form.diametro_vastago_admision|add_class:"form-control" }}
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="{{ form.angulo_asiento_admision.id_for_label }}">
+                                            Ángulo de asiento
+                                        </label>
+                                        {{ form.angulo_asiento_admision|add_class:"form-control" }}
+                                    </div>
+                                </div>
+                                
+                                <!-- Bancada -->
+                                <div class="tab-pane fade" id="bancada" role="tabpanel">
+                                    <div class="form-group">
+                                        <label for="{{ form.diametro_alojamiento.id_for_label }}">
+                                            Diámetro de alojamiento
+                                        </label>
+                                        {{ form.diametro_alojamiento|add_class:"form-control" }}
+                                    </div>
+                                </div>
+                                
+                                <!-- Cigüeñal -->
+                                <div class="tab-pane fade" id="ciguenial" role="tabpanel">
+                                    <div class="form-group">
+                                        <label for="{{ form.diametro_munon_biela.id_for_label }}">
+                                            Diámetro muñón de biela
+                                        </label>
+                                        {{ form.diametro_munon_biela|add_class:"form-control" }}
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="{{ form.diametro_munon_bancada.id_for_label }}">
+                                            Diámetro muñón de bancada
+                                        </label>
+                                        {{ form.diametro_munon_bancada|add_class:"form-control" }}
+                                    </div>
+                                </div>
+                                
+                                <!-- Cabeza -->
+                                <div class="tab-pane fade" id="cabeza" role="tabpanel">
+                                    <div class="form-group">
+                                        <label for="{{ form.altura_cabeza.id_for_label }}">
+                                            Altura
+                                        </label>
+                                        {{ form.altura_cabeza|add_class:"form-control" }}
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="mt-3">
+                                <button type="submit" class="btn btn-primary mr-2">
+                                    <i class="fas fa-save mr-2"></i> {% if motor_editar %}Actualizar{% else %}Guardar{% endif %} Motor
+                                </button>
+                                {% if motor_editar %}
+                                <a href="{% url 'config_modelos' %}" class="btn btn-secondary">
+                                    <i class="fas fa-times mr-2"></i> Cancelar
+                                </a>
+                                {% endif %}
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Tabla de motores -->
+            <div class="col-lg-8">
+                <div class="card motor-list-card">
+                    <div class="card-header d-flex justify-content-between align-items-center flex-wrap">
+                        <div class="mb-2 mb-md-0">
+                            <i class="fas fa-table mr-2"></i> Listado de Motores
+                        </div>
+                        <div class="search-container">
+                            <i class="fas fa-search search-icon"></i>
+                            <input type="text" id="buscarMotor" class="form-control form-control-sm" placeholder="Buscar motor...">
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-bordered table-hover" id="tablaMotores">
+                                <thead>
+                                    <tr>
+                                        <th width="60%">Nombre del Motor</th>
+                                        <th width="40%">Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for motor in motores %}
+                                    <tr class="motor-row">
+                                        <td>
+                                            <strong>{{ motor.nombre }}</strong>
+                                        </td>
+                                        <td>
+                                            <div class="btn-group">
+                                                <a href="?editar_id={{ motor.id }}" class="btn btn-sm btn-info mr-1">
+                                                    <i class="fas fa-edit"></i> Editar
+                                                </a>
+                                                <button type="button" class="btn btn-sm btn-primary" data-toggle="modal" data-target="#detalleModal-{{ motor.id }}">
+                                                    <i class="fas fa-search-plus"></i> Detalle
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    {% empty %}
+                                    <tr>
+                                        <td colspan="2" class="text-center">
+                                            <div class="py-4">
+                                                <i class="fas fa-cog fa-2x mb-3 text-muted"></i>
+                                                <p>No hay motores registrados</p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="d-flex justify-content-center mt-4 mb-3">
+            <a href="{% url 'home' %}" class="btn btn-secondary">
+                <i class="fas fa-arrow-left mr-2"></i> Volver al Panel Principal
+            </a>
+        </div>
+    </div>
+    
+    <!-- Modales de detalle para cada motor -->
+    {% for motor in motores %}
+    <div class="modal fade" id="detalleModal-{{ motor.id }}" tabindex="-1" role="dialog" aria-labelledby="detalleModalLabel-{{ motor.id }}" aria-hidden="true">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="detalleModalLabel-{{ motor.id }}">
+                        <i class="fas fa-cog mr-2"></i> Especificaciones de {{ motor.nombre }}
+                    </h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Cerrar">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <ul class="nav nav-tabs" role="tablist">
+                        <li class="nav-item">
+                            <a class="nav-link active" data-toggle="tab" href="#modal-pistones-{{ motor.id }}" role="tab">Pistones</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" data-toggle="tab" href="#modal-valvulas-{{ motor.id }}" role="tab">Válvulas</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" data-toggle="tab" href="#modal-bancada-{{ motor.id }}" role="tab">Bancada</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" data-toggle="tab" href="#modal-ciguenial-{{ motor.id }}" role="tab">Cigüeñal</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" data-toggle="tab" href="#modal-cabeza-{{ motor.id }}" role="tab">Cabeza</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" data-toggle="tab" href="#modal-tabla-{{ motor.id }}" role="tab">Tabla</a>
+                        </li>
+                    </ul>
+                    <div class="tab-content pt-3">
+                        <!-- Pistones -->
+                        <div class="tab-pane fade show active" id="modal-pistones-{{ motor.id }}" role="tabpanel">
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <div class="spec-item">
+                                        <div class="spec-label">Diámetro de cilindro</div>
+                                        <div class="spec-value">{{ motor.diametro_cilindro }}</div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="spec-item">
+                                        <div class="spec-label">Carrera</div>
+                                        <div class="spec-value">{{ motor.carrera }}</div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="spec-item">
+                                        <div class="spec-label">Diámetro del pistón</div>
+                                        <div class="spec-value">{{ motor.diametro_piston }}</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Válvulas (Escape y Admisión) -->
+                        <div class="tab-pane fade" id="modal-valvulas-{{ motor.id }}" role="tabpanel">
+                            <h5 class="mb-3">Válvulas de Escape</h5>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="spec-item">
+                                        <div class="spec-label">Diámetro de cabeza</div>
+                                        <div class="spec-value">{{ motor.diametro_cabeza_escape }}</div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="spec-item">
+                                        <div class="spec-label">Distancia válvula</div>
+                                        <div class="spec-value">{{ motor.distancia_valvula_escape }}</div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="spec-item">
+                                        <div class="spec-label">Diámetro vástago</div>
+                                        <div class="spec-value">{{ motor.diametro_vastago_escape }}</div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="spec-item">
+                                        <div class="spec-label">Ángulo de asiento</div>
+                                        <div class="spec-value">{{ motor.angulo_asiento_escape }}</div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <h5 class="mt-4 mb-3">Válvulas de Admisión</h5>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="spec-item">
+                                        <div class="spec-label">Diámetro de cabeza</div>
+                                        <div class="spec-value">{{ motor.diametro_cabeza_admision }}</div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="spec-item">
+                                        <div class="spec-label">Distancia válvula</div>
+                                        <div class="spec-value">{{ motor.distancia_valvula_admision }}</div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="spec-item">
+                                        <div class="spec-label">Diámetro vástago</div>
+                                        <div class="spec-value">{{ motor.diametro_vastago_admision }}</div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="spec-item">
+                                        <div class="spec-label">Ángulo de asiento</div>
+                                        <div class="spec-value">{{ motor.angulo_asiento_admision }}</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Bancada -->
+                        <div class="tab-pane fade" id="modal-bancada-{{ motor.id }}" role="tabpanel">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="spec-item">
+                                        <div class="spec-label">Diámetro de alojamiento</div>
+                                        <div class="spec-value">{{ motor.diametro_alojamiento }}</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Cigüeñal -->
+                        <div class="tab-pane fade" id="modal-ciguenial-{{ motor.id }}" role="tabpanel">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="spec-item">
+                                        <div class="spec-label">Diámetro muñón de biela</div>
+                                        <div class="spec-value">{{ motor.diametro_munon_biela }}</div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="spec-item">
+                                        <div class="spec-label">Diámetro muñón de bancada</div>
+                                        <div class="spec-value">{{ motor.diametro_munon_bancada }}</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Cabeza -->
+                        <div class="tab-pane fade" id="modal-cabeza-{{ motor.id }}" role="tabpanel">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="spec-item">
+                                        <div class="spec-label">Altura</div>
+                                        <div class="spec-value">{{ motor.altura_cabeza }}</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Tabla completa -->
+                        <div class="tab-pane fade" id="modal-tabla-{{ motor.id }}" role="tabpanel">
+                            <div class="table-responsive">
+                                <table class="table table-bordered table-sm">
+                                    <thead>
+                                        <tr class="table-header-dark">
+                                            <th colspan="2">Especificaciones Completas</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                      <tr>
+                                          <td width="40%"><strong>Nombre</strong></td>
+                                          <td>{{ motor.nombre }}</td>
+                                      </tr>
+                                      <!-- Pistones -->
+                                      <tr class="table-secondary">
+                                          <td colspan="2"><strong>Pistones</strong></td>
+                                      </tr>
+                                      <tr>
+                                          <td>Diámetro de cilindro</td>
+                                          <td>{{ motor.diametro_cilindro }}</td>
+                                      </tr>
+                                      <tr>
+                                          <td>Carrera</td>
+                                          <td>{{ motor.carrera }}</td>
+                                      </tr>
+                                      <tr>
+                                          <td>Diámetro del pistón</td>
+                                          <td>{{ motor.diametro_piston }}</td>
+                                      </tr>
+                                      <!-- Válvulas de Escape -->
+                                      <tr class="table-secondary">
+                                          <td colspan="2"><strong>Válvulas de Escape</strong></td>
+                                      </tr>
+                                      <tr>
+                                          <td>Diámetro de cabeza</td>
+                                          <td>{{ motor.diametro_cabeza_escape }}</td>
+                                      </tr>
+                                      <tr>
+                                          <td>Distancia válvula</td>
+                                          <td>{{ motor.distancia_valvula_escape }}</td>
+                                      </tr>
+                                      <tr>
+                                          <td>Diámetro vástago</td>
+                                          <td>{{ motor.diametro_vastago_escape }}</td>
+                                      </tr>
+                                      <tr>
+                                          <td>Ángulo de asiento</td>
+                                          <td>{{ motor.angulo_asiento_escape }}</td>
+                                      </tr>
+                                      <!-- Válvulas de Admisión -->
+                                      <tr class="table-secondary">
+                                          <td colspan="2"><strong>Válvulas de Admisión</strong></td>
+                                      </tr>
+                                      <tr>
+                                          <td>Diámetro de cabeza</td>
+                                          <td>{{ motor.diametro_cabeza_admision }}</td>
+                                      </tr>
+                                      <tr>
+                                          <td>Distancia válvula</td>
+                                          <td>{{ motor.distancia_valvula_admision }}</td>
+                                      </tr>
+                                      <tr>
+                                          <td>Diámetro vástago</td>
+                                          <td>{{ motor.diametro_vastago_admision }}</td>
+                                      </tr>
+                                      <tr>
+                                          <td>Ángulo de asiento</td>
+                                          <td>{{ motor.angulo_asiento_admision }}</td>
+                                      </tr>
+                                      <!-- Bancada -->
+                                      <tr class="table-secondary">
+                                          <td colspan="2"><strong>Bancada</strong></td>
+                                      </tr>
+                                      <tr>
+                                          <td>Diámetro de alojamiento</td>
+                                          <td>{{ motor.diametro_alojamiento }}</td>
+                                      </tr>
+                                      <!-- Cigüeñal -->
+                                      <tr class="table-secondary">
+                                          <td colspan="2"><strong>Cigüeñal</strong></td>
+                                      </tr>
+                                      <tr>
+                                          <td>Diámetro muñón de biela</td>
+                                          <td>{{ motor.diametro_munon_biela }}</td>
+                                      </tr>
+                                      <tr>
+                                          <td>Diámetro muñón de bancada</td>
+                                          <td>{{ motor.diametro_munon_bancada }}</td>
+                                      </tr>
+                                      <!-- Cabeza -->
+                                      <tr class="table-secondary">
+                                          <td colspan="2"><strong>Cabeza</strong></td>
+                                      </tr>
+                                      <tr>
+                                          <td>Altura</td>
+                                          <td>{{ motor.altura_cabeza }}</td>
+                                      </tr>
+                                  </tbody>
+                              </table>
+                          </div>
+                      </div>
+                  </div>
+              </div>
+              <div class="modal-footer">
+                  <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+                  <a href="?editar_id={{ motor.id }}" class="btn btn-primary">
+                      <i class="fas fa-edit mr-1"></i> Editar
+                  </a>
+              </div>
+          </div>
+      </div>
+  </div>
+  {% endfor %}
+  
+  {% include 'includes/notifications.html' %}
+{% endblock %}
+
+{% block extra_scripts %}
+  <script src="{% static 'js/theme.js' %}"></script>
+  <script src="{% static 'js/notifications.js' %}"></script>
+  <script>
+      $(document).ready(function(){
+          // Limpiar cualquier residuo de modal que pueda estar causando problemas
+          $('.modal-backdrop').remove();
+          $('body').removeClass('modal-open');
+          
+          // Buscador de motores
+          $("#buscarMotor").on("keyup", function() {
+              var value = $(this).val().toLowerCase();
+              $(".motor-row").filter(function() {
+                  $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1);
+              });
+              
+              // Mostrar mensaje si no hay resultados
+              if ($(".motor-row:visible").length === 0) {
+                  if ($("#no-results-message").length === 0) {
+                      $("#tablaMotores tbody").append(
+                          '<tr id="no-results-message"><td colspan="2" class="text-center py-3">' +
+                          '<i class="fas fa-search fa-2x mb-2 text-muted"></i><br>' +
+                          'No se encontraron resultados para "' + value + '"</td></tr>'
+                      );
+                  } else {
+                      $("#no-results-message td").html(
+                          '<i class="fas fa-search fa-2x mb-2 text-muted"></i><br>' +
+                          'No se encontraron resultados para "' + value + '"'
+                      );
+                  }
+              } else {
+                  $("#no-results-message").remove();
+              }
+          });
+          
+          // Solución para problemas con los modales
+          $('.modal').on('hidden.bs.modal', function (e) {
+              // Limpiar backdrop residual
+              if ($('.modal:visible').length) {
+                  $('body').addClass('modal-open');
+              } else {
+                  $('body').removeClass('modal-open');
+                  $('.modal-backdrop').remove();
+              }
+          });
+          
+          // Solución para modales secuenciales
+          $(document).on('show.bs.modal', '.modal', function (e) {
+              var zIndex = 1040 + (10 * $('.modal:visible').length);
+              $(this).css('z-index', zIndex);
+              setTimeout(function() {
+                  $('.modal-backdrop').not('.modal-stack').css('z-index', zIndex - 1).addClass('modal-stack');
+              }, 0);
+          });
+          
+          // Mostrar notificación al guardar o actualizar un motor
+          {% if messages %}
+              {% for message in messages %}
+                  showNotification("{{ message }}", "{{ message.tags }}");
+              {% endfor %}
+          {% endif %}
+      });
+  </script>
+{% endblock %}

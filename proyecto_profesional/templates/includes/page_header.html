@@ -1,0 +1,23 @@
+{% comment %}
+    Encabezado de página reutilizable
+    
+    Parámetros:
+    - title: Título de la página
+    - icon: Nombre del icono FontAwesome (sin el prefijo fa-)
+    - actions: Determina si se muestra el espacio para acciones (default: True)
+    
+    Bloques:
+    - header_actions: Para insertar acciones (botones, filtros, etc.)
+{% endcomment %}
+
+<div class="page-header">
+    <h1 class="page-title">
+        <i class="fas fa-{{ icon|default:'file' }}"></i> {{ title }}
+    </h1>
+    
+    {% if actions|default:True %}
+        <div class="header-actions">
+            {% block header_actions %}{% endblock %}
+        </div>
+    {% endif %}
+</div>

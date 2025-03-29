@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Confirmar Aceptación - Orden {{ orden.numero_orden }}</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        .confirm-card {
+            border: 1px solid #ddd;
+            padding: 20px;
+            border-radius: 8px;
+            background-color: #fff;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body class="container">
+    <h1 class="mt-4">Aceptar Orden</h1>
+    <div class="confirm-card">
+        <h3>¿Estás seguro de aceptar la orden {{ orden.numero_orden }}?</h3>
+        <p><strong>Cliente:</strong> {{ orden.cliente }}</p>
+        <p><strong>Teléfono:</strong> {{ orden.telefono }}</p>
+        <p><strong>Modelo:</strong> {{ orden.modelo_motor }}</p>
+        <p><strong>Ruta:</strong> {{ orden.ruta }}</p>
+        <form method="post">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-success">Confirmar Aceptación</button>
+            <a href="{% url 'lista_ordenes' %}" class="btn btn-secondary">Cancelar</a>
+        </form>
+    </div>
+</body>
+</html>

@@ -1,0 +1,63 @@
+{% comment %}
+    Sistema de notificaciones
+    
+    Este fragmento incluye el markup necesario para las notificaciones toast.
+    No se muestra nada directamente, sino que las notificaciones se crean dinámicamente
+    usando JavaScript.
+    
+    Se debe incluir con {% include 'includes/notifications.html' %}
+{% endcomment %}
+
+<div id="notifications-container" style="display: none;">
+    <!-- Las notificaciones se insertan dinámicamente con JavaScript -->
+</div>
+
+<script>
+    // Solo inicializa si el script de notificaciones no ha sido cargado aún
+    if (typeof showNotification !== 'function') {
+        // Función simple de notificación para compatibilidad
+        function showNotification(message, type = "success", duration = 3000) {
+            // Remover notificaciones existentes
+            $('.notification').remove();
+            
+            // Determinar icono y color según el tipo
+            let icon, bgColor;
+            
+            switch(type) {
+                case 'success':
+                    icon = 'check-circle';
+                    bgColor = 'var(--success-color)';
+                    break;
+                case 'error':
+                    icon = 'exclamation-triangle';
+                    bgColor = 'var(--danger-color)';
+                    break;
+                case 'warning':
+                    icon = 'exclamation-circle';
+                    bgColor = 'var(--warning-color)';
+                    break;
+                case 'info':
+                default:
+                    icon = 'info-circle';
+                    bgColor = 'var(--info-color)';
+                    break;
+            }
+            
+            // Crear elemento de notificación
+            const notification = $('<div class="notification"></div>')
+                .css('background-color', bgColor)
+                .html('<i class="fas fa-' + icon + '"></i> ' + message);
+            
+            // Agregar al DOM
+            $('body').append(notification);
+            
+            // Configurar desaparición automática
+            setTimeout(function() {
+                notification.css('animation', 'fadeOut 0.5s forwards');
+                setTimeout(function() {
+                    notification.remove();
+                }, 500);
+            }, duration);
+        }
+    }
+</script>
