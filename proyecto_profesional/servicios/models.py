@@ -183,31 +183,31 @@ class Motor(models.Model):
     nombre = models.CharField(max_length=100)
     
     # Especificaciones de Pistones
-    diametro_cilindro = models.DecimalField(max_digits=5, decimal_places=2, verbose_name="Diámetro de cilindros", default=0.00)
-    carrera = models.DecimalField(max_digits=5, decimal_places=2, verbose_name="Carrera", default=0.00)
-    diametro_piston = models.DecimalField(max_digits=5, decimal_places=2, verbose_name="Diámetro del pistón", default=0.00)
+    diametro_cilindro = models.DecimalField(max_digits=10, decimal_places=5, verbose_name="Diámetro de cilindros", default=0.00)
+    carrera = models.DecimalField(max_digits=10, decimal_places=5, verbose_name="Carrera", default=0.00)
+    diametro_piston = models.DecimalField(max_digits=10, decimal_places=5, verbose_name="Diámetro del pistón", default=0.00)
     
     # Válvulas de Escape
-    diametro_cabeza_escape = models.DecimalField(max_digits=5, decimal_places=2, verbose_name="Diámetro de cabeza (escape)", default=0.00)
-    distancia_valvula_escape = models.DecimalField(max_digits=5, decimal_places=2, verbose_name="Distancia válvula (escape)", default=0.00)
-    diametro_vastago_escape = models.DecimalField(max_digits=5, decimal_places=2, verbose_name="Diámetro vástago (escape)", default=0.00)
-    angulo_asiento_escape = models.DecimalField(max_digits=5, decimal_places=2, verbose_name="Ángulo de asiento (escape)", default=0.00)
+    diametro_cabeza_escape = models.DecimalField(max_digits=10, decimal_places=5, verbose_name="Diámetro de cabeza (escape)", default=0.00)
+    distancia_valvula_escape = models.DecimalField(max_digits=10, decimal_places=5, verbose_name="Distancia válvula (escape)", default=0.00)
+    diametro_vastago_escape = models.DecimalField(max_digits=10, decimal_places=5, verbose_name="Diámetro vástago (escape)", default=0.00)
+    angulo_asiento_escape = models.DecimalField(max_digits=10, decimal_places=5, verbose_name="Ángulo de asiento (escape)", default=0.00)
     
     # Válvulas de Admisión
-    diametro_cabeza_admision = models.DecimalField(max_digits=5, decimal_places=2, verbose_name="Diámetro de cabeza (admisión)", default=0.00)
-    distancia_valvula_admision = models.DecimalField(max_digits=5, decimal_places=2, verbose_name="Distancia válvula (admisión)", default=0.00)
-    diametro_vastago_admision = models.DecimalField(max_digits=5, decimal_places=2, verbose_name="Diámetro vástago (admisión)", default=0.00)
-    angulo_asiento_admision = models.DecimalField(max_digits=5, decimal_places=2, verbose_name="Ángulo de asiento (admisión)", default=0.00)
+    diametro_cabeza_admision = models.DecimalField(max_digits=10, decimal_places=5, verbose_name="Diámetro de cabeza (admisión)", default=0.00)
+    distancia_valvula_admision = models.DecimalField(max_digits=10, decimal_places=5, verbose_name="Distancia válvula (admisión)", default=0.00)
+    diametro_vastago_admision = models.DecimalField(max_digits=10, decimal_places=5, verbose_name="Diámetro vástago (admisión)", default=0.00)
+    angulo_asiento_admision = models.DecimalField(max_digits=10, decimal_places=5, verbose_name="Ángulo de asiento (admisión)", default=0.00)
     
     # Bancada
-    diametro_alojamiento = models.DecimalField(max_digits=5, decimal_places=2, verbose_name="Diámetro de alojamiento", default=0.00)
+    diametro_alojamiento = models.DecimalField(max_digits=10, decimal_places=5, verbose_name="Diámetro de alojamiento", default=0.00)
     
     # Cigüeñal
-    diametro_munon_biela = models.DecimalField(max_digits=5, decimal_places=2, verbose_name="Diámetro de muñón de biela", default=0.00)
-    diametro_munon_bancada = models.DecimalField(max_digits=5, decimal_places=2, verbose_name="Diámetro de muñón de bancada", default=0.00)
+    diametro_munon_biela = models.DecimalField(max_digits=10, decimal_places=5, verbose_name="Diámetro de muñón de biela", default=0.00)
+    diametro_munon_bancada = models.DecimalField(max_digits=10, decimal_places=5, verbose_name="Diámetro de muñón de bancada", default=0.00)
     
     # Cabezas
-    altura_cabeza = models.DecimalField(max_digits=5, decimal_places=2, verbose_name="Altura de la cabeza", default=0.00)
+    altura_cabeza = models.DecimalField(max_digits=10, decimal_places=5, verbose_name="Altura de la cabeza", default=0.00)
     
     def __str__(self):
         return self.nombre

@@ -1,0 +1,98 @@
+/* proyecto_profesional/static/css/config_modelos.css */
+
+/* Estilos específicos para config_modelos.html */
+.spec-item { /* Podría ir a components.css si se reutiliza */
+    background-color: var(--card-bg);
+    border: 1px solid var(--border-color);
+    padding: 10px;
+    border-radius: 5px;
+    margin-bottom: 10px;
+    transition: all 0.2s;
+}
+
+.spec-item:hover {
+    box-shadow: var(--shadow-sm);
+}
+
+.spec-label {
+    font-weight: 500;
+    font-size: 0.85rem;
+    color: var(--secondary-color);
+    margin-bottom: 3px;
+}
+
+.spec-value {
+    font-weight: 600;
+    font-size: 1rem;
+}
+
+.search-container { /* Podría ir a components.css */
+    position: relative;
+    max-width: 300px;
+    margin-bottom: 15px;
+}
+
+.search-container input {
+    padding-left: 35px;
+    border-radius: 20px;
+}
+
+.search-icon { /* Podría ir a components.css */
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--secondary-color);
+}
+
+.nav-tabs .nav-link { /* Estilos de pestañas (Podría ir a components.css) */
+    color: var(--text-color);
+    font-weight: 500;
+    padding: 0.5rem 1rem;
+    border-radius: 0.25rem 0.25rem 0 0;
+    transition: all 0.2s;
+}
+
+.nav-tabs .nav-link.active {
+    color: var(--accent-color);
+    font-weight: 600;
+    background-color: var(--card-bg);
+    border-color: var(--border-color) var(--border-color) var(--card-bg);
+}
+
+.table-header-dark { /* Podría ir a components.css */
+    background-color: var(--accent-color) !important;
+    color: white !important;
+}
+
+.motor-card { /* Podría ir a components.css */
+    transition: all 0.3s;
+}
+
+.motor-card:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-md);
+}
+
+.btn-success > i.fas { /* Selector específico para el icono dentro del botón */
+    color: #ffffff !important; /* Forzar color blanco */
+}
+
+@media (max-width: 767.98px) { /* Podría ir a responsive.css */
+    .motor-list-card {
+        margin-top: 1.5rem;
+    }
+
+    .spec-item {
+        padding: 8px;
+    }
+
+    .spec-value {
+        font-size: 0.9rem;
+    }
+
+    .nav-tabs .nav-link {
+        padding: 0.4rem 0.6rem;
+        font-size: 0.85rem;
+    }
+}

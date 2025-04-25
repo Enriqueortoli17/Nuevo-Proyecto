@@ -3,19 +3,25 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Control de Servicios{% endblock %}</title> {# Título como bloque #}
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+    {# CSS del Proyecto - Solo base.css cargado originalmente #}
     <link rel="stylesheet" href="{% static 'css/base.css' %}">
-    {% block extra_head_css %}{% endblock %}
+    <link rel="stylesheet" href="{% static 'css/components.css' %}"> 
+    <link rel="stylesheet" href="{% static 'css/responsive.css' %}"> 
+
+    {% block extra_head_css %}{% endblock %} {# Bloque para CSS extra de plantillas hijas #}
 </head>
 <body class="{% block body_class %}{% endblock %}">
+    {# --- Barra de Navegación Superior --- #}
     <nav class="top-navbar">
         <button id="sidebarToggle" class="nav-icon" aria-label="Toggle sidebar"> <i class="fas fa-bars"></i> </button>
         <a href="{% url 'home' %}" class="brand-logo"> <i class="fas fa-cogs"></i> Control de Servicios </a>
         <div class="top-navbar-right">
-            {# --- Inicio Bloque Contenido Derecha Navbar --- #}
             {% block navbar_right %}
                 {# Contenido por defecto: Switch Tema + Icono Lista Órdenes #}
                 <div class="theme-switch-wrapper">
@@ -25,38 +31,75 @@
                     <i class="fas fa-clipboard-list"></i>
                 </a>
             {% endblock navbar_right %}
-            {# --- Fin Bloque Contenido Derecha Navbar --- #}
         </div>
     </nav>
-    
-    <!-- Overlay para sidebar en móvil -->
+
+    {# --- Overlay para Sidebar Móvil --- #}
     <div class="sidebar-overlay"></div>
-    
+
     <div class="d-flex w-100">
-        <nav id="sidebar" class="sidebar">
-             {# Contenido del sidebar sin cambios #}
-             <div class="sidebar-menu"> <a href="{% url 'home' %}" class="menu-link home-link"><i class="fas fa-home"></i> Inicio</a> <div class="menu-heading" data-target="#submenuOrdenes"><div><i class="fas fa-clipboard-list"></i><span>Órdenes</span></div><i class="fas fa-chevron-right arrow"></i></div> <div id="submenuOrdenes" class="submenu"> <a href="{% url 'crear_orden' %}" class="menu-link">Nueva Orden</a> <a href="{% url 'lista_ordenes' %}" class="menu-link">Lista de Órdenes</a> <a href="{% url 'tablero_ordenes' %}" class="menu-link">Tablero</a> <a href="{% url 'actualizar_servicios' %}" class="menu-link">Actualización de Estados</a> <a href="{% url 'ordenes_terminadas' %}" class="menu-link">Órdenes Terminadas</a> <a href="{% url 'historial_ordenes' %}" class="menu-link">Historial de Entregadas</a> <a href="{% url 'ordenes_anuladas' %}" class="menu-link">Órdenes Anuladas</a> </div> <div class="menu-heading" data-target="#submenuConfig"><div><i class="fas fa-cog"></i><span>Configuración</span></div><i class="fas fa-chevron-right arrow"></i></div> <div id="submenuConfig" class="submenu"> <a href="{% url 'config_modelos' %}" class="menu-link">Modelos de Motor</a> <a href="{% url 'config_clientes' %}" class="menu-link">Clientes</a> <a href="{% url 'config_rutas' %}" class="menu-link">Rutas</a> </div> <div class="menu-heading" data-target="#submenuReportes"><div><i class="fas fa-chart-bar"></i><span>Reportes</span></div><i class="fas fa-chevron-right arrow"></i></div> <div id="submenuReportes" class="submenu"> <a href="#" class="menu-link">Reporte Mensual</a> <a href="#" class="menu-link">Productividad</a> <a href="#" class="menu-link">Servicios Populares</a> </div> </div>
+         {# --- Sidebar --- #}
+         <nav id="sidebar" class="sidebar"> {# Originalmente no tenía 'expanded' #}
+             <div class="sidebar-menu">
+                 <a href="{% url 'home' %}" class="menu-link home-link"><i class="fas fa-home"></i> Inicio</a>
+                 <div class="menu-heading" data-target="#submenuOrdenes"><div><i class="fas fa-clipboard-list"></i><span>Órdenes</span></div><i class="fas fa-chevron-right arrow"></i></div>
+                 <div id="submenuOrdenes" class="submenu">
+                     <a href="{% url 'crear_orden' %}" class="menu-link">Nueva Orden</a>
+                     <a href="{% url 'lista_ordenes' %}" class="menu-link">Lista de Órdenes</a>
+                     <a href="{% url 'tablero_ordenes' %}" class="menu-link">Tablero</a>
+                     <a href="{% url 'actualizar_servicios' %}" class="menu-link">Actualización de Estados</a>
+                     <a href="{% url 'ordenes_terminadas' %}" class="menu-link">Órdenes Terminadas</a>
+                     <a href="{% url 'historial_ordenes' %}" class="menu-link">Historial de Entregadas</a>
+                     <a href="{% url 'ordenes_anuladas' %}" class="menu-link">Órdenes Anuladas</a>
+                 </div>
+                 <div class="menu-heading" data-target="#submenuConfig"><div><i class="fas fa-cog"></i><span>Configuración</span></div><i class="fas fa-chevron-right arrow"></i></div>
+                 <div id="submenuConfig" class="submenu">
+                     <a href="{% url 'config_modelos' %}" class="menu-link">Modelos de Motor</a>
+                     <a href="{% url 'config_clientes' %}" class="menu-link">Clientes</a>
+                     <a href="{% url 'config_rutas' %}" class="menu-link">Rutas</a> {# Asumiendo que existía #}
+                 </div>
+                 <div class="menu-heading" data-target="#submenuReportes"><div><i class="fas fa-chart-bar"></i><span>Reportes</span></div><i class="fas fa-chevron-right arrow"></i></div>
+                 <div id="submenuReportes" class="submenu">
+                     <a href="#" class="menu-link">Reporte Mensual</a>
+                     <a href="#" class="menu-link">Productividad</a>
+                     <a href="#" class="menu-link">Servicios Populares</a>
+                 </div>
+                  {# Enlace a Sincronizar (si estaba aquí originalmente) #}
+                  {# <a href="{% url 'sincronizar_ordenes' %}" class="menu-link home-link"><i class="fas fa-sync-alt"></i> Sincronizar</a> #}
+             </div>
         </nav>
-        <main id="mainContent" class="content-wrapper expanded"> {% block content %} {% endblock %} </main>
+
+        {# --- Contenido Principal --- #}
+        <main id="mainContent" class="content-wrapper expanded"> {# Originalmente empezaba expandido #}
+             {# No había meta tag CSRF aquí originalmente #}
+            {% block content %}
+            {# El contenido específico de cada página irá aquí #}
+            {% endblock %}
+        </main>
     </div>
-    {# Scripts sin cambios #}
+
+    {# --- Scripts Base --- #}
     <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
     <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+
+
+    {# --- Inicialización y Scripts Inline Originales --- #}
     <script>
+        // Este es el bloque JS que estaba originalmente en tu base.html
         $(document).ready(function(){
-            // Tema oscuro/claro
+            // Tema oscuro/claro (Lógica Inline Original)
             const toggleSwitch = document.querySelector('#theme-checkbox');
             const currentTheme = localStorage.getItem('theme') ? localStorage.getItem('theme') : null;
-            
+
             if(currentTheme) {
                 document.documentElement.setAttribute('data-theme', currentTheme);
                 if(currentTheme === 'dark') {
                     toggleSwitch.checked = true;
                 }
-            } 
-            
+            }
+
             function switchTheme(e) {
                 if(e.target.checked) {
                     document.documentElement.setAttribute('data-theme', 'dark');
@@ -65,57 +108,60 @@
                     document.documentElement.setAttribute('data-theme', 'light');
                     localStorage.setItem('theme', 'light');
                 }
-            } 
-            
+            }
+
             toggleSwitch.addEventListener('change', switchTheme);
-            
-            // Guardar estado del sidebar en localStorage
+
+            // Guardar estado del sidebar en localStorage (Lógica Inline Original)
             const sidebarState = localStorage.getItem('sidebarExpanded');
-            
-            // Función para ajustar el layout según el tamaño de pantalla
+
+            // Función para ajustar el layout según el tamaño de pantalla (Original)
             function adjustLayout() {
                 if($(window).width() < 992) {
                     // En móviles siempre empieza cerrado
-                    $('#sidebar').removeClass('expanded');
-                    $('#mainContent').addClass('expanded');
-                    $('#sidebar').removeClass('mobile-visible');
-                    $('.sidebar-overlay').removeClass('active');
+                    $('#sidebar').removeClass('expanded'); // Asegura que no tenga 'expanded'
+                    $('#mainContent').addClass('expanded'); // Asegura que ocupe todo
+                    $('#sidebar').removeClass('mobile-visible'); // Oculto
+                    $('.sidebar-overlay').removeClass('active'); // Sin overlay
                 } else {
-                    // En escritorio, usar la preferencia guardada (por defecto cerrado)
-                    if (sidebarState === 'true') {
-                        $('#sidebar').addClass('expanded');
-                        $('#mainContent').removeClass('expanded');
-                    } else {
-                        $('#sidebar').removeClass('expanded');
-                        $('#mainContent').addClass('expanded');
+                    // En escritorio, usar la preferencia guardada (por defecto cerrado/expanded el content)
+                    if (sidebarState === 'true') { // Si estaba guardado como expandido (visible)
+                        $('#sidebar').addClass('expanded'); // Mostrar sidebar
+                        $('#mainContent').removeClass('expanded'); // Encoger contenido
+                    } else { // Si no hay estado o estaba cerrado
+                        $('#sidebar').removeClass('expanded'); // Ocultar sidebar
+                        $('#mainContent').addClass('expanded'); // Expandir contenido
                     }
+                    // Asegurarse de quitar clases móviles en escritorio
+                     $('#sidebar').removeClass('mobile-visible');
+                     $('.sidebar-overlay').removeClass('active');
                 }
-            } 
-            
-            // Toggle del sidebar
+            }
+
+            // Toggle del sidebar (Lógica Inline Original)
             $('#sidebarToggle').click(function() {
                 if($(window).width() < 992) {
-                    // En móvil
+                    // En móvil: alterna 'mobile-visible' y 'active' en overlay
                     $('#sidebar').toggleClass('mobile-visible');
-                    $('.sidebar-overlay').toggleClass('active'); 
+                    $('.sidebar-overlay').toggleClass('active');
                 } else {
-                    // En escritorio
+                    // En escritorio: alterna 'expanded' en sidebar y mainContent
                     $('#sidebar').toggleClass('expanded');
                     $('#mainContent').toggleClass('expanded');
-                    
+
                     // Guardar preferencia
                     const isExpanded = $('#sidebar').hasClass('expanded');
                     localStorage.setItem('sidebarExpanded', isExpanded);
                 }
             });
-            
-            // Cerrar sidebar al hacer clic en el overlay
+
+            // Cerrar sidebar al hacer clic en el overlay (Original)
             $('.sidebar-overlay').click(function() {
                 $('#sidebar').removeClass('mobile-visible');
                 $(this).removeClass('active');
             });
-            
-            // Toggle de submenús
+
+            // Toggle de submenús (Original)
             $('.menu-heading').click(function() {
                 var target = $(this).data('target');
                 $(target).slideToggle();
@@ -123,17 +169,17 @@
                 var arrow = $(this).find('.arrow');
                 arrow.toggleClass('fa-chevron-right fa-chevron-down');
             });
-            
-            // Ocultar todos los submenús inicialmente
+
+            // Ocultar todos los submenús inicialmente (Original)
             $('.submenu').hide();
-            
+
             // Ajustar layout al cargar
             adjustLayout();
-            
+
             // Ajustar layout al cambiar el tamaño de la ventana
             $(window).resize(adjustLayout);
-            
-            // Cerrar sidebar al hacer clic en un enlace del menú en móvil
+
+            // Cerrar sidebar al hacer clic en un enlace del menú en móvil (Original)
             $('.menu-link').click(function() {
                 if($(window).width() < 992) {
                     $('#sidebar').removeClass('mobile-visible');
@@ -142,6 +188,9 @@
             });
         });
     </script>
-    {% block extra_scripts %}{% endblock %}
+    {% block extra_scripts %}
+    <script src="{% static 'js/theme.js' %}"></script>
+    <script src="{% static 'js/notifications.js' %}"></script>
+    {% endblock %} {# Bloque para scripts específicos de página #}
 </body>
 </html>

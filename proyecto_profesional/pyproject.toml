@@ -1,0 +1,18 @@
+[tool.flake8]
+# Establece una longitud máxima de línea (PEP 8 recomienda 79, pero 88 es común)
+max-line-length = 88
+exclude = [
+    ".git",
+    "__pycache__",
+    ".venv",
+    "build",
+    "dist",
+    "migrations", # Excluir carpeta de migraciones
+    "htmlcov",    # Excluir carpeta de reportes de coverage
+]
+# Puedes añadir códigos de error específicos a ignorar si lo necesitas.
+# Por ejemplo, si usas una variable no definida a propósito en un archivo
+# específico, puedes ignorar F821 para ese archivo o globalmente.
+# ignore = ["F821"]
+# Complejidad máxima permitida por función/método
+max-complexity = 10

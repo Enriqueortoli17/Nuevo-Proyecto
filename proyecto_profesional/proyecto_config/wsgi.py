@@ -1,17 +1,12 @@
-"""
-WSGI config for proyecto_profesional project. # <-- Actualiza nombre del proyecto si quieres
-
-It exposes the WSGI callable as a module-level variable named ``application``.
-
-For more information on this file, see
-https://docs.djangoproject.com/en/5.1/howto/deployment/wsgi/
-"""
+# proyecto_profesional/proyecto_config/wsgi.py
 
 import os
-
 from django.core.wsgi import get_wsgi_application
 
-# --- LÍNEA MODIFICADA ---
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'proyecto_config.settings')
+# --- MODIFICADO: Cambia la ruta del módulo de settings ---
+# Asegúrate que el servidor WSGI (Gunicorn, etc.) configure la variable de entorno
+# DJANGO_SETTINGS_MODULE a 'proyecto_config.settings.production' en producción.
+# El setdefault aquí es más un fallback para desarrollo si no se define externamente.
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'proyecto_config.settings.development')
 
 application = get_wsgi_application()

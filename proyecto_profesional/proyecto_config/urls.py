@@ -22,5 +22,6 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('servicios/', include('servicios.urls')),
     # Redirige la raíz al path 'servicios/'
+    path('accounts/', include('django.contrib.auth.urls')),
     path('', lambda request: redirect('servicios/')),
 ]

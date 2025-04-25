@@ -380,6 +380,17 @@ textarea.form-control:focus {
     border-top: 1px solid var(--border-color);
 }
 
+/* Forzar centrado de Modales de Bootstrap (Añadir en components.css) */
+.modal.fade.show {
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center !important;
+}
+
+.modal.fade.show .modal-dialog {
+   margin: auto !important; /* Asegurar margen auto */
+}
+
 /* Listas */
 .list-group-item {
     background-color: var(--card-bg);
@@ -529,4 +540,12 @@ textarea.form-control:focus {
 
 .counter-card.counter-anuladas {
     border-left-color: var(--danger-color);
+}
+
+.confirm-card {
+    border: 1px solid #ddd;
+    padding: 20px;
+    border-radius: 8px;
+    background-color: #fff;
+    margin-top: 20px;
 }
