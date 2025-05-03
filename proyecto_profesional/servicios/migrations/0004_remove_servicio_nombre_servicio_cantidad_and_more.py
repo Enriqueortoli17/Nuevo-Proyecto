@@ -7,35 +7,48 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('servicios', '0003_alter_orden_estado_general'),
+        ("servicios", "0003_alter_orden_estado_general"),
     ]
 
     operations = [
         migrations.RemoveField(
-            model_name='servicio',
-            name='nombre',
+            model_name="servicio",
+            name="nombre",
         ),
         migrations.AddField(
-            model_name='servicio',
-            name='cantidad',
+            model_name="servicio",
+            name="cantidad",
             field=models.IntegerField(default=1),
         ),
         migrations.AddField(
-            model_name='servicio',
-            name='catalogo_servicio',
-            field=models.ForeignKey(default=1, on_delete=django.db.models.deletion.CASCADE, to='servicios.catalogoservicio'),
+            model_name="servicio",
+            name="catalogo_servicio",
+            field=models.ForeignKey(
+                default=1,
+                on_delete=django.db.models.deletion.CASCADE,
+                to="servicios.catalogoservicio",
+            ),
         ),
         migrations.AlterField(
-            model_name='orden',
-            name='servicios',
-            field=models.ManyToManyField(blank=True, related_name='ordenes', through='servicios.Servicio', to='servicios.catalogoservicio'),
+            model_name="orden",
+            name="servicios",
+            field=models.ManyToManyField(
+                blank=True,
+                related_name="ordenes",
+                through="servicios.Servicio",
+                to="servicios.catalogoservicio",
+            ),
         ),
         migrations.AlterField(
-            model_name='servicio',
-            name='orden',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='servicios_detalle', to='servicios.orden'),
+            model_name="servicio",
+            name="orden",
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.CASCADE,
+                related_name="servicios_detalle",
+                to="servicios.orden",
+            ),
         ),
         migrations.DeleteModel(
-            name='OrdenServicio',
+            name="OrdenServicio",
         ),
     ]

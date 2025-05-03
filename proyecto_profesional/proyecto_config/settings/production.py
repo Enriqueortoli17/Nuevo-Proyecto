@@ -2,8 +2,8 @@
 
 import sentry_sdk
 from sentry_sdk.integrations.django import DjangoIntegration
-from .base import * # Importa toda la configuración base
-from .base import env # Importa la instancia 'env' para leer variables
+from .base import *  # Importa toda la configuración base
+from .base import env  # Importa la instancia 'env' para leer variables
 
 # --- Configuración específica para PRODUCCIÓN ---
 
@@ -11,17 +11,17 @@ from .base import env # Importa la instancia 'env' para leer variables
 DEBUG = False
 
 # SECRET_KEY DEBE leerse desde el entorno en producción
-SECRET_KEY = env('SECRET_KEY') # Asegúrate que esté en .env o en las variables de entorno del servidor
+SECRET_KEY = env(
+    "SECRET_KEY"
+)  # Asegúrate que esté en .env o en las variables de entorno del servidor
 
 # Hosts permitidos en producción (DEBEN ser específicos)
 # Lee desde la variable de entorno ALLOWED_HOSTS="dominio.com,www.dominio.com"
-ALLOWED_HOSTS = env.list('ALLOWED_HOSTS') # Leer como lista desde .env
+ALLOWED_HOSTS = env.list("ALLOWED_HOSTS")  # Leer como lista desde .env
 
 # Configuración de Base de Datos para Producción
 # Lee desde la variable de entorno DATABASE_URL="postgres://user:pass@host:port/dbname"
-DATABASES = {
-    'default': env.db('DATABASE_URL') # Falla si no está definida
-}
+DATABASES = {"default": env.db("DATABASE_URL")}  # Falla si no está definida
 
 # Configuración de Email (debes configurar un servicio real: SendGrid, Mailgun, etc.)
 # EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'

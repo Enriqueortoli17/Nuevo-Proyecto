@@ -7,6 +7,6 @@ from django.core.wsgi import get_wsgi_application
 # Asegúrate que el servidor WSGI (Gunicorn, etc.) configure la variable de entorno
 # DJANGO_SETTINGS_MODULE a 'proyecto_config.settings.production' en producción.
 # El setdefault aquí es más un fallback para desarrollo si no se define externamente.
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'proyecto_config.settings.development')
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "proyecto_config.settings.development")
 
 application = get_wsgi_application()

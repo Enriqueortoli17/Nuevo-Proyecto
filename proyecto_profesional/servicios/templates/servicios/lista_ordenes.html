@@ -4,8 +4,8 @@
 {% block title %}Lista de Órdenes{% endblock %}
 
 {% block extra_head_css %}
-    <link rel="stylesheet" href="{% static 'css/components.css' %}">
-    <link rel="stylesheet" href="{% static 'css/responsive.css' %}">
+    <link rel="stylesheet" href="{% static 'servicios/css/components.css' %}">
+    <link rel="stylesheet" href="{% static 'servicios/css/responsive.css' %}">
     <style>
         /* Estilos específicos para lista_ordenes.html */
         .order-card {
@@ -172,7 +172,7 @@
     </div>
 
     {# Icono para ir al Tablero (específico para lista_ordenes) #}
-    <a href="{% url 'tablero_ordenes' %}" class="nav-icon" title="Tablero de Órdenes">
+    <a href="{% url 'servicios:tablero_ordenes' %}" class="nav-icon" title="Tablero de Órdenes">
         <i class="fas fa-th"></i>
     </a>
 {% endblock navbar_right %}
@@ -229,23 +229,29 @@
                         {% endif %}
                     </div>
                     <div class="btn-group-custom">
-                        <a href="{% url 'orden_detalle' order.id %}" class="btn btn-info btn-sm">
+                        <a href="{% url 'servicios:orden_detalle' order.id %}" class="btn btn-info btn-sm">
                             <i class="fas fa-eye"></i> Ver Detalles
                         </a>
                         {% if order.estado_general|lower == "espera" %}
-                        <button type="button" class="btn btn-success btn-sm accept-btn" 
-                                data-order-id="{{ order.id }}" 
-                                data-order-num="{{ order.numero_provisional }}">
-                            <i class="fas fa-check"></i> Aceptar Orden
-                        </button>
+                            {% if user.is_superuser %}
+                                <button type="button" class="btn btn-success btn-sm accept-btn"
+                                        data-order-id="{{ order.id }}"
+                                        data-order-num="{{ order.numero_provisional }}">
+                                    <i class="fas fa-check"></i> Aceptar Orden
+                                </button>
+                            {% else %}
+                                <button type="button" class="btn btn-success btn-sm" disabled title="Solo Admin">
+                                <i class="fas fa-check"></i> Aceptar Orden
+                                </button>
+                            {% endif %}
                         {% endif %}
                         {% if user.is_superuser %}
-                        <a href="{% url 'editar_orden' order.id %}" class="btn btn-warning btn-sm">
+                        <a href="{% url 'servicios:editar_orden' order.id %}" class="btn btn-warning btn-sm">
                             <i class="fas fa-edit"></i> Editar
                         </a>
                         <a href="#" class="btn btn-danger btn-sm anular-btn" 
-                           data-anular-url="{% url 'anular_orden' order.id %}" 
-                           onclick="AppNotifications.showConfirmation('¿Seguro que deseas anular la orden {{ order.numero_provisional }}?', function() { window.location.href = '{% url 'anular_orden' order.id %}'; }); return false;">
+                           data-anular-url="{% url 'servicios:anular_orden' order.id %}" 
+                           onclick="AppNotifications.showConfirmation('¿Seguro que deseas anular la orden {{ order.numero_orden|default:order.numero_provisional }}?', function() { window.location.href = '{% url 'servicios:anular_orden' order.id %}'; }); return false;"
                             <i class="fas fa-times"></i> Anular
                         </a>
                         {% endif %}
@@ -257,7 +263,7 @@
                 <i class="fas fa-clipboard"></i>
                 <h4>No hay órdenes registradas</h4>
                 <p class="text-muted">Crea una nueva orden para comenzar a trabajar</p>
-                <a href="{% url 'crear_orden' %}" class="btn btn-primary mt-3">
+                <a href="{% url 'servicios:crear_orden' %}" class="btn btn-primary mt-3">
                     <i class="fas fa-plus mr-2"></i> Crear Nueva Orden
                 </a>
             </div>
@@ -265,12 +271,12 @@
     </div>
     
     <div class="mt-4">
-        <a href="{% url 'home' %}" class="btn btn-secondary">
+        <a href="{% url 'servicios:home' %}" class="btn btn-secondary">
             <i class="fas fa-arrow-left mr-2"></i> Volver Panel de Control
         </a>
     </div>
     
-    <a href="{% url 'crear_orden' %}" class="floating-btn" title="Crear Nueva Orden">
+    <a href="{% url 'servicios:crear_orden' %}" class="floating-btn" title="Crear Nueva Orden">
         <i class="fas fa-plus"></i>
     </a>
     
@@ -307,8 +313,8 @@
 {% endblock %}
 
 {% block extra_scripts %}
-    <script src="{% static 'js/theme.js' %}"></script>
-    <script src="{% static 'js/notifications.js' %}"></script>
+    <script src="{% static 'servicios/js/theme.js' %}"></script>
+    <script src="{% static 'servicios/js/notifications.js' %}"></script>
     <script>
     $(document).ready(function(){
         // Manejo del botón de aceptar orden

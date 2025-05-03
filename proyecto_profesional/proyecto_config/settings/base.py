@@ -18,7 +18,7 @@ env = environ.Env(
 )
 # Lee el archivo .env que estará en BASE_DIR (proyecto_profesional/.env)
 # Asegúrate de que el archivo .env esté en la raíz del proyecto 'proyecto_profesional/'
-env_file = BASE_DIR / '.env'
+env_file = BASE_DIR / ".env"
 if env_file.exists():
     environ.Env.read_env(str(env_file))
 # --- FIN NUEVO ---
@@ -28,116 +28,137 @@ if env_file.exists():
 
 # SECURITY WARNING: keep the secret key used in production secret!
 # (Esta parte ya la tenías, está bien para la base)
-SECRET_KEY = env('SECRET_KEY', default='django-insecure-valor-secreto-temporal')
+SECRET_KEY = env("SECRET_KEY", default="django-insecure-valor-secreto-temporal")
 
 # SECURITY WARNING: don't run with debug turned on in production!
 # (Leer DEBUG desde .env está bien aquí, pero lo sobrescribiremos)
-DEBUG = env('DEBUG')
+DEBUG = env("DEBUG")
 
 # ALLOWED_HOSTS lo definiremos en development.py y production.py
-ALLOWED_HOSTS = [] # Dejar vacío en base.py
+ALLOWED_HOSTS = []  # Dejar vacío en base.py
 
 # Application definition
 # (Sin cambios aquí, tus INSTALLED_APPS, MIDDLEWARE están bien)
 INSTALLED_APPS = [
-    'django.contrib.admin',
-    'django.contrib.auth',
-    'django.contrib.contenttypes',
-    'django.contrib.sessions',
-    'django.contrib.messages',
-    'whitenoise.runserver_nostatic',
-    'django.contrib.staticfiles',
-    'servicios',
-    'widget_tweaks',
-    'channels',
+    "django.contrib.admin",
+    "django.contrib.auth",
+    "django.contrib.contenttypes",
+    "django.contrib.sessions",
+    "django.contrib.messages",
+    "whitenoise.runserver_nostatic",
+    "django.contrib.staticfiles",
+    "servicios",
+    "widget_tweaks",
+    "channels",
 ]
 
 MIDDLEWARE = [
-    'django.middleware.security.SecurityMiddleware',
-    'whitenoise.middleware.WhiteNoiseMiddleware',
-    'django.contrib.sessions.middleware.SessionMiddleware',
-    'django.middleware.common.CommonMiddleware',
-    'django.middleware.csrf.CsrfViewMiddleware',
-    'django.contrib.auth.middleware.AuthenticationMiddleware',
-    'django.contrib.messages.middleware.MessageMiddleware',
-    'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    "django.middleware.security.SecurityMiddleware",
+    "whitenoise.middleware.WhiteNoiseMiddleware",
+    "django.contrib.sessions.middleware.SessionMiddleware",
+    "django.middleware.common.CommonMiddleware",
+    "django.middleware.csrf.CsrfViewMiddleware",
+    "django.contrib.auth.middleware.AuthenticationMiddleware",
+    "django.contrib.messages.middleware.MessageMiddleware",
+    "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
 
 # --- MODIFICADO: Ajustar ruta a urls, wsgi, asgi ---
-ROOT_URLCONF = 'proyecto_config.urls' # Sigue igual
+ROOT_URLCONF = "proyecto_config.urls"  # Sigue igual
 
 TEMPLATES = [
     {
-        'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [BASE_DIR / 'templates'], # Correcto
-        'APP_DIRS': True,
-        'OPTIONS': {
-            'context_processors': [
-                'django.template.context_processors.debug',
-                'django.template.context_processors.request',
-                'django.contrib.auth.context_processors.auth',
-                'django.contrib.messages.context_processors.messages', # <-- ESTA LÍNEA FALTABA
+        "BACKEND": "django.template.backends.django.DjangoTemplates",
+        "DIRS": [BASE_DIR / "templates"],  # Correcto
+        "APP_DIRS": True,
+        "OPTIONS": {
+            "context_processors": [
+                "django.template.context_processors.debug",
+                "django.template.context_processors.request",
+                "django.contrib.auth.context_processors.auth",
+                "django.contrib.messages.context_processors.messages",  # <-- ESTA LÍNEA FALTABA
             ],
-            'builtins': [
-                'servicios.templatetags.custom_filters', # Correcto
-            ]
+            "builtins": [
+                "servicios.templatetags.custom_filters",  # Correcto
+            ],
         },
     },
 ]
 
-WSGI_APPLICATION = 'proyecto_config.wsgi.application' # Sigue igual
-ASGI_APPLICATION = 'proyecto_config.asgi.application' # Sigue igual
+WSGI_APPLICATION = "proyecto_config.wsgi.application"  # Sigue igual
+ASGI_APPLICATION = "proyecto_config.asgi.application"  # Sigue igual
 
 
 # Database
 # (Tu configuración con environ está bien para la base)
 DATABASES = {
-    'default': env.db('DATABASE_URL', default=f'sqlite:///{BASE_DIR / "db_profesional.sqlite3"}')
+    "default": env.db(
+        "DATABASE_URL", default=f'sqlite:///{BASE_DIR / "db_profesional.sqlite3"}'
+    )
 }
 
 
 # Password validation
 # (Sin cambios)
 AUTH_PASSWORD_VALIDATORS = [
-    { 'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator', },
-    { 'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator', },
-    { 'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator', },
-    { 'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator', },
+    {
+        "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator",
+    },
+    {
+        "NAME": "django.contrib.auth.password_validation.MinimumLengthValidator",
+    },
+    {
+        "NAME": "django.contrib.auth.password_validation.CommonPasswordValidator",
+    },
+    {
+        "NAME": "django.contrib.auth.password_validation.NumericPasswordValidator",
+    },
 ]
 
 
 # Internationalization
 # (Sin cambios)
-LANGUAGE_CODE = 'es-mx'
-TIME_ZONE = 'America/Mexico_City'
+LANGUAGE_CODE = "es-mx"
+TIME_ZONE = "America/Mexico_City"
 USE_I18N = True
 USE_TZ = True
 
 
 # Static files (CSS, JavaScript, Images)
 # (Sin cambios)
-STATIC_URL = '/static/'
-STATIC_ROOT = BASE_DIR / 'staticfiles'
+STATIC_URL = "/static/"
+STATIC_ROOT = BASE_DIR / "staticfiles"
 STATICFILES_DIRS = [BASE_DIR / "static"]
-STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 
 
 # Default primary key field type
 # (Sin cambios)
-DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 
 # Channels
 # (Dejaremos InMemory aquí, pero production.py usará Redis si lo configuras)
 CHANNEL_LAYERS = {
-    'default': {
-        'BACKEND': 'channels.layers.InMemoryChannelLayer',
+    "default": {
+        "BACKEND": "channels.layers.InMemoryChannelLayer",
     },
 }
 
 # Twilio (Leer desde .env está bien aquí)
-TWILIO_ACCOUNT_SID = env('TWILIO_ACCOUNT_SID', default=None)
-TWILIO_AUTH_TOKEN = env('TWILIO_AUTH_TOKEN', default=None)
-TWILIO_WHATSAPP_FROM = env('TWILIO_WHATSAPP_FROM', default=None)
+TWILIO_ACCOUNT_SID = env("TWILIO_ACCOUNT_SID", default=None)
+TWILIO_AUTH_TOKEN = env("TWILIO_AUTH_TOKEN", default=None)
+TWILIO_WHATSAPP_FROM = env("TWILIO_WHATSAPP_FROM", default=None)
+
+# --- Configuración de Archivos Multimedia ---
+MEDIA_URL = "/media/"
+MEDIA_ROOT = BASE_DIR / "media"
+# Esto guardará los archivos en una carpeta llamada 'media'
+
+# --- Autenticación ---
+LOGIN_URL = '/accounts/login/'  # URL donde está la página de login
+LOGIN_REDIRECT_URL = '/'      # URL a la que se redirige tras login exitoso (puedes cambiarla a 'dashboard', 'lista_ordenes', etc.)
+LOGOUT_REDIRECT_URL = '/accounts/login/'     # URL a la que se redirige tras logout (opcional, '/' es común)
+# ---------------------
 
 # --- FIN base.py ---

@@ -1,167 +1,214 @@
-{% load widget_tweaks static %}
-<!DOCTYPE html>
-<html lang="es">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Órdenes Terminadas</title>
-  <!-- Bootstrap CSS -->
-  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-  <!-- Font Awesome para iconos -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
-  <!-- Google Fonts - Montserrat -->
-  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+{% extends 'base.html' %}
+{% load static widget_tweaks custom_filters %}
 
-  {% block extra_head_css %}
-      <link rel="stylesheet" href="{% static 'css/ordenes_terminadas.css' %}">
-  {% endblock %}
-</head>
-<body>
-  <!-- Barra de navegación superior -->
-  <nav class="top-navbar">
-    <a href="{% url 'home' %}" class="brand-logo">
-      <i class="fas fa-cogs"></i>
-      Control de Servicios
-    </a>
-    <div class="top-navbar-right">
-      <div class="theme-switch-wrapper">
-        <label class="theme-switch" for="checkbox">
-          <input type="checkbox" id="checkbox" />
-          <div class="slider"></div>
-        </label>
-      </div>
-      <a href="{% url 'lista_ordenes' %}" class="nav-icon" title="Lista de Órdenes">
-        <i class="fas fa-clipboard-list"></i>
-      </a>
-      <a href="{% url 'home' %}" class="nav-icon" title="Panel de Control">
-        <i class="fas fa-th-large"></i>
-      </a>
-    </div>
-  </nav>
+{% block title %}Órdenes Terminadas - {{ block.super }}{% endblock %}
 
-  <!-- Contenido principal -->
-  <div class="content-wrapper">
-    <div class="container">
-    <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
-      <!-- Encabezado de la página -->
-      <div class="page-header">
-        <h1><i class="fas fa-check-circle"></i> Órdenes Terminadas</h1>
-      </div>
-      
-      <!-- Filtro por Ruta -->
-      <div class="filter-container">
-        <form method="get" class="filter-form">
-          <label for="ruta"><i class="fas fa-route"></i> Filtrar por Ruta:</label>
-          <select name="ruta" id="ruta" class="form-control">
-            <option value="">-- Todas las Rutas --</option>
+{% block extra_head_css %}
+    <link rel="stylesheet" href="{% static 'servicios/css/ordenes_terminadas.css' %}">
+    {# Estilos CSS para la nueva estructura de controles dentro del card #}
+    <style>
+      /* Estilos generales para los controles dentro del card */
+      .controles-card .form-label {
+        margin-bottom: 0.5rem; /* Espacio debajo de las etiquetas */
+        font-weight: 500;
+        color: var(--color-text-primary); /* Asegura color de texto del tema */
+      }
+      .controles-card .form-control,
+      .controles-card .form-select { /* Aplica a select también */
+        /* Asegurar contraste básico (Bootstrap debería manejarlo bien en card) */
+         background-color: var(--color-background-secondary, #ffffff);
+         color: var(--color-text-primary, #212529);
+         border: 1px solid #ced4da; /* Gris claro estándar de Bootstrap */
+         border-radius: var(--border-radius-sm, 0.25rem); /* Bordes redondeados */
+         font-size: 0.875rem; /* Tamaño fuente pequeño para consistencia */
+         padding: 0.25rem 0.5rem; /* Padding pequeño */
+      }
+      .controles-card input[type="text"].form-control {
+           min-width: 150px; /* Ancho mínimo consistente */
+       }
+      .controles-card select.form-select {
+           min-width: 150px; /* Ancho mínimo consistente */
+      }
+
+       /* Ajuste para el botón, para que ocupe el alto completo de su columna */
+       .controles-card .submit-group {
+          display: flex;
+          align-items: flex-end; /* Alinea el botón abajo */
+          height: 100%;
+       }
+       .controles-card .submit-group .btn {
+           width: 100%; /* Botón ocupa todo el ancho de su columna */
+           padding: 0.25rem 0.5rem; /* Padding pequeño para el botón */
+           font-size: 0.875rem; /* Tamaño fuente pequeño */
+       }
+    </style>
+{% endblock %}
+
+{% block body_class %}ordenes-terminadas-page{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+  {# CSRF no es necesario para GET, pero no estorba #}
+  <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
+
+  <div class="page-header">
+    <h1><i class="fas fa-check-circle"></i> Órdenes Terminadas</h1>
+  </div>
+
+  <div class="card shadow-sm mb-4 controles-card">
+    <div class="card-body">
+      <form method="get" class="row g-3 align-items-end"> {# Alineación al final para que botón quede bien #}
+
+        {# Columna para Búsqueda #}
+        <div class="col-md-4 col-sm-12"> {# Ocupa más en mediano, todo en pequeño #}
+          <label for="q" class="form-label"><i class="fas fa-search"></i> Buscar:</label>
+          <input type="text" name="q" id="q" class="form-control form-control-sm" placeholder="Orden, cliente, motor..." value="{{ search_query|default_if_none:'' }}">
+        </div>
+
+        {# Columna para Filtro Ruta #}
+        <div class="col-md-3 col-sm-6"> {# Ocupa menos, mitad en pequeño #}
+          <label for="ruta" class="form-label"><i class="fas fa-route"></i> Ruta:</label>
+          <select name="ruta" id="ruta" class="form-select form-select-sm">
+            <option value="">-- Todas --</option>
             {% for r in rutas %}
-              <option value="{{ r }}" {% if r == ruta_filtro %}selected{% endif %}>{{ r }}</option>
+              {% if r %}
+                <option value="{{ r }}" {% if r == ruta_filtro %}selected{% endif %}>{{ r }}</option>
+              {% endif %}
             {% endfor %}
           </select>
-          <button type="submit" class="btn btn-primary">
-            <i class="fas fa-filter"></i> Filtrar
-          </button>
-        </form>
-      </div>
-      
-      <!-- Lista de Órdenes Terminadas -->
-      {% if orders %}
-        <ul class="order-list">
-          {% for order in orders %}
-            <li id="order-card-{{ order.id }}" class="order-item" data-order-id="{{ order.id }}">
-              <div class="order-info">
-                <div class="info-segment">
-                  <i class="fas fa-file-alt"></i>
-                  <span class="info-label">Orden:</span>
-                  <span class="info-value">{{ order.numero_orden }}</span>
-                </div>
-                <div class="info-segment">
-                  <i class="fas fa-user"></i>
-                  <span class="info-label">Cliente:</span>
-                  <span class="info-value">{{ order.cliente }}</span>
-                </div>
-                <div class="info-segment">
-                  <i class="fas fa-cogs"></i>
-                  <span class="info-label">Motor:</span>
-                  <span class="info-value">{{ order.modelo_motor }}</span>
-                </div>
-                <div class="info-segment">
-                  <i class="fas fa-route"></i>
-                  <span class="info-label">Ruta:</span>
-                  <span class="info-value">{{ order.ruta }}</span>
-                </div>
-                {% if order.chofer %}
-                    <div class="info-segment">
-                        <i class="fas fa-user-tie"></i>
-                        <span class="info-label">Usuario:</span>
-                        <span class="info-value">{{ order.chofer.username }}</span>
-                    </div>
-                {% endif %}
-              </div>
-              <div class="order-actions">
-                <a href="{% url 'orden_detalle' order.id %}" class="btn btn-info btn-sm">
-                  <i class="fas fa-eye"></i> Ver Detalles
-                </a>
-                <button type="button" class="btn btn-success btn-sm btn-entregada" data-order-id="{{ order.id }}">
-                  <i class="fas fa-truck"></i> Marcar Entregada
-                </button>
-              </div>
-            </li>
-          {% endfor %}
-        </ul>
-      {% else %}
-        <div class="no-orders">
-          <i class="fas fa-clipboard-check"></i>
-          <h4>No hay órdenes terminadas</h4>
-          <p class="text-muted">No se encontraron órdenes listas para entrega</p>
         </div>
-      {% endif %}
-      
-      <!-- Botones de acción -->
-      <div class="mt-4">
-        <a href="{% url 'home' %}" class="btn btn-secondary">
-          <i class="fas fa-arrow-left"></i> Volver al Panel de Control
-        </a>
+
+        {# Columna para Ordenar #}
+        <div class="col-md-3 col-sm-6"> {# Ocupa menos, mitad en pequeño #}
+          <label for="sort-select" class="form-label"><i class="fas fa-sort-amount-down"></i> Ordenar:</label>
+          <select name="sort" id="sort-select" class="form-select form-select-sm">
+            <option value="fecha_desc" {% if sort_param == 'fecha_desc' or not sort_param %}selected{% endif %}>
+                Recientes Primero
+            </option>
+            <option value="fecha_asc" {% if sort_param == 'fecha_asc' %}selected{% endif %}>
+                Antiguas Primero
+            </option>
+            <option value="numero_asc" {% if sort_param == 'numero_asc' %}selected{% endif %}>
+                Nº Orden &uarr;
+            </option>
+            <option value="numero_desc" {% if sort_param == 'numero_desc' %}selected{% endif %}>
+                Nº Orden &darr;
+            </option>
+          </select>
+        </div>
+
+        {# Columna para el Botón Aplicar #}
+        <div class="col-md-2 col-sm-12 submit-group"> {# Columna flexible, todo ancho en pequeño #}
+          <button type="submit" class="btn btn-primary btn-sm">
+              <i class="fas fa-filter"></i> Aplicar
+          </button>
+        </div>
+
+      </form> {# Fin del form #}
+    </div> {# Fin card-body #}
+  </div> {# Fin card #}
+  {% if orders %}
+    <ul class="order-list">
+      {% for order in orders %}
+        <li id="order-card-{{ order.id }}" class="order-item" data-order-id="{{ order.id }}">
+          <div class="order-info">
+            <div class="info-segment">
+              <i class="fas fa-file-alt"></i>
+              <span class="info-label">Orden:</span>
+              <span class="info-value">{{ order.numero_orden }}</span>
+            </div>
+            <div class="info-segment">
+              <i class="fas fa-user"></i>
+              <span class="info-label">Cliente:</span>
+              <span class="info-value">{{ order.cliente }}</span>
+            </div>
+            <div class="info-segment">
+              <i class="fas fa-cogs"></i>
+              <span class="info-label">Motor:</span>
+              <span class="info-value">{{ order.modelo_motor|default:"N/A" }}</span>
+            </div>
+            <div class="info-segment">
+              <i class="fas fa-route"></i>
+              <span class="info-label">Ruta:</span>
+              <span class="info-value">{{ order.ruta|default:"N/A" }}</span>
+            </div>
+            <div class="info-segment">
+                 <i class="fas fa-calendar-check"></i>
+                 <span class="info-label">Terminada:</span>
+                 <span class="info-value">{{ order.fecha_terminacion|date:"d/m/Y H:i"|default:"-" }}</span>
+            </div>
+            {% if order.chofer %}
+                <div class="info-segment">
+                    <i class="fas fa-user-tie"></i>
+                    <span class="info-label">Usuario:</span>
+                    <span class="info-value">{{ order.chofer.username }}</span>
+                </div>
+            {% endif %}
+          </div>
+          <div class="order-actions">
+            <a href="{% url 'servicios:orden_detalle' order.id %}" class="btn btn-info btn-sm">
+              <i class="fas fa-eye"></i> Ver Detalles
+            </a>
+            <button type="button" class="btn btn-success btn-sm btn-entregada" data-order-id="{{ order.id }}">
+              <i class="fas fa-truck"></i> Marcar Entregada
+            </button>
+          </div>
+        </li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <div class="no-orders text-center alert alert-warning mt-4"> {# Estilo alert para destacar #}
+      <i class="fas fa-info-circle fa-2x mb-3"></i>
+      <h4>No hay órdenes terminadas</h4>
+      <p class="text-muted">No se encontraron órdenes que coincidan con los filtros y búsqueda aplicados.</p>
+    </div>
+  {% endif %}
+
+</div>
+
+<div class="modal fade" id="modalEntregada" tabindex="-1" role="dialog" aria-labelledby="modalEntregadaLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="modalEntregadaLabel">
+          <i class="fas fa-truck mr-2"></i> Confirmar Entrega
+        </h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Cerrar">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <p>¿Estás seguro de marcar la orden <strong id="confirm-order-number-modal"></strong> como entregada?</p>
+        <p class="text-muted small">Una vez marcada como entregada, la orden pasará al historial y ya no se mostrará en esta lista.</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">
+          <i class="fas fa-times mr-1"></i> Cancelar
+        </button>
+        <button type="button" class="btn btn-success" id="btnConfirmEntregada">
+          <i class="fas fa-check mr-1"></i> Confirmar Entrega
+        </button>
       </div>
     </div>
   </div>
-  
-  <!-- Modal de Confirmación para marcar la orden como entregada -->
-  <div class="modal fade" id="modalEntregada" tabindex="-1" role="dialog" aria-labelledby="modalEntregadaLabel" aria-hidden="true">
-    <div class="modal-dialog" role="document">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title" id="modalEntregadaLabel">
-            <i class="fas fa-truck mr-2"></i> Confirmar Entrega
-          </h5>
-          <button type="button" class="close" data-dismiss="modal" aria-label="Cerrar">
-            <span aria-hidden="true">&times;</span>
-          </button>
-        </div>
-        <div class="modal-body">
-          <p>¿Estás seguro de marcar esta orden como entregada?</p>
-          <p class="text-muted small">Una vez marcada como entregada, la orden pasará al historial y ya no se mostrará en esta lista.</p>
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-dismiss="modal">
-            <i class="fas fa-times mr-2"></i> Cancelar
-          </button>
-          <button type="button" class="btn btn-success" id="btnConfirmEntregada">
-            <i class="fas fa-check mr-2"></i> Confirmar
-          </button>
-        </div>
-      </div>
-    </div>
-  </div>
-  
-  <!-- Incluir jQuery y Bootstrap JS -->
-  <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
-  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-  
-  <!-- JavaScript para la funcionalidad -->
-  {% block extra_scripts %}
-    <script src="{% static 'js/ordenes_terminadas.js' %}"></script>
-  {% endblock %}
-</body>
-</html>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+  {# Script base de Bootstrap etc. se cargan en base.html #}
+  <script src="{% static 'servicios/js/ordenes_terminadas.js' %}"></script>
+  {# Script para manejar el modal de confirmación #}
+  <script>
+    $(document).ready(function() {
+      $('.btn-entregada').on('click', function() {
+        var orderId = $(this).data('order-id');
+        var orderNumber = $(this).closest('.order-item').find('.info-segment:contains("Orden:") .info-value').text().trim();
+        $('#confirm-order-number-modal').text(orderNumber || 'seleccionada');
+        $('#btnConfirmEntregada').data('order-id', orderId);
+        $('#modalEntregada').modal('show');
+      });
+      // Asegúrate que la lógica AJAX en ordenes_terminadas.js usa
+      // $('#btnConfirmEntregada').data('order-id') para la petición POST.
+    });
+  </script>
+{% endblock %}

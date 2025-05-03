@@ -4,7 +4,7 @@
 {% block title %}Detalle de Orden {{ orden.numero_provisional }}{% endblock %}
 
 {% block extra_head_css %}
-    <link rel="stylesheet" href="{% static 'css/orden_detalle.css' %}">
+    <link rel="stylesheet" href="{% static 'servicios/css/orden_detalle.css' %}">
 {% endblock %}
 S
 {% block content %}
@@ -23,24 +23,39 @@ S
         <div class="card-header"><i class="fas fa-info-circle"></i> Información General</div>
         <div class="card-body">
             <div class="info-grid"> {# Usa clase definida en <style> #}
+                {# --- Campos existentes --- #}
                 <div class="info-item"><div class="info-label">Cliente</div><div class="info-value">{{ orden.cliente }}</div></div>
                 <div class="info-item"><div class="info-label">Teléfono</div><div class="info-value">{{ orden.telefono|default:"-" }}</div></div>
                 <div class="info-item"><div class="info-label">Modelo</div><div class="info-value">{{ orden.modelo_motor|default:"-" }}</div></div>
                 <div class="info-item"><div class="info-label">Ruta</div><div class="info-value">{{ orden.ruta|default:"-" }}</div></div>
                 <div class="info-item"><div class="info-label">Usuario</div><div class="info-value">{% if orden.chofer %}{{ orden.chofer.username }}{% else %}N/A{% endif %}</div></div>
                 <div class="info-item"><div class="info-label">Ingreso</div><div class="info-value">{{ orden.fecha_ingreso|date:"d/m/Y H:i" }}</div></div>
-                {% if orden.fecha_programada %}<div class="info-item"><div class="info-label">Programada</div><div class="info-value">{{ orden.fecha_programada|date:"d/m/Y" }}</div></div>{% endif %}
+                {% if orden.fecha_programada %}
+                <div class="info-item">
+                    <div class="info-label">Programada</div>
+                    <div class="info-value">{{ orden.fecha_programada|date:"d/m/Y" }}</div></div>{% endif %}
+                {% if orden.fecha_aceptacion %}
+                <div class="info-item">
+                    <div class="info-label">F. Aceptación</div>
+                    <div class="info-value">{{ orden.fecha_aceptacion|date:"d/m/Y H:i" }}</div>
+                </div>
+                {% endif %}
+                {% if orden.fecha_terminacion %}
+                <div class="info-item">
+                    <div class="info-label">F. Terminación</div>
+                    <div class="info-value">{{ orden.fecha_terminacion|date:"d/m/Y H:i" }}</div>
+                </div>
+                {% endif %}
+                {% if orden.fecha_entrega %}
+                <div class="info-item">
+                    <div class="info-label">F. Entrega</div>
+                    <div class="info-value">{{ orden.fecha_entrega|date:"d/m/Y H:i" }}</div>
+                </div>
+                {% endif %}
             </div>
             {% if orden.notificacion %}<div class="observaciones mt-3"><div class="info-label">Notificación</div><div class="info-value">{{ orden.notificacion|linebreaksbr }}</div></div>{% endif %}
             {% if orden.observaciones %}<div class="observaciones mt-3"><div class="info-label">Observaciones</div><div class="info-value">{{ orden.observaciones|linebreaksbr }}</div></div>{% endif %}
-            {% if orden.imagen %}
-            <div class="mt-4">
-                <div class="info-label mb-2">Imagen</div>
-                <a href="{{ orden.imagen.url }}" target="_blank" title="Ver imagen completa">
-                     <img src="{{ orden.imagen.url }}" alt="Imagen de orden" class="order-image"> {# Usa clase definida en <style> #}
-                </a>
-            </div>
-            {% endif %}
+            
         </div>
     </div>
 
@@ -68,7 +83,14 @@ S
             {% if servicios %}
                 <div class="table-responsive">
                     <table class="table table-striped table-hover table-sm">
-                         <thead><tr><th>Servicio</th><th>Cantidad / Especificación</th></tr></thead>
+                        <thead>
+                            {# Añadimos una columna para el Estado #}
+                            <tr>
+                                <th>Servicio</th>
+                                <th>Cantidad / Especificación</th>
+                                <th class="text-center">Estado</th> {# Nueva columna #}
+                            </tr>
+                        </thead>
                         <tbody>
                             {% for serv in servicios %}
                                 <tr>
@@ -76,7 +98,28 @@ S
                                     <td>
                                         {% if serv.cantidad and serv.cantidad|stringformat:"s"|trim != "0" and serv.cantidad|stringformat:"s"|trim != "" %}
                                             {{ serv.cantidad }}
-                                        {% else %}<span class="text-muted">—</span>{% endif %}
+                                        {% else %}
+                                            <span class="text-muted">—</span>
+                                        {% endif %}
+                                    </td>
+                                    <td class="text-center">
+                                        {% if serv.estado == 'NO_REALIZADO' %}
+                                            <span class="text-danger" title="No Realizado" data-toggle="tooltip">
+                                                <i class="fas fa-times-circle"></i>
+                                            </span>
+                                        {% elif serv.estado == 'TERMINADO' %}
+                                            <span class="text-success" title="Terminado" data-toggle="tooltip">
+                                                <i class="fas fa-check-circle"></i>
+                                            </span>
+                                        {% elif serv.estado == 'PROCESO' %}
+                                            <span class="text-warning" title="En Proceso" data-toggle="tooltip">
+                                                <i class="fas fa-spinner fa-spin"></i> {# O usa fa-sync-alt, fa-hourglass-half #}
+                                            </span>
+                                        {% else %} {# Pendiente #}
+                                            <span class="text-muted" title="Pendiente" data-toggle="tooltip">
+                                                <i class="far fa-circle"></i> {# O usa fa-clock #}
+                                            </span>
+                                        {% endif %}
                                     </td>
                                 </tr>
                             {% endfor %}
@@ -88,19 +131,64 @@ S
             {% endif %}
         </div>
     </div>
+    {# --- SECCIÓN PARA MOSTRAR IMÁGENES ADJUNTAS --- #}
+    <div class="card mt-4"> {# Añadí mt-4 para separación visual #}
+        <div class="card-header">
+            <i class="fas fa-images mr-2"></i> Imágenes Adjuntas
+        </div>
+        <div class="card-body">
+            {% if imagenes %}
+                <div class="row">
+                    {% for img in imagenes %}
+                        <div class="col-md-4 col-sm-6 mb-3">
+                            <div class="card h-100 text-center">
+                                <a href="{{ img.imagen.url }}" target="_blank" data-toggle="tooltip" title="Ver imagen completa">
+                                    <img src="{{ img.imagen.url }}" class="card-img-top img-thumbnail" alt="Imagen adjunta {{ forloop.counter }}" style="max-height: 200px; object-fit: contain; margin-top: 10px;">
+                                </a>
+                                <div class="card-footer bg-transparent border-top-0 pt-2 pb-2">
+                                     {# Botón de eliminar (la funcionalidad se añadirá después) #}
+                                     {# Necesitarás añadir la URL 'eliminar_orden_imagen' a tu urls.py #}
+                                     {# y crear la vista correspondiente más adelante #}
+                                     {% if user.is_superuser %}
+                                         <form method="POST" action="{% url 'servicios:eliminar_orden_imagen' img.id %}" class="delete-image-form d-inline" onsubmit="return confirm('¿Estás seguro de que deseas eliminar esta imagen?');">
+                                             {% csrf_token %}
+                                             <button type="submit" class="btn btn-sm btn-outline-danger">
+                                                 <i class="fas fa-trash-alt"></i> Eliminar
+                                             </button>
+                                         </form>
+                                     {% else %}
+                                         {# Opcional: botón deshabilitado #}
+                                         <button type="button" class="btn btn-sm btn-outline-danger" disabled title="Solo Admin">
+                                             <i class="fas fa-trash-alt"></i> Eliminar
+                                         </button>
+                                     {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <p class="text-muted">No hay imágenes adjuntas para esta orden.</p>
+            {% endif %}
+            {# Enlace/Botón para añadir más imágenes (llevaría a editar_orden) #}
+            {# Puedes descomentar esto si quieres un acceso rápido a editar desde aquí #}
+            {# <a href="{% url 'servicios:editar_orden' orden.id %}" class="btn btn-sm btn-outline-primary mt-2"><i class="fas fa-plus"></i> Añadir Imágenes</a> #}
+        </div>
+    </div>
+    {# --- FIN SECCIÓN IMÁGENES --- #}
 
     <div class="action-buttons mb-3"> {# Usa clase definida en <style> #}
-        <a href="{% url 'lista_ordenes' %}" class="btn btn-secondary">
+        <a href="{% url 'servicios:lista_ordenes' %}" class="btn btn-secondary">
             <i class="fas fa-arrow-left"></i> Volver a Lista
         </a>
         {% if user.is_superuser %}
             {% if orden.estado_general == 'ESPERA' or orden.estado_general == 'ACEPTADA' or orden.estado_general == 'PROCESO' %}
-            <a href="{% url 'editar_orden' orden.id %}" class="btn btn-primary">
+            <a href="{% url 'servicios:editar_orden' orden.id %}" class="btn btn-primary">
                 <i class="fas fa-edit"></i> Editar Orden
             </a>
             {% endif %}
         {% endif %}
-        <a href="{% url 'tablero_ordenes' %}" class="btn btn-info">
+        <a href="{% url 'servicios:tablero_ordenes' %}" class="btn btn-info">
             <i class="fas fa-th-large"></i> Ir al Tablero
         </a>
     </div>

@@ -2,6 +2,7 @@ from django import template
 
 register = template.Library()
 
+
 @register.filter
 def get_item(form, key):
     """
@@ -13,6 +14,7 @@ def get_item(form, key):
     except Exception:
         return None
 
+
 @register.filter
 def lookup(dictionary, key):
     """
@@ -22,6 +24,7 @@ def lookup(dictionary, key):
         return dictionary.get(key)
     except Exception:
         return None
+
 
 @register.filter
 def trim(value):

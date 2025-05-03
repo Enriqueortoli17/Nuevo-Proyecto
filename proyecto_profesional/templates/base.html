@@ -10,9 +10,9 @@
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
     {# CSS del Proyecto - Solo base.css cargado originalmente #}
-    <link rel="stylesheet" href="{% static 'css/base.css' %}">
-    <link rel="stylesheet" href="{% static 'css/components.css' %}"> 
-    <link rel="stylesheet" href="{% static 'css/responsive.css' %}"> 
+    <link rel="stylesheet" href="{% static 'servicios/css/base.css' %}">
+    <link rel="stylesheet" href="{% static 'servicios/css/components.css' %}"> 
+    <link rel="stylesheet" href="{% static 'servicios/css/responsive.css' %}"> 
 
     {% block extra_head_css %}{% endblock %} {# Bloque para CSS extra de plantillas hijas #}
 </head>
@@ -20,14 +20,14 @@
     {# --- Barra de Navegación Superior --- #}
     <nav class="top-navbar">
         <button id="sidebarToggle" class="nav-icon" aria-label="Toggle sidebar"> <i class="fas fa-bars"></i> </button>
-        <a href="{% url 'home' %}" class="brand-logo"> <i class="fas fa-cogs"></i> Control de Servicios </a>
+        <a href="{% url 'servicios:home' %}" class="brand-logo"> <i class="fas fa-cogs"></i> Control de Servicios </a>
         <div class="top-navbar-right">
             {% block navbar_right %}
                 {# Contenido por defecto: Switch Tema + Icono Lista Órdenes #}
                 <div class="theme-switch-wrapper">
                     <label class="theme-switch" for="theme-checkbox"> <input type="checkbox" id="theme-checkbox" /> <div class="slider"></div> </label>
                 </div>
-                <a href="{% url 'lista_ordenes' %}" class="nav-icon" title="Lista de Órdenes">
+                <a href="{% url 'servicios:lista_ordenes' %}" class="nav-icon" title="Lista de Órdenes">
                     <i class="fas fa-clipboard-list"></i>
                 </a>
             {% endblock navbar_right %}
@@ -41,37 +41,95 @@
          {# --- Sidebar --- #}
          <nav id="sidebar" class="sidebar"> {# Originalmente no tenía 'expanded' #}
              <div class="sidebar-menu">
-                 <a href="{% url 'home' %}" class="menu-link home-link"><i class="fas fa-home"></i> Inicio</a>
+                 <a href="{% url 'servicios:home' %}" class="menu-link home-link"><i class="fas fa-home"></i> Inicio</a>
                  <div class="menu-heading" data-target="#submenuOrdenes"><div><i class="fas fa-clipboard-list"></i><span>Órdenes</span></div><i class="fas fa-chevron-right arrow"></i></div>
                  <div id="submenuOrdenes" class="submenu">
-                     <a href="{% url 'crear_orden' %}" class="menu-link">Nueva Orden</a>
-                     <a href="{% url 'lista_ordenes' %}" class="menu-link">Lista de Órdenes</a>
-                     <a href="{% url 'tablero_ordenes' %}" class="menu-link">Tablero</a>
-                     <a href="{% url 'actualizar_servicios' %}" class="menu-link">Actualización de Estados</a>
-                     <a href="{% url 'ordenes_terminadas' %}" class="menu-link">Órdenes Terminadas</a>
-                     <a href="{% url 'historial_ordenes' %}" class="menu-link">Historial de Entregadas</a>
-                     <a href="{% url 'ordenes_anuladas' %}" class="menu-link">Órdenes Anuladas</a>
+                    {% if perms.servicios.add_orden %}
+                        <a href="{% url 'servicios:crear_orden' %}" class="menu-link">Nueva Orden</a>
+                    {% else %}
+                        <span class="menu-link disabled" title="Permiso requerido" style="opacity: 0.6; pointer-events: none;">Nueva Orden</span>
+                    {% endif %}
+                    {% if perms.servicios.view_orden %}
+                        <a href="{% url 'servicios:lista_ordenes' %}" class="menu-link">Lista de Órdenes</a>
+                    {% else %}
+                        <span class="menu-link disabled" title="Permiso requerido" style="opacity: 0.6; pointer-events: none;">Lista de Órdenes</span>
+                    {% endif %}                                     
+                    {% if perms.servicios.view_orden %}
+                        <a href="{% url 'servicios:tablero_ordenes' %}" class="menu-link">Tablero</a>
+                    {% else %}
+                        <span class="menu-link disabled" title="Permiso requerido" style="opacity: 0.6; pointer-events: none;">Tablero</span>
+                    {% endif %}                    
+                    {% if perms.servicios.change_servicio %}
+                        <a href="{% url 'servicios:actualizar_servicios' %}" class="menu-link">Actualización de Estados</a>
+                    {% else %}
+                        <span class="menu-link disabled" title="Permiso requerido" style="opacity: 0.6; pointer-events: none;">Actualización de Estados</span>
+                    {% endif %}     
+                    {% if perms.servicios.view_orden %}
+                        <a href="{% url 'servicios:ordenes_terminadas' %}" class="menu-link">Órdenes Terminadas</a>
+                    {% else %}
+                        <span class="menu-link disabled" title="Permiso requerido" style="opacity: 0.6; pointer-events: none;">Órdenes Terminadas</span>
+                    {% endif %}                     
+                    {% if perms.servicios.view_orden %}
+                        <a href="{% url 'servicios:historial_ordenes' %}" class="menu-link">Historial de Entregadas</a>
+                    {% else %}
+                        <span class="menu-link disabled" title="Permiso requerido" style="opacity: 0.6; pointer-events: none;">Historial de Entregadas</span>
+                    {% endif %}                     
+                    {% if perms.servicios.view_orden %}
+                        <a href="{% url 'servicios:ordenes_anuladas' %}" class="menu-link">Órdenes Anuladas</a>
+                    {% else %}
+                        <span class="menu-link disabled" title="Permiso requerido" style="opacity: 0.6; pointer-events: none;">Órdenes Anuladas</span>
+                    {% endif %}                 
                  </div>
-                 <div class="menu-heading" data-target="#submenuConfig"><div><i class="fas fa-cog"></i><span>Configuración</span></div><i class="fas fa-chevron-right arrow"></i></div>
-                 <div id="submenuConfig" class="submenu">
-                     <a href="{% url 'config_modelos' %}" class="menu-link">Modelos de Motor</a>
-                     <a href="{% url 'config_clientes' %}" class="menu-link">Clientes</a>
-                     <a href="{% url 'config_rutas' %}" class="menu-link">Rutas</a> {# Asumiendo que existía #}
-                 </div>
+                 {% if perms.servicios.view_motor or perms.servicios.view_cliente %} {# Permiso para ver al menos uno #}
+                    <div class="menu-heading" data-target="#submenuConfig"><div><i class="fas fa-cog"></i><span>Configuración</span></div><i class="fas fa-chevron-right arrow"></i></div>
+                    <div id="submenuConfig" class="submenu">
+                        <a href="{% url 'servicios:config_modelos' %}" class="menu-link">Modelos de Motor</a>
+                        <a href="{% url 'servicios:config_clientes' %}" class="menu-link">Clientes</a>
+                        <a href="{% url 'servicios:config_rutas' %}" class="menu-link">Rutas</a> {# Asumiendo que existía #}
+                    </div>
+                 {% endif %}
                  <div class="menu-heading" data-target="#submenuReportes"><div><i class="fas fa-chart-bar"></i><span>Reportes</span></div><i class="fas fa-chevron-right arrow"></i></div>
                  <div id="submenuReportes" class="submenu">
+                     <a href="{% url 'servicios:reporte_duracion_orden' %}" class="menu-link">Duración Detallada</a>
                      <a href="#" class="menu-link">Reporte Mensual</a>
                      <a href="#" class="menu-link">Productividad</a>
                      <a href="#" class="menu-link">Servicios Populares</a>
                  </div>
+                 {% if user.is_authenticated %}
+                     <a href="{% url 'servicios:logout' %}" class="menu-link home-link">
+                         <i class="fas fa-sign-out-alt"></i> Cerrar Sesión
+                     </a>
+                 {% endif %}
                   {# Enlace a Sincronizar (si estaba aquí originalmente) #}
-                  {# <a href="{% url 'sincronizar_ordenes' %}" class="menu-link home-link"><i class="fas fa-sync-alt"></i> Sincronizar</a> #}
+                  {# <a href="{% url 'servicios:sincronizar_ordenes' %}" class="menu-link home-link"><i class="fas fa-sync-alt"></i> Sincronizar</a> #}
              </div>
         </nav>
 
         {# --- Contenido Principal --- #}
+        <div class="django-messages-container">
+            {% if messages %}
+                {# El contenedor interno que usamos antes ahora está vacío o puedes quitarlo si prefieres #}
+                {# <div class="container-fluid mt-0 mb-0 p-0"> #}
+                    {% for message in messages %}
+                        <div class="alert alert-dismissible fade show mb-1 mx-3 {# Ajusta margen inferior/horizontal #}
+                            {% if message.tags == 'debug' %}alert-secondary{% endif %}
+                            {% if message.tags == 'info' %}alert-info{% endif %}
+                            {% if message.tags == 'success' %}alert-success{% endif %}
+                            {% if message.tags == 'warning' %}alert-warning{% endif %}
+                            {% if message.tags == 'error' %}alert-danger{% endif %}"
+                             role="alert" style="border-radius: 6px; box-shadow: var(--shadow-md);"> {# Añadí sombra y borde #}
+                            {{ message }}
+                            <button type="button" class="close" data-dismiss="alert" aria-label="Close" style="padding: 0.75rem 1.25rem;">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                    {% endfor %}
+                {# </div> #}
+            {% endif %}
+        </div>
+
         <main id="mainContent" class="content-wrapper expanded"> {# Originalmente empezaba expandido #}
-             {# No había meta tag CSRF aquí originalmente #}
+        
             {% block content %}
             {# El contenido específico de cada página irá aquí #}
             {% endblock %}
@@ -189,8 +247,8 @@
         });
     </script>
     {% block extra_scripts %}
-    <script src="{% static 'js/theme.js' %}"></script>
-    <script src="{% static 'js/notifications.js' %}"></script>
+    <script src="{% static 'servicios/js/theme.js' %}"></script>
+    <script src="{% static 'servicios/js/notifications.js' %}"></script>
     {% endblock %} {# Bloque para scripts específicos de página #}
 </body>
 </html>

@@ -5,7 +5,7 @@
 
 {% block extra_head_css %}
     {# Enlazamos el archivo CSS externo (asegúrate que exista y tenga el contenido del Paso 2) #}
-    <link rel="stylesheet" href="{% static 'css/aceptar_orden_confirm.css' %}">
+    <link rel="stylesheet" href="{% static 'servicios/css/aceptar_orden_confirm.css' %}">
 {% endblock %}
 
 {% block content %}
@@ -28,7 +28,7 @@
             <button type="submit" class="btn btn-success">
                 <i class="fas fa-check mr-1"></i> Confirmar Aceptación
             </button>
-            <a href="{% url 'lista_ordenes' %}" class="btn btn-secondary">
+            <a href="{% url 'servicios:lista_ordenes' %}" class="btn btn-secondary">
                 <i class="fas fa-times mr-1"></i> Cancelar
             </a>
         </form>

@@ -6,13 +6,17 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('servicios', '0001_initial'),
+        ("servicios", "0001_initial"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='orden',
-            name='fecha_programada',
-            field=models.DateField(blank=True, help_text='Fecha en la que se inicia la producción', null=True),
+            model_name="orden",
+            name="fecha_programada",
+            field=models.DateField(
+                blank=True,
+                help_text="Fecha en la que se inicia la producción",
+                null=True,
+            ),
         ),
     ]

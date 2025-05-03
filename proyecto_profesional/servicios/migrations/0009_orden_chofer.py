@@ -8,14 +8,21 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('servicios', '0008_alter_servicio_cantidad'),
+        ("servicios", "0008_alter_servicio_cantidad"),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='orden',
-            name='chofer',
-            field=models.ForeignKey(blank=True, help_text='Chofer que capturó la orden', null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='ordenes', to=settings.AUTH_USER_MODEL),
+            model_name="orden",
+            name="chofer",
+            field=models.ForeignKey(
+                blank=True,
+                help_text="Chofer que capturó la orden",
+                null=True,
+                on_delete=django.db.models.deletion.SET_NULL,
+                related_name="ordenes",
+                to=settings.AUTH_USER_MODEL,
+            ),
         ),
     ]

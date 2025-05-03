@@ -1,4 +1,5 @@
 from django.urls import re_path
+
 # La referencia a 'servicios.consumers' sigue siendo válida porque
 # 'servicios' es una app registrada en INSTALLED_APPS
 from servicios.consumers import ServicioConsumer, OrdenesConsumer

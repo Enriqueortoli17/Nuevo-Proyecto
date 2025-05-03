@@ -1,7 +1,7 @@
 # proyecto_profesional/proyecto_config/settings/development.py
 
-from .base import * # Importa toda la configuración base
-from .base import env # Importa la instancia 'env' de base.py para usarla aquí
+from .base import *  # Importa toda la configuración base
+from .base import env  # Importa la instancia 'env' de base.py para usarla aquí
 
 # --- Configuración específica para DESARROLLO ---
 
@@ -14,7 +14,7 @@ DEBUG = True
 # SECRET_KEY = env('SECRET_KEY') # Ya está en base.py
 
 # Hosts permitidos en desarrollo (puedes ser más permisivo aquí)
-ALLOWED_HOSTS = ['localhost', '127.0.0.1', '192.168.1.104'] # Tus hosts locales
+ALLOWED_HOSTS = ["localhost", "127.0.0.1", "192.168.1.104"]  # Tus hosts locales
 
 # Configuración de Base de Datos para Desarrollo (opcional, si quieres una diferente)
 # Por defecto usará la definida en base.py (SQLite)
@@ -26,7 +26,7 @@ ALLOWED_HOSTS = ['localhost', '127.0.0.1', '192.168.1.104'] # Tus hosts locales
 # }
 
 # Configuración de Email (para que los emails se impriman en consola en lugar de enviarse)
-EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
 
 # Configuración de Channels (usa InMemory para desarrollo)
 # CHANNEL_LAYERS = { # Ya está definido en base.py

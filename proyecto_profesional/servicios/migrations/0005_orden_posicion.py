@@ -6,13 +6,13 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('servicios', '0004_remove_servicio_nombre_servicio_cantidad_and_more'),
+        ("servicios", "0004_remove_servicio_nombre_servicio_cantidad_and_more"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='orden',
-            name='posicion',
+            model_name="orden",
+            name="posicion",
             field=models.PositiveIntegerField(blank=True, default=0),
         ),
     ]

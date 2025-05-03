@@ -7,35 +7,100 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('servicios', '0010_alter_orden_chofer'),
+        ("servicios", "0010_alter_orden_chofer"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='Cliente',
+            name="Cliente",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('nombre', models.CharField(help_text='Nombre completo del cliente', max_length=100, unique=True)),
-                ('telefono', models.CharField(blank=True, help_text='Teléfono del cliente', max_length=20, null=True)),
-                ('ruta', models.CharField(blank=True, help_text='Ruta o dirección del cliente', max_length=50, null=True)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "nombre",
+                    models.CharField(
+                        help_text="Nombre completo del cliente",
+                        max_length=100,
+                        unique=True,
+                    ),
+                ),
+                (
+                    "telefono",
+                    models.CharField(
+                        blank=True,
+                        help_text="Teléfono del cliente",
+                        max_length=20,
+                        null=True,
+                    ),
+                ),
+                (
+                    "ruta",
+                    models.CharField(
+                        blank=True,
+                        help_text="Ruta o dirección del cliente",
+                        max_length=50,
+                        null=True,
+                    ),
+                ),
             ],
         ),
         migrations.CreateModel(
-            name='Motor',
+            name="Motor",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('nombre', models.CharField(help_text='Nombre o tipo de motor', max_length=100, unique=True)),
-                ('especificaciones', models.TextField(blank=True, help_text='Especificaciones y características del motor', null=True)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "nombre",
+                    models.CharField(
+                        help_text="Nombre o tipo de motor", max_length=100, unique=True
+                    ),
+                ),
+                (
+                    "especificaciones",
+                    models.TextField(
+                        blank=True,
+                        help_text="Especificaciones y características del motor",
+                        null=True,
+                    ),
+                ),
             ],
         ),
         migrations.AddField(
-            model_name='orden',
-            name='cliente_registrado',
-            field=models.ForeignKey(blank=True, help_text='Cliente registrado (opcional)', null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='ordenes', to='servicios.cliente'),
+            model_name="orden",
+            name="cliente_registrado",
+            field=models.ForeignKey(
+                blank=True,
+                help_text="Cliente registrado (opcional)",
+                null=True,
+                on_delete=django.db.models.deletion.SET_NULL,
+                related_name="ordenes",
+                to="servicios.cliente",
+            ),
         ),
         migrations.AddField(
-            model_name='orden',
-            name='motor_registrado',
-            field=models.ForeignKey(blank=True, help_text='Motor registrado (opcional)', null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='ordenes', to='servicios.motor'),
+            model_name="orden",
+            name="motor_registrado",
+            field=models.ForeignKey(
+                blank=True,
+                help_text="Motor registrado (opcional)",
+                null=True,
+                on_delete=django.db.models.deletion.SET_NULL,
+                related_name="ordenes",
+                to="servicios.motor",
+            ),
         ),
     ]

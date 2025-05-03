@@ -6,13 +6,24 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('servicios', '0002_orden_fecha_programada'),
+        ("servicios", "0002_orden_fecha_programada"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='orden',
-            name='estado_general',
-            field=models.CharField(choices=[('ESPERA', 'En espera'), ('ACEPTADA', 'Aceptada'), ('PROCESO', 'En proceso'), ('LISTO', 'Listo para entrega'), ('ENTREGADO', 'Entregado'), ('ANULADA', 'Anulada')], default='ESPERA', max_length=15),
+            model_name="orden",
+            name="estado_general",
+            field=models.CharField(
+                choices=[
+                    ("ESPERA", "En espera"),
+                    ("ACEPTADA", "Aceptada"),
+                    ("PROCESO", "En proceso"),
+                    ("LISTO", "Listo para entrega"),
+                    ("ENTREGADO", "Entregado"),
+                    ("ANULADA", "Anulada"),
+                ],
+                default="ESPERA",
+                max_length=15,
+            ),
         ),
     ]

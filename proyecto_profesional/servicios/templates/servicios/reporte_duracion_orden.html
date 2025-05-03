@@ -1,0 +1,305 @@
+{% extends 'base.html' %}
+{% load static custom_filters %}
+
+{% block title %}Reporte Duración por Orden{% endblock %}
+
+{% block extra_head_css %}
+<link rel="stylesheet" href="{% static 'servicios/css/reporte_duracion_orden.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid page-report-container">
+
+    <!-- Cabecera Mejorada del Reporte -->
+    <div class="report-header">
+        <h1><i class="fas fa-chart-line"></i>Reporte de Duración por Orden</h1>
+        <p class="report-description">
+            Análisis detallado del tiempo de proceso para cada servicio y orden completada.
+        </p>
+    </div>
+
+    <!-- Mini Dashboard de Resumen -->
+    <div class="dashboard-summary">
+        <!-- Tiempo Medio de Servicio -->
+        <div class="summary-card">
+            <i class="fas fa-clock summary-icon"></i>
+            <div class="summary-title">Tiempo Medio</div>
+            <div class="summary-value">{{ tiempo_medio|default:"2.5d" }}</div>
+            <div class="summary-subtitle">Duración promedio por orden</div>
+        </div>
+        
+        <!-- Total Órdenes -->
+        <div class="summary-card" style="border-left-color: var(--success-color);">
+            <i class="fas fa-clipboard-check summary-icon" style="color: var(--success-color);"></i>
+            <div class="summary-title">Órdenes Encontradas</div>
+            <div class="summary-value">{{ ordenes.count }}</div>
+            <div class="summary-subtitle">En el periodo seleccionado</div>
+        </div>
+        
+        <!-- Servicios Realizados -->
+        <div class="summary-card" style="border-left-color: var(--info-color);">
+            <i class="fas fa-tools summary-icon" style="color: var(--info-color);"></i>
+            <div class="summary-title">Servicios Realizados</div>
+            <div class="summary-value">{{ total_servicios|default:"48" }}</div>
+            <div class="summary-subtitle">En todas las órdenes</div>
+        </div>
+    </div>
+
+    <!-- Panel de Filtros Mejorado -->
+    <div class="filter-card">
+        <div class="filter-header">
+            <span><i class="fas fa-filter"></i>Filtros de Búsqueda</span>
+            <button class="btn btn-sm btn-link" type="button" data-toggle="collapse" data-target="#filterCollapse" aria-expanded="true" aria-controls="filterCollapse">
+                <i class="fas fa-chevron-up"></i>
+            </button>
+        </div>
+        <div class="collapse show" id="filterCollapse">
+            <div class="filter-body">
+                <form method="get" class="filter-form row">
+                    <div class="col-md-4 form-group">
+                        <label for="fecha_desde">
+                            Fecha Terminación Desde
+                            <i class="fas fa-info-circle info-tooltip" title="Filtra órdenes terminadas a partir de esta fecha"></i>
+                        </label>
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text"><i class="fas fa-calendar-alt"></i></span>
+                            </div>
+                            <input type="date" name="fecha_desde" id="fecha_desde" value="{{ fecha_desde }}" class="form-control">
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-4 form-group">
+                        <label for="fecha_hasta">
+                            Fecha Terminación Hasta
+                            <i class="fas fa-info-circle info-tooltip" title="Filtra órdenes terminadas hasta esta fecha"></i>
+                        </label>
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text"><i class="fas fa-calendar-alt"></i></span>
+                            </div>
+                            <input type="date" name="fecha_hasta" id="fecha_hasta" value="{{ fecha_hasta }}" class="form-control">
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-4 form-group">
+                        <label for="cliente">
+                            Cliente
+                            <i class="fas fa-info-circle info-tooltip" title="Filtra por cliente específico"></i>
+                        </label>
+                        <select name="cliente" id="cliente" class="form-control">
+                            <option value="">Todos los clientes</option>
+                            <!-- Opciones de clientes generadas dinámicamente -->
+                            {% for cliente in clientes %}
+                                <option value="{{ cliente.id }}" {% if cliente_seleccionado == cliente.id %}selected{% endif %}>
+                                    {{ cliente.nombre }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    
+                    <div class="col-12">
+                        <div class="filter-actions">
+                            <a href="{% url 'servicios:reporte_duracion_orden' %}" class="btn btn-outline-secondary">
+                                <i class="fas fa-eraser mr-1"></i> Limpiar
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-search mr-1"></i> Aplicar Filtros
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tabla de Resultados Mejorada -->
+    <div class="results-card">
+        <div class="results-header">
+            <span><i class="fas fa-list-alt"></i>Resultados del Reporte</span>
+            <span class="badge badge-pill badge-secondary">{{ ordenes.count }} Orden(es)</span>
+        </div>
+        
+        {% if ordenes %}
+        <div class="table-responsive">
+            <table class="table table-report">
+                <thead>
+                    <tr>
+                        <th style="width: 10%;"># Orden</th>
+                        <th style="width: 20%;">Cliente</th>
+                        <th style="width: 20%;">Motor</th>
+                        <th style="width: 15%;">Fecha Terminación</th>
+                        <th style="width: 35%;">Servicios y Duración</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for orden in ordenes %}
+                    <tr>
+                        <td>
+                            <span class="order-number">{{ orden.numero_orden|default:orden.numero_provisional }}</span>
+                        </td>
+                        <td>
+                            <strong>{{ orden.cliente_registrado.nombre|default:orden.cliente }}</strong>
+                        </td>
+                        <td>
+                            <div class="motor-info">
+                                <span class="motor-name">
+                                    {% if orden.motor_registrado %}
+                                        {{ orden.motor_registrado.nombre }}
+                                    {% else %}
+                                        {{ orden.modelo_motor|default:"N/A" }}
+                                    {% endif %}
+                                </span>
+                                
+                                {% if orden.motor_registrado %}
+                                <span class="motor-specs">
+                                    {{ orden.motor_registrado.num_cilindros|default:"?" }} cilindros, 
+                                    {{ orden.motor_registrado.num_cabezas|default:"?" }} cabezas
+                                </span>
+                                {% endif %}
+                            </div>
+                        </td>
+                        <td class="date-col">
+                            <i class="far fa-calendar-check mr-1 text-success"></i>
+                            {{ orden.fecha_terminacion|date:"d/m/Y" }}
+                            <div class="small text-muted">{{ orden.fecha_terminacion|date:"H:i" }} hrs</div>
+                        </td>
+                        <td>
+                            {% if orden.servicios_detalle.all %}
+                            <table class="table table-sm services-table">
+                                <thead>
+                                    <tr>
+                                        <th>Servicio</th>
+                                        <th class="date-col">Inicio</th>
+                                        <th class="date-col">Fin</th>
+                                        <th class="duration-col">Duración</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                {% for servicio in orden.servicios_detalle.all %}
+                                    {% if servicio.fecha_inicio and servicio.fecha_fin %}
+                                        <tr>
+                                            <td>
+                                                <i class="fas fa-cog text-secondary mr-1"></i>
+                                                {{ servicio.catalogo_servicio.nombre }}
+                                            </td>
+                                            <td class="date-col">
+                                                {{ servicio.fecha_inicio|date:"d/m H:i" }}
+                                            </td>
+                                            <td class="date-col">
+                                                {{ servicio.fecha_fin|date:"d/m H:i" }}
+                                            </td>
+                                            <td class="duration-col">
+                                                <span class="duration-badge">
+                                                    {{ servicio.duracion|default:"-" }}
+                                                </span>
+                                            </td>
+                                        </tr>
+                                    {% endif %}
+                                {% endfor %}
+                                </tbody>
+                                <!-- Fila de totales -->
+                                <tfoot>
+                                    <tr>
+                                        <td colspan="3" class="text-right pr-2">
+                                            <strong>Duración Total:</strong>
+                                        </td>
+                                        <td class="duration-col">
+                                            <span class="duration-badge" style="background-color: var(--info-color);">
+                                                {{ orden.duracion_total|default:"-" }}
+                                            </span>
+                                        </td>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                            {% else %}
+                            <div class="alert alert-warning py-2 px-3 mb-0">
+                                <i class="fas fa-exclamation-triangle mr-1"></i>
+                                Sin servicios registrados.
+                            </div>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        
+        <!-- Paginación -->
+        {% if ordenes.has_other_pages %}
+        <div class="pagination-container py-3">
+            <ul class="pagination">
+                {% if ordenes.has_previous %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page=1{% if request.GET.fecha_desde %}&fecha_desde={{ request.GET.fecha_desde }}{% endif %}{% if request.GET.fecha_hasta %}&fecha_hasta={{ request.GET.fecha_hasta }}{% endif %}{% if request.GET.cliente %}&cliente={{ request.GET.cliente }}{% endif %}">&laquo; Primera</a>
+                    </li>
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ ordenes.previous_page_number }}{% if request.GET.fecha_desde %}&fecha_desde={{ request.GET.fecha_desde }}{% endif %}{% if request.GET.fecha_hasta %}&fecha_hasta={{ request.GET.fecha_hasta }}{% endif %}{% if request.GET.cliente %}&cliente={{ request.GET.cliente }}{% endif %}">Anterior</a>
+                    </li>
+                {% endif %}
+                
+                {% for num in ordenes.paginator.page_range %}
+                    {% if ordenes.number == num %}
+                        <li class="page-item active"><span class="page-link">{{ num }}</span></li>
+                    {% elif num > ordenes.number|add:'-3' and num < ordenes.number|add:'3' %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ num }}{% if request.GET.fecha_desde %}&fecha_desde={{ request.GET.fecha_desde }}{% endif %}{% if request.GET.fecha_hasta %}&fecha_hasta={{ request.GET.fecha_hasta }}{% endif %}{% if request.GET.cliente %}&cliente={{ request.GET.cliente }}{% endif %}">{{ num }}</a>
+                        </li>
+                    {% endif %}
+                {% endfor %}
+                
+                {% if ordenes.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ ordenes.next_page_number }}{% if request.GET.fecha_desde %}&fecha_desde={{ request.GET.fecha_desde }}{% endif %}{% if request.GET.fecha_hasta %}&fecha_hasta={{ request.GET.fecha_hasta }}{% endif %}{% if request.GET.cliente %}&cliente={{ request.GET.cliente }}{% endif %}">Siguiente</a>
+                    </li>
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ ordenes.paginator.num_pages }}{% if request.GET.fecha_desde %}&fecha_desde={{ request.GET.fecha_desde }}{% endif %}{% if request.GET.fecha_hasta %}&fecha_hasta={{ request.GET.fecha_hasta }}{% endif %}{% if request.GET.cliente %}&cliente={{ request.GET.cliente }}{% endif %}">Última &raquo;</a>
+                    </li>
+                {% endif %}
+            </ul>
+        </div>
+        {% endif %}
+        
+        {% else %}
+        <!-- Mensaje mejorado de no datos -->
+        <div class="no-data">
+            <i class="fas fa-search"></i>
+            <h4>No se encontraron órdenes</h4>
+            <p>No hay órdenes terminadas que coincidan con los criterios de búsqueda. Prueba a modificar los filtros para obtener resultados.</p>
+        </div>
+        {% endif %}
+    </div>
+    
+    <!-- Botón para exportar -->
+    <div class="text-center">
+        <a href="#" class="btn btn-outline-primary" onclick="alert('Funcionalidad de exportación a implementar')">
+            <i class="fas fa-file-export mr-1"></i> Exportar a Excel
+        </a>
+    </div>
+
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+    $(document).ready(function() {
+        // Tooltip de Bootstrap para íconos de info
+        $('[data-toggle="tooltip"], .info-tooltip').tooltip();
+        
+        // Toggle del panel de filtros
+        $('.filter-header button').click(function() {
+            $(this).find('i').toggleClass('fa-chevron-up fa-chevron-down');
+        });
+        
+        // Destacar filas al pasar el mouse
+        $('.table-report tbody tr').hover(
+            function() {
+                $(this).addClass('highlight-row');
+            },
+            function() {
+                $(this).removeClass('highlight-row');
+            }
+        );
+    });
+</script>
+{% endblock %}

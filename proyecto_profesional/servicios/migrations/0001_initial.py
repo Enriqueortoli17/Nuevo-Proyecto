@@ -8,75 +8,228 @@ class Migration(migrations.Migration):
 
     initial = True
 
-    dependencies = [
-    ]
+    dependencies = []
 
     operations = [
         migrations.CreateModel(
-            name='CatalogoServicio',
+            name="CatalogoServicio",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('nombre', models.CharField(help_text="Nombre del servicio, ej. 'Lavar motor'", max_length=100)),
-                ('descripcion', models.TextField(blank=True, help_text='Descripción o indicaciones del servicio', null=True)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "nombre",
+                    models.CharField(
+                        help_text="Nombre del servicio, ej. 'Lavar motor'",
+                        max_length=100,
+                    ),
+                ),
+                (
+                    "descripcion",
+                    models.TextField(
+                        blank=True,
+                        help_text="Descripción o indicaciones del servicio",
+                        null=True,
+                    ),
+                ),
             ],
         ),
         migrations.CreateModel(
-            name='InventarioItem',
+            name="InventarioItem",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('nombre', models.CharField(max_length=100)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("nombre", models.CharField(max_length=100)),
             ],
         ),
         migrations.CreateModel(
-            name='Orden',
+            name="Orden",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('numero_orden', models.CharField(blank=True, help_text='Ingrese el número de orden. Si se deja vacío, se asignará automáticamente.', max_length=20, null=True, unique=True)),
-                ('cliente', models.CharField(help_text='Nombre del cliente', max_length=100)),
-                ('telefono', models.CharField(blank=True, max_length=20, null=True)),
-                ('modelo_motor', models.CharField(blank=True, max_length=50, null=True)),
-                ('ruta', models.CharField(blank=True, max_length=50, null=True)),
-                ('fecha_ingreso', models.DateTimeField(auto_now_add=True)),
-                ('notificacion', models.TextField(blank=True, help_text='Mensaje de notificación, si aplica', null=True)),
-                ('estado_general', models.CharField(choices=[('ESPERA', 'En espera'), ('PROCESO', 'En proceso'), ('LISTO', 'Listo para entrega'), ('ENTREGADO', 'Entregado')], default='ESPERA', max_length=15)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "numero_orden",
+                    models.CharField(
+                        blank=True,
+                        help_text="Ingrese el número de orden. Si se deja vacío, se asignará automáticamente.",
+                        max_length=20,
+                        null=True,
+                        unique=True,
+                    ),
+                ),
+                (
+                    "cliente",
+                    models.CharField(help_text="Nombre del cliente", max_length=100),
+                ),
+                ("telefono", models.CharField(blank=True, max_length=20, null=True)),
+                (
+                    "modelo_motor",
+                    models.CharField(blank=True, max_length=50, null=True),
+                ),
+                ("ruta", models.CharField(blank=True, max_length=50, null=True)),
+                ("fecha_ingreso", models.DateTimeField(auto_now_add=True)),
+                (
+                    "notificacion",
+                    models.TextField(
+                        blank=True,
+                        help_text="Mensaje de notificación, si aplica",
+                        null=True,
+                    ),
+                ),
+                (
+                    "estado_general",
+                    models.CharField(
+                        choices=[
+                            ("ESPERA", "En espera"),
+                            ("PROCESO", "En proceso"),
+                            ("LISTO", "Listo para entrega"),
+                            ("ENTREGADO", "Entregado"),
+                        ],
+                        default="ESPERA",
+                        max_length=15,
+                    ),
+                ),
             ],
         ),
         migrations.CreateModel(
-            name='OrdenInventario',
+            name="OrdenInventario",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('cantidad', models.PositiveIntegerField(default=1)),
-                ('inventario_item', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='servicios.inventarioitem')),
-                ('orden', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='servicios.orden')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("cantidad", models.PositiveIntegerField(default=1)),
+                (
+                    "inventario_item",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="servicios.inventarioitem",
+                    ),
+                ),
+                (
+                    "orden",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="servicios.orden",
+                    ),
+                ),
             ],
         ),
         migrations.AddField(
-            model_name='orden',
-            name='inventario_items',
-            field=models.ManyToManyField(blank=True, related_name='ordenes', through='servicios.OrdenInventario', to='servicios.inventarioitem'),
+            model_name="orden",
+            name="inventario_items",
+            field=models.ManyToManyField(
+                blank=True,
+                related_name="ordenes",
+                through="servicios.OrdenInventario",
+                to="servicios.inventarioitem",
+            ),
         ),
         migrations.CreateModel(
-            name='OrdenServicio',
+            name="OrdenServicio",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('cantidad', models.PositiveIntegerField(default=1)),
-                ('catalogo_servicio', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='servicios.catalogoservicio')),
-                ('orden', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='servicios.orden')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("cantidad", models.PositiveIntegerField(default=1)),
+                (
+                    "catalogo_servicio",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="servicios.catalogoservicio",
+                    ),
+                ),
+                (
+                    "orden",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="servicios.orden",
+                    ),
+                ),
             ],
         ),
         migrations.AddField(
-            model_name='orden',
-            name='servicios',
-            field=models.ManyToManyField(blank=True, related_name='ordenes', through='servicios.OrdenServicio', to='servicios.catalogoservicio'),
+            model_name="orden",
+            name="servicios",
+            field=models.ManyToManyField(
+                blank=True,
+                related_name="ordenes",
+                through="servicios.OrdenServicio",
+                to="servicios.catalogoservicio",
+            ),
         ),
         migrations.CreateModel(
-            name='Servicio',
+            name="Servicio",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('nombre', models.CharField(help_text="Nombre del servicio, ej. 'Lavar motor'", max_length=100)),
-                ('estado', models.CharField(choices=[('PENDIENTE', 'Pendiente'), ('PROCESO', 'En proceso'), ('TERMINADO', 'Terminado'), ('NO_REALIZADO', 'No realizado')], default='PENDIENTE', max_length=15)),
-                ('observaciones', models.TextField(blank=True, null=True)),
-                ('orden', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='detalles_servicios', to='servicios.orden')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "nombre",
+                    models.CharField(
+                        help_text="Nombre del servicio, ej. 'Lavar motor'",
+                        max_length=100,
+                    ),
+                ),
+                (
+                    "estado",
+                    models.CharField(
+                        choices=[
+                            ("PENDIENTE", "Pendiente"),
+                            ("PROCESO", "En proceso"),
+                            ("TERMINADO", "Terminado"),
+                            ("NO_REALIZADO", "No realizado"),
+                        ],
+                        default="PENDIENTE",
+                        max_length=15,
+                    ),
+                ),
+                ("observaciones", models.TextField(blank=True, null=True)),
+                (
+                    "orden",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="detalles_servicios",
+                        to="servicios.orden",
+                    ),
+                ),
             ],
         ),
     ]

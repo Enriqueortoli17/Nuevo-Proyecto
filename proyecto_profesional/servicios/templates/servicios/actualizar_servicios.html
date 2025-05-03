@@ -6,7 +6,7 @@
 {% block body_class %}tablero-layout fullscreen-view{% endblock %}
 
 {% block extra_head_css %}
-  <link rel="stylesheet" href="{% static 'css/actualizar_servicios.css' %}"> {# <--- Añade esta línea #}
+  <link rel="stylesheet" href="{% static 'servicios/css/actualizar_servicios.css' %}"> {# <--- Añade esta línea #}
 {% endblock %}
 
 {% block content %}
@@ -108,7 +108,7 @@
   
   <!-- Footer -->
   <div class="footer">
-    <a href="{% url 'home' %}" class="btn btn-secondary">
+    <a href="{% url 'servicios:home' %}" class="btn btn-secondary">
       <i class="fas fa-arrow-left"></i> Volver al Panel de Control
     </a>
   </div>
@@ -175,5 +175,5 @@
 {% endblock %}
 
 {% block extra_scripts %}
-  <script src="{% static 'js/actualizar_servicios.js' %}"></script> {# <--- Añade esta línea #}
+  <script src="{% static 'servicios/js/actualizar_servicios.js' %}"></script> {# <--- Añade esta línea #}
 {% endblock %}

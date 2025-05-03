@@ -1,0 +1,85 @@
+/* proyecto_profesional/static/css/tablero_ordenes.css */
+
+/* --- Ocultar Sidebar y Ajustar Contenido SÓLO para esta página --- */
+#sidebar { display: none !important; }
+#mainContent { margin-left: 0 !important; }
+#sidebarToggle { display: none !important; }
+
+/* --- Estructura de Layout para Scroll Interno --- */
+body { overflow: hidden; }
+.content-wrapper { height: calc(100vh - 60px); display: flex; padding: 0; }
+#mainContent { flex-grow: 1; display: flex; flex-direction: column; overflow: hidden; padding: 0; }
+.page-content { display: flex; flex-direction: column; flex-grow: 1; overflow: hidden; padding: 0; margin-top: 0; }
+.page-header { padding: 10px 15px; background-color: var(--card-bg); border-bottom: 1px solid var(--border-color); flex-shrink: 0; display: flex; align-items: center; justify-content: space-between; }
+.page-title { font-size: 1.4rem; font-weight: 600; color: var(--accent-color); margin: 0; display: flex; align-items: center; }
+.page-title i { margin-right: 10px; }
+.tablero-container { flex-grow: 1; overflow-y: auto; display: flex; flex-direction: column; }
+
+/* --- Estilos del Tablero --- */
+.seccion-dia { display: flex; flex-direction: column; margin-bottom: 1px; }
+.seccion-header { background-color: var(--accent-color); color: white; padding: 8px 15px; font-size: var(--header-font, 0.9rem); font-weight: 600; display: flex; align-items: center; position: sticky; top: 0; z-index: 100; }
+.seccion-header i { margin-right: 8px; }
+.seccion-tarjetas { padding: 8px; background-color: var(--bg-color); flex-grow: 1; min-height: 150px; }
+.ordenes-row { display: flex; flex-wrap: wrap; gap: 8px; }
+
+/* Estilos de cada tarjeta */
+.orden-card {
+    background-color: var(--card-bg); border: 1px solid var(--border-color); border-radius: 6px; padding: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    display: flex; flex-direction: column; transition: transform 0.2s; cursor: grab; overflow: hidden;
+    flex: 1 1 240px; /* Responsividad con Flex Basis */
+}
+
+/* --- Estilos internos de la tarjeta --- */
+.orden-card:hover { transform: translateY(-2px); box-shadow: 0 3px 6px rgba(0,0,0,0.15); }
+.orden-card:active { cursor: grabbing; }
+.orden-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; border-bottom: 1px solid var(--border-color); padding-bottom: 6px; }
+.orden-numero { font-weight: 600; color: var(--accent-color); font-size: var(--card-title-font, 0.85rem); }
+.orden-estado { background-color: rgba(108, 117, 125, 0.15); color: var(--secondary-color); font-size: 0.7rem; padding: 2px 6px; border-radius: 4px; font-weight: 500; }
+.orden-info { display: flex; flex-wrap: wrap; margin-bottom: 8px; gap: 4px; }
+.info-item { display: flex; align-items: center; font-size: var(--card-text-font, 0.8rem); width: 100%; }
+.info-item i { width: 16px; margin-right: 6px; color: var(--secondary-color); font-size: 0.75rem; text-align: center; }
+.servicios-header { display: flex; align-items: center; font-size: var(--card-text-font, 0.8rem); font-weight: 600; margin-bottom: 6px; color: var(--secondary-color); border-top: 1px solid var(--border-color); padding-top: 6px; }
+.servicios-header i { margin-right: 6px; }
+.servicios-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; }
+
+/* Estilo Servicio Item - MODIFICADO para wrapping */
+.servicio-item {
+    padding: 4px 6px;
+    border-radius: 4px;
+    text-align: center; /* Centrar texto */
+    /* Quitamos min-height para que se ajuste al contenido */
+    font-size: var(--service-font, 0.75rem);
+    font-weight: 500;
+    color: white;
+    word-break: break-word; /* Permite romper palabras largas si es necesario */
+    /* white-space: normal; */ /* Valor por defecto, permite wrapping */
+    /* Quitamos flex, overflow, text-overflow, white-space:nowrap */
+}
+.estado-terminado { background-color: var(--success-color); }
+.estado-no-realizado { background-color: var(--danger-color); }
+.estado-pendiente { background-color: var(--secondary-color); }
+.estado-proceso { background-color: var(--warning-color); }
+
+.no-orders { padding: 20px; text-align: center; color: var(--secondary-color); font-style: italic; }
+.ui-sortable-placeholder { border: 2px dashed var(--accent-color); background: rgba(0, 123, 255, 0.1); visibility: visible !important; min-height: 150px; border-radius: 6px; }
+
+/* --- Media Queries --- */
+@media (max-width: 576px) {
+    /* Grid de servicios a 1 columna */
+    .servicios-grid {
+        grid-template-columns: 1fr;
+        gap: 3px;
+    }
+    /* Ajustes menores de tamaño para móvil */
+    .servicio-item {
+        font-size: calc(var(--service-font, 0.75rem) * 0.9);
+        padding: 3px 5px;
+    }
+    .orden-numero { font-size: calc(var(--card-title-font, 0.85rem) * 0.95); }
+    .info-item { font-size: calc(var(--card-text-font, 0.8rem) * 0.95); }
+    .orden-card { padding: 6px; }
+    .seccion-tarjetas { padding: 6px; }
+    .ordenes-row { gap: 6px; }
+    .page-header { padding: 8px 10px;}
+    .page-title { font-size: 1.2rem;}
+}

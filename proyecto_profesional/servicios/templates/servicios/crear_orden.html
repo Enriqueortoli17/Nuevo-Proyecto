@@ -129,11 +129,10 @@
                              {{ form.notificacion|add_class:"form-control observacion-field" }}
                          </div>
                          <div class="col-12 form-group">
-                             {{ form.imagen.label_tag }}
-                             <div class="custom-file">
-                                 {{ form.imagen|add_class:"custom-file-input" }}
-                                 <label class="custom-file-label" for="{{ form.imagen.id_for_label }}">Seleccionar archivo...</label>
-                             </div>
+                            <label for="id_imagenes">Adjuntar Imágenes</label>
+                            <input type="file" name="imagenes" id="id_imagenes" multiple class="form-control-file">
+                            {# Nota: 'name="imagenes"' es importante, la vista lo usará #}
+                            {# Nota: El atributo 'multiple' permite seleccionar varios archivos #}
                          </div>
                     </div>
                 </div>
@@ -160,7 +159,7 @@
             {# --- Fin Modales --- #}
 
             <div class="action-buttons">
-                <a href="{% url 'lista_ordenes' %}" class="btn btn-secondary">
+                <a href="{% url 'servicios:lista_ordenes' %}" class="btn btn-secondary">
                     <i class="fas fa-arrow-left"></i> Volver a la Lista
                 </a>
                 <button type="submit" class="btn btn-success">
@@ -172,7 +171,7 @@
 {% endblock %}
 
 {% block extra_scripts %}
-    <script src="{% static 'js/sincronizacion.js' %}"></script>
+    <script src="{% static 'servicios/js/sincronizacion.js' %}"></script>
     {# Script para autocompletar, nombre archivo, notificaciones (igual que antes) #}
     <script>
         $(document).ready(function(){

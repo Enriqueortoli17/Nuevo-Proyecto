@@ -1,0 +1,50 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Sesión Cerrada{% endblock %}
+
+{% block extra_head_css %}
+    <style>
+        .logout-container {
+            max-width: 500px;
+            margin: 50px auto;
+            padding: 30px;
+            text-align: center;
+        }
+         /* Ocultar sidebar en logout (igual que login) */
+         body.logout-page #sidebar { display: none !important; }
+         body.logout-page #mainContent { margin-left: 0 !important; width: 100% !important; }
+         body.logout-page #sidebarToggle { display: none !important; }
+    </style>
+{% endblock %}
+
+{% block body_class %}logout-page{% endblock %}
+
+ {# Sobreescribimos navbar_right si queremos quitar elementos #}
+{% block navbar_right %}
+    <div class="theme-switch-wrapper">
+        <label class="theme-switch" for="theme-checkbox"> <input type="checkbox" id="theme-checkbox" /> <div class="slider"></div> </label>
+    </div>
+    {# Quitamos el icono de lista de órdenes aquí #}
+{% endblock navbar_right %}
+
+{% block content %}
+<div class="container">
+    <div class="card logout-container"> {# Usamos card para el estilo #}
+        <h2 class="mb-3"><i class="fas fa-sign-out-alt mr-2"></i> Sesión Cerrada</h2>
+        <p class="lead">Has cerrado sesión correctamente.</p>
+        <hr>
+        <p>
+            <a href="{% url 'login' %}" class="btn btn-primary">
+                <i class="fas fa-sign-in-alt mr-1"></i> Volver a Iniciar Sesión
+            </a>
+            {# O un enlace a la página de inicio #}
+            {# <a href="{% url 'home' %}" class="btn btn-secondary">Ir a Inicio</a> #}
+        </p>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+  <script src="{% static 'servicios/js/theme.js' %}"></script>
+{% endblock %}

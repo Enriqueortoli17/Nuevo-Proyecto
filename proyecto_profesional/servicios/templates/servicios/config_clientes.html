@@ -4,9 +4,9 @@
 {% block title %}Configuración de Clientes{% endblock %}
 
 {% block extra_head_css %}
-    <link rel="stylesheet" href="{% static 'css/components.css' %}">
-    <link rel="stylesheet" href="{% static 'css/responsive.css' %}">
-    <link rel="stylesheet" href="{% static 'css/config_clientes.css' %}">
+    <link rel="stylesheet" href="{% static 'servicios/css/components.css' %}">
+    <link rel="stylesheet" href="{% static 'servicios/css/responsive.css' %}">
+    <link rel="stylesheet" href="{% static 'servicios/css/config_clientes.css' %}">
 {% endblock %}
 
 {% block content %}
@@ -45,11 +45,17 @@
                                 </label>
                                 {{ form.ruta|add_class:"form-control" }}
                             </div>
-                            <button type="submit" class="btn btn-primary">
-                                <i class="fas fa-save"></i> {% if cliente_editar %}Actualizar{% else %}Guardar{% endif %} Cliente
-                            </button>
+                            {% if can_edit %}
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-save"></i> {% if cliente_editar %}Actualizar{% else %}Guardar{% endif %} Cliente
+                                </button>
+                            {% else %}
+                                <button type="button" class="btn btn-primary" disabled title="Permiso requerido">
+                                    <i class="fas fa-save"></i> {% if cliente_editar %}Actualizar{% else %}Guardar{% endif %} Cliente
+                                </button>
+                            {% endif %}
                             {% if cliente_editar %}
-                            <a href="{% url 'config_clientes' %}" class="btn btn-secondary">
+                            <a href="{% url 'servicios:config_clientes' %}" class="btn btn-secondary">
                                 <i class="fas fa-times"></i> Cancelar
                             </a>
                             {% endif %}
@@ -88,12 +94,18 @@
                                         <td>{{ cliente.telefono|default:"-" }}</td>
                                         <td>{{ cliente.ruta|default:"-" }}</td>
                                         <td>
-                                            <form action="{% url 'config_clientes' %}" method="get" style="display:inline;">
-                                                <input type="hidden" name="editar_id" value="{{ cliente.id }}">
-                                                <button type="submit" class="btn btn-sm btn-info action-btn">
+                                            {% if can_edit %}
+                                                <form action="{% url 'servicios:config_clientes' %}" method="get" style="display:inline;"> {# Asegura namespace #}
+                                                    <input type="hidden" name="editar_id" value="{{ cliente.id }}">
+                                                    <button type="submit" class="btn btn-sm btn-info action-btn">
+                                                        <i class="fas fa-edit"></i> Editar
+                                                    </button>
+                                                </form>
+                                            {% else %}
+                                                <button type="button" class="btn btn-sm btn-info action-btn" disabled title="Permiso requerido">
                                                     <i class="fas fa-edit"></i> Editar
                                                 </button>
-                                            </form>
+                                            {% endif %}
                                         </td>
                                     </tr>
                                     {% empty %}
@@ -116,7 +128,7 @@
 
         <!-- Footer -->
         <div class="d-flex justify-content-center mt-4 mb-3">
-            <a href="{% url 'home' %}" class="btn btn-secondary">
+            <a href="{% url 'servicios:home' %}" class="btn btn-secondary">
                 <i class="fas fa-arrow-left"></i> Volver al Panel Principal
             </a>
         </div>
@@ -126,7 +138,7 @@
 {% endblock %}
 
 {% block extra_scripts %}
-    <script src="{% static 'js/theme.js' %}"></script>
-    <script src="{% static 'js/notifications.js' %}"></script>
-    <script src="{% static 'js/config_clientes.js' %}"></script>
+    <script src="{% static 'servicios/js/theme.js' %}"></script>
+    <script src="{% static 'servicios/js/notifications.js' %}"></script>
+    <script src="{% static 'servicios/js/config_clientes.js' %}"></script>
 {% endblock %}

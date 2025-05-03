@@ -4,7 +4,7 @@
 {% block title %}Órdenes Anuladas{% endblock %}
 
 {% block extra_head_css %}
-  <link rel="stylesheet" href="{% static 'css/ordenes_anuladas.css' %}">
+  <link rel="stylesheet" href="{% static 'servicios/css/ordenes_anuladas.css' %}">
 {% endblock %}
 
 {% block content %}
@@ -56,11 +56,11 @@
                 {% endif %}
               </div>
               <div class="order-footer">
-                <a href="{% url 'orden_detalle' order.id %}" class="btn btn-info btn-sm">
+                <a href="{% url 'servicios:orden_detalle' order.id %}" class="btn btn-info btn-sm">
                   <i class="fas fa-eye"></i> <span class="d-none d-md-inline">Detalles</span>
                 </a>
                 {% if user.is_superuser %}
-                  <a href="{% url 'editar_orden' order.id %}" class="btn btn-warning btn-sm">
+                  <a href="{% url 'servicios:editar_orden' order.id %}" class="btn btn-warning btn-sm">
                     <i class="fas fa-edit"></i> <span class="d-none d-md-inline">Editar</span>
                   </a>
                 {% endif %}
@@ -78,13 +78,13 @@
     </div>
 
     <div class="mt-4">
-        <a href="{% url 'home' %}" class="btn btn-secondary">
+        <a href="{% url 'servicios:home' %}" class="btn btn-secondary">
             <i class="fas fa-arrow-left"></i> Volver al Panel
         </a>
     </div>
 </div>
 {% endblock content %}
-  <script src="{% static 'js/ordenes_anuladas.js' %}"></script>
-{% block extra_scripts %}
 
+{% block extra_scripts %}
+  <script src="{% static 'servicios/js/ordenes_anuladas.js' %}"></script>
 {% endblock %}

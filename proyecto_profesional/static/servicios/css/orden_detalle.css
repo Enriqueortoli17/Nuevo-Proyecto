@@ -1,0 +1,72 @@
+/* proyecto_profesional/static/css/orden_detalle.css */
+
+/* Estilos base deberían estar en base.css/components.css */
+
+/* Estilos específicos (Ajusta o Mueve a components.css/responsive.css eventualmente) */
+.content-wrapper { /* Este wrapper puede ser redundante si usas .container */
+    /* padding: 20px; */ /* Padding ya viene de .container o .content-wrapper de base? */
+}
+
+/* Encabezado de página (Usar el de components.css?) */
+.page-header {
+    margin-bottom: 1.5rem; padding-bottom: 1rem; border-bottom: 1px solid var(--border-color);
+    display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap;
+}
+.page-header h1 { font-weight: 600; color: var(--accent-color); font-size: 1.8rem; margin-bottom: 0; display: flex; align-items: center; }
+.page-header h1 i { margin-right: 10px; }
+.page-header .order-number { /* Usar .badge? */ background-color: var(--accent-color); color: white; padding: 0.2rem 0.6rem; border-radius: 4px; font-size: 1.1rem; margin-left: 0.7rem; }
+
+/* Estado de orden (Usar .order-status y .status-* de components.css?) */
+.order-status { display: inline-block; padding: 6px 12px; border-radius: 4px; font-weight: 600; font-size: 0.85rem; }
+.status-espera { background-color: rgba(108, 117, 125, 0.15); color: var(--secondary-color); }
+.status-aceptada { background-color: rgba(0, 123, 255, 0.15); color: var(--accent-color); }
+.status-proceso { background-color: rgba(255, 193, 7, 0.15); color: var(--warning-color); }
+.status-listo { background-color: rgba(40, 167, 69, 0.15); color: var(--success-color); }
+/* Añadir status-entregado, status-anulada si no están en components.css */
+
+/* Tarjetas (Usar .card de components.css?) */
+.card {
+    background-color: var(--card-bg); border: none; border-radius: 10px;
+    box-shadow: var(--shadow-sm); margin-bottom: 1.5rem; overflow: hidden;
+}
+.card-header { background-color: rgba(0,0,0,0.03); border-bottom: 1px solid var(--border-color); padding: 0.75rem 1.25rem; font-weight: 600; display: flex; align-items: center; }
+.card-header i { margin-right: 10px; font-size: 1.2rem; color: var(--accent-color); }
+.card-body { padding: 1.25rem; }
+
+/* Info grid (Usar .info-grid de components.css?) */
+.info-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 1rem; }
+.info-item { margin-bottom: 0.5rem; }
+.info-label { font-weight: 600; font-size: 0.85rem; color: var(--secondary-color); margin-bottom: 0.2rem; display: block; }
+.info-value { font-size: 1rem; }
+
+/* Tablas (Usar .table de components.css?) */
+/* .table { ... } */
+/* .table th { ... } */
+/* .table td, .table th { ... } */
+/* .table-striped tbody tr:nth-of-type(odd) { ... } */
+/* .table-hover tbody tr:hover { ... } */
+
+/* Imagen de la orden */
+.order-image { /* O usar .img-thumbnail de bootstrap */
+    width: 100%; max-width: 300px; border-radius: 5px;
+    box-shadow: var(--shadow-sm); border: 1px solid var(--border-color);
+}
+
+/* Botones de acción (Usar .action-buttons de components.css?) */
+.action-buttons { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 1.5rem; }
+
+/* Observaciones */
+.observaciones {
+    background-color: rgba(0,0,0,0.02); padding: 15px; border-radius: 5px;
+    border-left: 3px solid var(--accent-color);
+}
+[data-theme="dark"] .observaciones { background-color: rgba(255,255,255,0.03); }
+
+
+/* Responsive específico (Mover a responsive.css eventualmente) */
+@media (max-width: 768px) {
+   .page-header { flex-direction: column; align-items: flex-start; }
+   .info-grid { grid-template-columns: 1fr; }
+   .action-buttons { flex-direction: column; }
+   .action-buttons .btn { width: 100%; justify-content: center; }
+}
