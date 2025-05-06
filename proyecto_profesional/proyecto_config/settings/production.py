@@ -1,6 +1,7 @@
 # proyecto_profesional/proyecto_config/settings/production.py
 
 import sentry_sdk
+import os
 from sentry_sdk.integrations.django import DjangoIntegration
 from .base import *  # Importa toda la configuración base
 from .base import env  # Importa la instancia 'env' para leer variables
@@ -73,3 +74,5 @@ DATABASES = {"default": env.db("DATABASE_URL")}  # Falla si no está definida
 print("*****************************************")
 print("**** Cargando configuración PRODUCTION ****")
 print("*****************************************")
+
+
