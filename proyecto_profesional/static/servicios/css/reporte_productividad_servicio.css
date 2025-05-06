@@ -1,0 +1,424 @@
+/* === MEJORAS VISUALES PARA EL REPORTE DE PRODUCTIVIDAD === */
+
+/* Estilos generales del reporte */
+.page-report-container {
+    padding-bottom: 2rem;
+}
+
+/* Cabecera de página mejorada */
+.report-header {
+    background: linear-gradient(135deg, var(--header-bg), var(--info-color));
+    border-radius: 10px;
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+    color: white;
+    box-shadow: var(--shadow-md);
+    position: relative;
+    overflow: hidden;
+}
+
+.report-header::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 150px;
+    height: 150px;
+    background-image: radial-gradient(circle, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0) 70%);
+    border-radius: 50%;
+    z-index: 1;
+}
+
+.report-header h1 {
+    margin: 0;
+    font-size: 1.8rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+}
+
+.report-header h1 i {
+    margin-right: 0.75rem;
+    font-size: 1.5em;
+    opacity: 0.9;
+}
+
+.report-description {
+    margin-top: 0.5rem;
+    opacity: 0.9;
+    max-width: 80%;
+}
+
+/* Mini Dashboard para resumen */
+.dashboard-summary {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.summary-card {
+    background-color: var(--card-bg);
+    border-radius: 10px;
+    box-shadow: var(--shadow-sm);
+    padding: 1.25rem;
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    border-left: 4px solid var(--accent-color);
+    transition: all 0.3s ease;
+}
+
+.summary-card:hover {
+    box-shadow: var(--shadow-md);
+    transform: translateY(-3px);
+}
+
+.summary-card .summary-icon {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    font-size: 2.5rem;
+    color: var(--accent-color);
+    opacity: 0.15;
+}
+
+.summary-card .summary-title {
+    font-size: 0.9rem;
+    color: var(--secondary-color);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.summary-card .summary-value {
+    font-size: 2rem;
+    font-weight: 700;
+    margin: 0.5rem 0;
+    color: var(--text-color);
+}
+
+.summary-card .summary-subtitle {
+    font-size: 0.85rem;
+    color: var(--secondary-color);
+}
+
+/* Panel de filtros mejorado */
+.filter-card {
+    background-color: var(--card-bg);
+    border-radius: 10px;
+    box-shadow: var(--shadow-sm);
+    margin-bottom: 2rem;
+    transition: all 0.3s ease;
+    border: 1px solid var(--border-color);
+    overflow: hidden;
+}
+
+.filter-card:hover {
+    box-shadow: var(--shadow-md);
+}
+
+.filter-header {
+    background-color: rgba(0,0,0,0.03);
+    padding: 1rem 1.5rem;
+    border-bottom: 1px solid var(--border-color);
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.filter-header i {
+    margin-right: 0.5rem;
+    color: var(--accent-color);
+}
+
+.filter-body {
+    padding: 1.5rem;
+}
+
+.filter-form .form-group {
+    margin-bottom: 1rem;
+}
+
+.filter-form label {
+    font-weight: 500;
+    margin-bottom: 0.5rem;
+    display: block;
+    color: var(--text-color);
+}
+
+.filter-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.75rem;
+    margin-top: 1rem;
+}
+
+/* Mejoras en la tabla de datos */
+.results-card {
+    background-color: var(--card-bg);
+    border-radius: 10px;
+    box-shadow: var(--shadow-sm);
+    margin-bottom: 1.5rem;
+    transition: all 0.3s ease;
+    border: 1px solid var(--border-color);
+    overflow: hidden;
+}
+
+.results-card:hover {
+    box-shadow: var(--shadow-md);
+}
+
+.results-header {
+    background-color: rgba(0,0,0,0.03);
+    padding: 1rem 1.5rem;
+    border-bottom: 1px solid var(--border-color);
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.results-header i {
+    margin-right: 0.5rem;
+    color: var(--accent-color);
+}
+
+.table-report {
+    width: 100%;
+    margin-bottom: 0;
+}
+
+.table-report th {
+    background-color: rgba(0,0,0,0.02);
+    color: var(--text-color);
+    font-weight: 600;
+    white-space: nowrap;
+    padding: 0.75rem 1rem;
+    border-bottom: 2px solid var(--border-color);
+}
+
+.table-report td {
+    vertical-align: middle;
+    font-size: 0.9rem;
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.table-report tr:hover {
+    background-color: rgba(0,0,0,0.02);
+}
+
+.table-report .duration-col {
+    text-align: right;
+    font-family: 'Consolas', 'Monaco', monospace;
+    font-weight: 500;
+    white-space: nowrap;
+    color: var(--accent-color);
+}
+
+.table-report .count-col {
+    text-align: center;
+    font-weight: 600;
+}
+
+.group-header {
+    font-weight: bold;
+    background-color: rgba(0,0,0,0.04);
+}
+
+/* Mejorar visualización de gráficos */
+.chart-container {
+    position: relative;
+    height: 50vh;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    background-color: var(--card-bg);
+    border-radius: 6px;
+    transition: all 0.3s ease;
+}
+
+.chart-card {
+    background-color: var(--card-bg);
+    border-radius: 10px;
+    box-shadow: var(--shadow-sm);
+    margin-bottom: 1.5rem;
+    transition: all 0.3s ease;
+    border: 1px solid var(--border-color);
+    overflow: hidden;
+}
+
+.chart-card:hover {
+    box-shadow: var(--shadow-md);
+}
+
+.chart-header {
+    background-color: rgba(0,0,0,0.03);
+    padding: 1rem 1.5rem;
+    border-bottom: 1px solid var(--border-color);
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.chart-header i {
+    margin-right: 0.5rem;
+    color: var(--accent-color);
+}
+
+.chart-body {
+    padding: 1.5rem;
+}
+
+/* Diseño de pestañas para múltiples gráficos */
+.chart-tabs {
+    display: flex;
+    background-color: rgba(0,0,0,0.02);
+    border-bottom: 1px solid var(--border-color);
+    padding: 0;
+    margin: 0;
+}
+
+.chart-tab {
+    padding: 0.75rem 1.5rem;
+    cursor: pointer;
+    font-weight: 500;
+    border-bottom: 3px solid transparent;
+    transition: all 0.2s ease;
+}
+
+.chart-tab.active {
+    color: var(--accent-color);
+    border-bottom-color: var(--accent-color);
+    background-color: rgba(0,0,0,0.01);
+}
+
+.chart-tab:hover:not(.active) {
+    border-bottom-color: var(--secondary-color);
+    background-color: rgba(0,0,0,0.03);
+}
+
+/* Componentes de info */
+.info-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.35rem 0.75rem;
+    border-radius: 50px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    margin-left: 0.5rem;
+    background-color: rgba(0,0,0,0.05);
+}
+
+.info-badge i {
+    margin-right: 0.35rem;
+    font-size: 0.9rem;
+}
+
+/* Tooltips informativos */
+.info-tooltip {
+    color: var(--secondary-color);
+    font-size: 0.9rem;
+    cursor: help;
+    margin-left: 0.25rem;
+}
+
+/* Badge para destacar duraciones */
+.duration-badge {
+    background-color: var(--accent-color);
+    color: white;
+    font-weight: 500;
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    display: inline-block;
+}
+
+/* No data message styling */
+.no-data {
+    text-align: center;
+    padding: 3rem 2rem;
+    background-color: var(--card-bg);
+    border-radius: 10px;
+}
+
+.no-data i {
+    font-size: 3rem;
+    color: var(--secondary-color);
+    margin-bottom: 1rem;
+    opacity: 0.5;
+}
+
+.no-data h4 {
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+}
+
+.no-data p {
+    color: var(--secondary-color);
+    max-width: 500px;
+    margin: 0 auto;
+}
+
+/* Responsive improvements */
+@media (max-width: 991.98px) {
+    .report-header {
+        padding: 1.25rem;
+        margin-bottom: 1.5rem;
+    }
+    
+    .report-header h1 {
+        font-size: 1.5rem;
+    }
+    
+    .dashboard-summary {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+    
+    .summary-card {
+        padding: 1rem;
+    }
+    
+    .filter-form {
+        grid-template-columns: 1fr;
+    }
+    
+    .filter-actions {
+        flex-direction: column;
+    }
+    
+    .filter-actions .btn {
+        width: 100%;
+    }
+    
+    .chart-container {
+        height: 40vh;
+    }
+}
+
+@media (max-width: 767.98px) {
+    .table-report td, .table-report th {
+        padding: 0.5rem;
+    }
+    
+    .chart-tab {
+        padding: 0.5rem 0.75rem;
+        font-size: 0.9rem;
+    }
+}
+
+/* Dark mode enhancements */
+[data-theme="dark"] .summary-card {
+    background-color: var(--sidebar-bg);
+}
+
+[data-theme="dark"] .chart-container {
+    background-color: var(--sidebar-bg);
+}
+
+[data-theme="dark"] .chart-tab.active {
+    background-color: rgba(255,255,255,0.05);
+}

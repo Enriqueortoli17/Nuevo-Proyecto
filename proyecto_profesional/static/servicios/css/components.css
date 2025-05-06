@@ -1,5 +1,5 @@
 /**
- * Components.css - Estilos para componentes reutilizables
+ * Components.css - Estilos para componentes reutilizables (MEJORADO)
  * Este archivo contiene estilos para elementos de UI como tarjetas, botones, forms, etc.
  */
 
@@ -31,7 +31,7 @@
 .card {
     background-color: var(--card-bg);
     border: none;
-    border-radius: 10px;
+    border-radius: var(--border-radius-md);
     box-shadow: var(--shadow-sm);
     margin-bottom: 1.5rem;
     overflow: hidden;
@@ -49,6 +49,7 @@
     font-weight: 600;
     display: flex;
     align-items: center;
+    justify-content: space-between; /* Añadido para mejorar layout */
 }
 
 .card-header i {
@@ -69,7 +70,7 @@
 
 /* Formularios */
 .form-control {
-    border-radius: 5px;
+    border-radius: var(--border-radius-sm);
     border: 1px solid var(--border-color);
     padding: 10px 15px;
     background-color: var(--card-bg);
@@ -98,11 +99,45 @@ textarea.form-control:focus {
     min-height: 80px;
 }
 
+/* Input Groups Mejorados */
+.input-group {
+    position: relative;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: stretch;
+    width: 100%;
+}
+
+.input-group-prepend {
+    display: flex;
+    margin-right: -1px;
+}
+
+.input-group-text {
+    display: flex;
+    align-items: center;
+    padding: 0.375rem 0.75rem;
+    font-size: 1rem;
+    font-weight: 400;
+    line-height: 1.5;
+    color: var(--secondary-color);
+    text-align: center;
+    white-space: nowrap;
+    background-color: rgba(0,0,0,0.03);
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius-sm) 0 0 var(--border-radius-sm);
+}
+
+.input-group-prepend ~ .form-control {
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+}
+
 /* Botones */
 .btn {
     font-weight: 500;
     padding: 8px 16px;
-    border-radius: 5px;
+    border-radius: var(--border-radius-sm);
     transition: all var(--transition-speed);
     display: inline-flex;
     align-items: center;
@@ -179,6 +214,64 @@ textarea.form-control:focus {
     border-color: #bd2130;
 }
 
+.btn-outline-primary {
+    color: var(--accent-color);
+    border-color: var(--accent-color);
+    background-color: transparent;
+}
+
+.btn-outline-primary:hover {
+    color: #fff;
+    background-color: var(--accent-color);
+    border-color: var(--accent-color);
+}
+
+.btn-outline-secondary {
+    color: var(--secondary-color);
+    border-color: var(--secondary-color);
+    background-color: transparent;
+}
+
+.btn-outline-secondary:hover {
+    color: #fff;
+    background-color: var(--secondary-color);
+    border-color: var(--secondary-color);
+}
+
+/* Botón grupo */
+.btn-group {
+    position: relative;
+    display: inline-flex;
+    vertical-align: middle;
+}
+
+.btn-group > .btn {
+    position: relative;
+    flex: 1 1 auto;
+}
+
+.btn-group > .btn:not(:first-child) {
+    margin-left: -1px;
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+}
+
+.btn-group > .btn:not(:last-child) {
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+}
+
+.btn-group > .btn.active {
+    z-index: 1;
+}
+
+.btn-group-sm > .btn, .btn-sm {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.875rem;
+    line-height: 1.5;
+    border-radius: var(--border-radius-sm);
+}
+
 /* Botón flotante */
 .floating-btn {
     position: fixed;
@@ -210,17 +303,21 @@ textarea.form-control:focus {
 .table {
     color: var(--text-color);
     margin-bottom: 1rem;
+    width: 100%;
 }
 
 .table th {
     background-color: rgba(0,0,0,0.02);
     font-weight: 600;
     border-color: var(--border-color);
+    padding: 0.75rem 1rem;
+    vertical-align: middle;
 }
 
 .table td {
     border-color: var(--border-color);
     vertical-align: middle;
+    padding: 0.75rem 1rem;
 }
 
 .table-bordered {
@@ -235,12 +332,57 @@ textarea.form-control:focus {
     background-color: rgba(0,0,0,0.03);
 }
 
+/* Tablas especiales para reportes */
+.table-report {
+    width: 100%;
+    margin-bottom: 0;
+}
+
+.table-report th {
+    background-color: rgba(0,0,0,0.02);
+    color: var(--text-color);
+    font-weight: 600;
+    white-space: nowrap;
+    padding: 0.75rem 1rem;
+    border-bottom: 2px solid var(--border-color);
+}
+
+.table-report td {
+    vertical-align: middle;
+    font-size: 0.9rem;
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.table-report tr:hover {
+    background-color: rgba(0,0,0,0.02);
+}
+
+.table-report .duration-col {
+    text-align: right;
+    font-family: 'Consolas', 'Monaco', monospace;
+    font-weight: 500;
+    white-space: nowrap;
+    color: var(--accent-color);
+}
+
+.table-report .count-col {
+    text-align: center;
+    font-weight: 600;
+}
+
 /* Badges y etiquetas */
 .badge {
     padding: 0.4em 0.65em;
     font-weight: 500;
-    border-radius: 4px;
+    border-radius: var(--border-radius-sm);
     font-size: 0.75rem;
+}
+
+.badge-pill {
+    padding-right: 0.6em;
+    padding-left: 0.6em;
+    border-radius: 10rem;
 }
 
 .badge-primary {
@@ -273,6 +415,33 @@ textarea.form-control:focus {
     color: #ffffff;
 }
 
+/* Badge mejorado para información */
+.info-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.35rem 0.75rem;
+    border-radius: 50px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    margin-left: 0.5rem;
+    background-color: rgba(0,0,0,0.05);
+}
+
+.info-badge i {
+    margin-right: 0.35rem;
+    font-size: 0.9rem;
+}
+
+/* Badge para duración */
+.duration-badge {
+    background-color: var(--accent-color);
+    color: white;
+    font-weight: 500;
+    padding: 0.25rem 0.5rem;
+    border-radius: var(--border-radius-sm);
+    display: inline-block;
+}
+
 /* Estado de servicios */
 .estado-terminado {
     background-color: var(--estado-terminado-bg);
@@ -297,7 +466,7 @@ textarea.form-control:focus {
 /* Alertas y notificaciones */
 .alert {
     border: none;
-    border-radius: 6px;
+    border-radius: var(--border-radius-md);
     padding: 15px;
     margin-bottom: 1rem;
 }
@@ -330,7 +499,7 @@ textarea.form-control:focus {
     background-color: var(--success-color);
     color: white;
     padding: 10px 15px;
-    border-radius: 6px;
+    border-radius: var(--border-radius-md);
     box-shadow: var(--shadow-sm);
     display: flex;
     align-items: center;
@@ -362,12 +531,20 @@ textarea.form-control:focus {
     }
 }
 
+/* Tooltip mejorado */
+.info-tooltip {
+    color: var(--secondary-color);
+    font-size: 0.9rem;
+    cursor: help;
+    margin-left: 0.25rem;
+}
+
 /* Modales */
 .modal-content {
     background-color: var(--card-bg);
     color: var(--text-color);
     border: none;
-    border-radius: 10px;
+    border-radius: var(--border-radius-lg);
     box-shadow: var(--shadow-lg);
 }
 
@@ -380,7 +557,7 @@ textarea.form-control:focus {
     border-top: 1px solid var(--border-color);
 }
 
-/* Forzar centrado de Modales de Bootstrap (Añadir en components.css) */
+/* Forzar centrado de Modales de Bootstrap */
 .modal.fade.show {
     display: flex !important;
     justify-content: center !important;
@@ -396,6 +573,39 @@ textarea.form-control:focus {
     background-color: var(--card-bg);
     border-color: var(--border-color);
     color: var(--text-color);
+    transition: all var(--transition-speed);
+}
+
+.list-group-item:hover {
+    background-color: rgba(0,0,0,0.02);
+}
+
+/* Tabs mejorados */
+.chart-tabs {
+    display: flex;
+    background-color: rgba(0,0,0,0.02);
+    border-bottom: 1px solid var(--border-color);
+    padding: 0;
+    margin: 0;
+}
+
+.chart-tab {
+    padding: 0.75rem 1.5rem;
+    cursor: pointer;
+    font-weight: 500;
+    border-bottom: 3px solid transparent;
+    transition: all 0.2s ease;
+}
+
+.chart-tab.active {
+    color: var(--accent-color);
+    border-bottom-color: var(--accent-color);
+    background-color: rgba(0,0,0,0.01);
+}
+
+.chart-tab:hover:not(.active) {
+    border-bottom-color: var(--secondary-color);
+    background-color: rgba(0,0,0,0.03);
 }
 
 /* Tooltips y popovers */
@@ -446,7 +656,7 @@ textarea.form-control:focus {
     padding: 30px;
     text-align: center;
     background-color: var(--card-bg);
-    border-radius: 10px;
+    border-radius: var(--border-radius-md);
     margin: 1rem 0;
     border: 1px dashed var(--border-color);
 }
@@ -471,7 +681,7 @@ textarea.form-control:focus {
 /* Tarjetas de contadores */
 .counter-card {
     background-color: var(--card-bg);
-    border-radius: 12px;
+    border-radius: var(--border-radius-md);
     padding: 20px;
     height: 150px;
     margin-bottom: 25px;
@@ -542,10 +752,133 @@ textarea.form-control:focus {
     border-left-color: var(--danger-color);
 }
 
+/* Filtros para informes */
+.filter-form-container {
+    background-color: var(--card-bg);
+    padding: 1.5rem;
+    border-radius: var(--border-radius-md);
+    margin-bottom: 1.5rem;
+    box-shadow: var(--shadow-sm);
+    border: 1px solid var(--border-color);
+}
+
+.filter-form-container label {
+    font-weight: 500;
+    margin-bottom: 0.5rem;
+}
+
+.filter-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.75rem;
+    margin-top: 1rem;
+}
+
+/* Gráficos */
+.chart-container {
+    position: relative;
+    height: 50vh;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    background-color: var(--card-bg);
+    border-radius: var(--border-radius-sm);
+    transition: all 0.3s ease;
+}
+
+.chart-card {
+    background-color: var(--card-bg);
+    border-radius: var(--border-radius-md);
+    box-shadow: var(--shadow-sm);
+    margin-bottom: 1.5rem;
+    transition: all 0.3s ease;
+    border: 1px solid var(--border-color);
+    overflow: hidden;
+}
+
+.chart-card:hover {
+    box-shadow: var(--shadow-md);
+}
+
+.chart-header {
+    background-color: rgba(0,0,0,0.03);
+    padding: 1rem 1.5rem;
+    border-bottom: 1px solid var(--border-color);
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.chart-header i {
+    margin-right: 0.5rem;
+    color: var(--accent-color);
+}
+
+.chart-body {
+    padding: 1.5rem;
+}
+
+/* Cards de confirmación */
 .confirm-card {
-    border: 1px solid #ddd;
+    border: 1px solid var(--border-color);
     padding: 20px;
-    border-radius: 8px;
-    background-color: #fff;
+    border-radius: var(--border-radius-md);
+    background-color: var(--card-bg);
     margin-top: 20px;
+    box-shadow: var(--shadow-sm);
+}
+
+/* Paginación mejorada */
+.pagination {
+    display: flex;
+    padding-left: 0;
+    list-style: none;
+    border-radius: var(--border-radius-md);
+}
+
+.page-item:first-child .page-link {
+    margin-left: 0;
+    border-top-left-radius: var(--border-radius-sm);
+    border-bottom-left-radius: var(--border-radius-sm);
+}
+
+.page-item:last-child .page-link {
+    border-top-right-radius: var(--border-radius-sm);
+    border-bottom-right-radius: var(--border-radius-sm);
+}
+
+.page-item.active .page-link {
+    z-index: 3;
+    color: #fff;
+    background-color: var(--accent-color);
+    border-color: var(--accent-color);
+}
+
+.page-item.disabled .page-link {
+    color: var(--secondary-color);
+    pointer-events: none;
+    cursor: auto;
+    background-color: var(--card-bg);
+    border-color: var(--border-color);
+}
+
+.page-link {
+    position: relative;
+    display: block;
+    padding: 0.5rem 0.75rem;
+    margin-left: -1px;
+    line-height: 1.25;
+    color: var(--accent-color);
+    background-color: var(--card-bg);
+    border: 1px solid var(--border-color);
+    transition: all var(--transition-speed);
+}
+
+.page-link:hover {
+    z-index: 2;
+    color: var(--accent-color);
+    text-decoration: none;
+    background-color: var(--hover-bg);
+    border-color: var(--border-color);
 }

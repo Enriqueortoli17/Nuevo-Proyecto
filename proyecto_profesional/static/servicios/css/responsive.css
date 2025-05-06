@@ -1,5 +1,5 @@
 /**
- * Responsive.css - Reglas específicas para responsividad
+ * Responsive.css - Reglas específicas para responsividad (MEJORADO)
  * Este archivo contiene media queries y ajustes para diferentes tamaños de pantalla
  */
 
@@ -69,7 +69,6 @@
         padding: 0.25rem 0.4rem;
         font-size: 0.75rem;
     }
-}
     
     /* Ajustes para tarjetas contadores */
     .counter-card {
@@ -95,6 +94,66 @@
     .modal-dialog {
         margin: 0.5rem;
     }
+    
+    /* Ajustes para componentes de reportes */
+    .report-header {
+        padding: 1rem;
+        margin-bottom: 1rem;
+    }
+    
+    .report-header h1 {
+        font-size: 1.4rem;
+    }
+    
+    .report-description {
+        max-width: 100%;
+        font-size: 0.9rem;
+    }
+    
+    .dashboard-summary {
+        grid-template-columns: 1fr;
+        gap: 0.75rem;
+        margin-bottom: 1rem;
+    }
+    
+    .summary-card {
+        padding: 1rem;
+    }
+    
+    .summary-card .summary-value {
+        font-size: 1.75rem;
+    }
+    
+    .filter-card, .results-card, .chart-card {
+        margin-bottom: 1rem;
+    }
+    
+    .filter-header, .results-header, .chart-header {
+        padding: 0.75rem 1rem;
+    }
+    
+    .filter-body, .chart-body {
+        padding: 1rem;
+    }
+    
+    .chart-container {
+        height: 40vh;
+    }
+    
+    .chart-tab {
+        padding: 0.5rem 0.75rem;
+        font-size: 0.8rem;
+    }
+    
+    .filter-actions {
+        flex-direction: column;
+    }
+    
+    .filter-actions .btn {
+        width: 100%;
+        margin-bottom: 0.5rem;
+    }
+}
 
 /* Dispositivos pequeños (tablets portrait, 576px y más) */
 @media (min-width: 576px) and (max-width: 767.98px) {
@@ -109,6 +168,24 @@
     /* Ajustes para grids en tablet pequeña */
     .counter-card {
         min-height: 140px;
+    }
+    
+    /* Ajustes para componentes de reportes */
+    .report-header {
+        padding: 1.25rem;
+    }
+    
+    .report-header h1 {
+        font-size: 1.5rem;
+    }
+    
+    .dashboard-summary {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1rem;
+    }
+    
+    .chart-container {
+        height: 45vh;
     }
 }
 
@@ -125,6 +202,16 @@
     
     .order-md-last {
         order: 13;
+    }
+    
+    /* Ajustes para componentes de reportes */
+    .dashboard-summary {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 1.25rem;
+    }
+    
+    .summary-card .summary-value {
+        font-size: 1.8rem;
     }
 }
 
@@ -147,6 +234,12 @@
     .d-lg-none {
         display: none !important;
     }
+    
+    /* Ajustes para componentes de reportes */
+    .dashboard-summary {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 1.5rem;
+    }
 }
 
 /* Dispositivos extra grandes (desktops grandes, 1200px y más) */
@@ -162,6 +255,23 @@
     
     .card-body {
         padding: 1.5rem;
+    }
+    
+    /* Ajustes para componentes de reportes */
+    .report-header h1 {
+        font-size: 2rem;
+    }
+    
+    .dashboard-summary {
+        gap: 1.75rem;
+    }
+    
+    .summary-card .summary-value {
+        font-size: 2.2rem;
+    }
+    
+    .chart-container {
+        height: 55vh;
     }
 }
 
@@ -219,6 +329,31 @@
     .table td, .table th {
         padding: 0.85rem;
     }
+    
+    /* Ajustes para componentes de reportes */
+    .report-header {
+        padding: 2rem;
+    }
+    
+    .report-header h1 {
+        font-size: 2.2rem;
+    }
+    
+    .dashboard-summary {
+        gap: 2rem;
+    }
+    
+    .summary-card {
+        padding: 1.5rem;
+    }
+    
+    .summary-card .summary-value {
+        font-size: 2.5rem;
+    }
+    
+    .filter-body, .chart-body {
+        padding: 2rem;
+    }
 }
 
 /* Orientación - Landscape */
@@ -242,6 +377,25 @@
     .page-header {
         margin-bottom: 1rem;
         padding-bottom: 0.5rem;
+    }
+    
+    /* Ajustes para componentes de reportes */
+    .report-header {
+        padding: 1rem;
+        margin-bottom: 1rem;
+    }
+    
+    .dashboard-summary {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 0.75rem;
+    }
+    
+    .summary-card {
+        padding: 0.75rem;
+    }
+    
+    .chart-container {
+        height: 70vh; /* Mayor altura relativa en landscape */
     }
 }
 
@@ -287,5 +441,41 @@
     .table td, .table th {
         background-color: #fff !important;
         border: 1px solid #000 !important;
+    }
+    
+    /* Ajustes para componentes de reportes en impresión */
+    .report-header {
+        background: none !important;
+        color: #000 !important;
+        padding: 0 !important;
+        margin-bottom: 1rem !important;
+        box-shadow: none !important;
+        print-color-adjust: exact;
+    }
+    
+    .report-header h1 {
+        color: #000 !important;
+    }
+    
+    .report-description {
+        color: #333 !important;
+    }
+    
+    .summary-card, .filter-card, .results-card, .chart-card {
+        break-inside: avoid;
+        border: 1px solid #ddd !important;
+        box-shadow: none !important;
+        background-color: #fff !important;
+    }
+    
+    .chart-container {
+        height: 300px !important;
+        page-break-inside: avoid;
+    }
+    
+    .duration-badge {
+        color: #000 !important;
+        background-color: #eee !important;
+        border: 1px solid #ccc !important;
     }
 }

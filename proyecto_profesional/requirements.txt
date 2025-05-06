@@ -1,0 +1,75 @@
+# -------------------------------------
+# Dependencias Principales de Django
+# -------------------------------------
+Django==5.1.6            # El framework web principal
+django-widget-tweaks==1.5.0  # Ayuda a renderizar campos de formulario en plantillas
+django-environ==0.11.2   # Para gestionar variables de entorno (configuración)
+
+# -------------------------------------
+# Dependencias de Django Channels (WebSockets)
+# -------------------------------------
+channels==4.2.0          # Framework para WebSockets y otras tareas asíncronas
+daphne==4.1.2            # Servidor ASGI para Channels (desarrollo/producción)
+# Dependencias de bajo nivel para Channels/ASGI/Twisted:
+asgiref==3.8.1
+Twisted==24.11.0         # Framework de red asíncrono (requerido por Autobahn/Channels)
+autobahn==24.4.2         # Implementación de WebSocket y WAMP
+attrs==25.1.0            # Necesario para Twisted, Autobahn
+Automat==24.8.1          # Necesario para Twisted
+constantly==23.10.4      # Necesario para Twisted
+hyperlink==21.0.0        # Necesario para Twisted
+incremental==24.7.0      # Necesario para Twisted
+txaio==23.1.1            # Necesario para Autobahn/Twisted
+zope.interface==7.2      # Necesario para Twisted
+
+# -------------------------------------
+# Dependencias Asíncronas (usadas por Channels, aiohttp, etc.)
+# -------------------------------------
+aiohappyeyeballs==2.6.1
+aiohttp==3.11.14
+aiohttp-retry==2.9.1
+aiosignal==1.3.2
+frozenlist==1.5.0
+multidict==6.2.0
+yarl==1.18.3
+
+# -------------------------------------
+# Utilidades Adicionales
+# -------------------------------------
+Pillow==11.2.1           # Para manipulación de imágenes (requerido por ImageField)
+requests==2.32.3         # Librería para hacer peticiones HTTP
+sqlparse==0.5.3          # Parser SQL (usado por Django Debug Toolbar y Django mismo)
+
+# -------------------------------------
+# Criptografía y Seguridad (pueden ser dependencias de otras)
+# -------------------------------------
+certifi==2025.1.31       # Colección de certificados CA raíz
+cffi==1.17.1
+cryptography==44.0.2
+idna==3.10               # Soporte para nombres de dominio internacionalizados (usado por requests)
+pyOpenSSL==25.0.0        # Necesario para Twisted y otros
+pyasn1==0.6.1
+pyasn1_modules==0.4.1
+PyJWT==2.10.1            # Para tokens JWT (posiblemente usado por Twilio o una auth custom)
+service-identity==24.2.0 # Necesario para Twisted
+urllib3==2.3.0           # Usado por requests
+
+# -------------------------------------
+# Despliegue
+# -------------------------------------
+gunicorn==22.0.0         # Servidor WSGI popular para producción
+whitenoise==6.7.0        # Para servir archivos estáticos eficientemente en producción
+
+# -------------------------------------
+# Servicios Externos / APIs
+# -------------------------------------
+twilio==9.5.1            # Para interactuar con la API de Twilio (SMS, Voz, etc.)
+
+# -------------------------------------
+# Otras dependencias requeridas (identificadas por pip freeze, a menudo dependencias transitivas)
+# -------------------------------------
+charset-normalizer==3.4.1 # Dependencia de requests o aiohttp
+packaging==24.2          # Utilidad para manejar paquetes Python (dependencia de varias herramientas)
+pycparser==2.22          # Dependencia de cffi
+setuptools==75.8.2       # Herramientas de construcción de paquetes (a veces necesario explícitamente)
+tzdata==2025.1           # Base de datos de zonas horarias (dependencia de Django)

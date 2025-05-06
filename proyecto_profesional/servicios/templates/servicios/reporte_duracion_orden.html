@@ -121,107 +121,116 @@
         </div>
         
         {% if ordenes %}
+        {# Reemplaza toda la tabla principal con esto #}
         <div class="table-responsive">
             <table class="table table-report">
-                <thead>
+                <thead class="thead-light"> {# O tu clase de cabecera #}
                     <tr>
-                        <th style="width: 10%;"># Orden</th>
-                        <th style="width: 20%;">Cliente</th>
-                        <th style="width: 20%;">Motor</th>
-                        <th style="width: 15%;">Fecha Terminación</th>
-                        <th style="width: 35%;">Servicios y Duración</th>
+                        <th width="5%"></th> {# Columna para icono/trigger #}
+                        <th width="10%"># Orden</th>
+                        <th width="20%">Cliente</th>
+                        <th width="20%">Motor</th>
+                        <th width="15%">Fecha Terminación</th>
+                        <th width="15%" class="text-right">Duración Total</th> {# Ajustado el texto aquí #}
                     </tr>
                 </thead>
-                <tbody>
-                    {% for orden in ordenes %}
-                    <tr>
-                        <td>
-                            <span class="order-number">{{ orden.numero_orden|default:orden.numero_provisional }}</span>
-                        </td>
-                        <td>
-                            <strong>{{ orden.cliente_registrado.nombre|default:orden.cliente }}</strong>
-                        </td>
-                        <td>
-                            <div class="motor-info">
-                                <span class="motor-name">
+                {# YA NO HAY UN TBODY EXTERNO AQUÍ #}
+
+                {% for orden in ordenes %}
+                    {# INICIO: TBODY INDIVIDUAL PARA CADA ORDEN #}
+                    <tbody class="order-group" data-order-id="{{ orden.id }}">
+                        {# Fila Principal (Trigger) - CON data-toggle en el TR #}
+                        <tr class="accordion-toggle" data-target="#collapse-{{ orden.id }}" aria-expanded="false" aria-controls="collapse-{{ orden.id }}" style="cursor: pointer; border-top: 2px solid var(--border-color);">
+                            <td class="text-center js-collapse-trigger" width="5%"
+                                data-target="#collapse-{{ orden.id }}" {# Asegúrate que data-target esté aquí #}
+                                style="cursor: pointer;" {# Mantenemos cursor pointer aquí #}
+                                title="Ver/Ocultar Detalles">
+                                <i class="fas fa-chevron-right indicator-icon"></i>
+                            </td>
+                            <td>
+                                <span class="order-number">{{ orden.numero_orden|default:orden.numero_provisional }}</span>
+                            </td>
+                            <td>
+                                <strong>{{ orden.cliente_registrado.nombre|default:orden.cliente }}</strong>
+                            </td>
+                            <td>
+                                <div class="motor-info">
+                                    <span class="motor-name">
+                                        {% if orden.motor_registrado %}{{ orden.motor_registrado.nombre }}{% else %}{{ orden.modelo_motor|default:"N/A" }}{% endif %}
+                                    </span>
                                     {% if orden.motor_registrado %}
-                                        {{ orden.motor_registrado.nombre }}
-                                    {% else %}
-                                        {{ orden.modelo_motor|default:"N/A" }}
+                                    <span class="motor-specs">
+                                        {{ orden.motor_registrado.num_cilindros|default:"?" }} cil,
+                                        {{ orden.motor_registrado.num_cabezas|default:"?" }} cab
+                                    </span>
                                     {% endif %}
+                                </div>
+                            </td>
+                            <td class="date-col">
+                                <i class="far fa-calendar-check mr-1 text-success"></i>
+                                {{ orden.fecha_terminacion|date:"d/m/Y" }}
+                                <div class="small text-muted">{{ orden.fecha_terminacion|date:"H:i" }} hrs</div>
+                            </td>
+                            <td class="text-right">
+                                <span class="duration-badge" data-toggle="tooltip" title="Duración Total (Inicio Real a Fin)">
+                                    {{ orden.duracion_total_orden|default:"-" }}
                                 </span>
-                                
-                                {% if orden.motor_registrado %}
-                                <span class="motor-specs">
-                                    {{ orden.motor_registrado.num_cilindros|default:"?" }} cilindros, 
-                                    {{ orden.motor_registrado.num_cabezas|default:"?" }} cabezas
-                                </span>
-                                {% endif %}
-                            </div>
-                        </td>
-                        <td class="date-col">
-                            <i class="far fa-calendar-check mr-1 text-success"></i>
-                            {{ orden.fecha_terminacion|date:"d/m/Y" }}
-                            <div class="small text-muted">{{ orden.fecha_terminacion|date:"H:i" }} hrs</div>
-                        </td>
-                        <td>
-                            {% if orden.servicios_detalle.all %}
-                            <table class="table table-sm services-table">
-                                <thead>
-                                    <tr>
-                                        <th>Servicio</th>
-                                        <th class="date-col">Inicio</th>
-                                        <th class="date-col">Fin</th>
-                                        <th class="duration-col">Duración</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                {% for servicio in orden.servicios_detalle.all %}
-                                    {% if servicio.fecha_inicio and servicio.fecha_fin %}
-                                        <tr>
-                                            <td>
-                                                <i class="fas fa-cog text-secondary mr-1"></i>
-                                                {{ servicio.catalogo_servicio.nombre }}
-                                            </td>
-                                            <td class="date-col">
-                                                {{ servicio.fecha_inicio|date:"d/m H:i" }}
-                                            </td>
-                                            <td class="date-col">
-                                                {{ servicio.fecha_fin|date:"d/m H:i" }}
-                                            </td>
-                                            <td class="duration-col">
-                                                <span class="duration-badge">
-                                                    {{ servicio.duracion|default:"-" }}
-                                                </span>
-                                            </td>
-                                        </tr>
-                                    {% endif %}
-                                {% endfor %}
-                                </tbody>
-                                <!-- Fila de totales -->
-                                <tfoot>
-                                    <tr>
-                                        <td colspan="3" class="text-right pr-2">
-                                            <strong>Duración Total:</strong>
-                                        </td>
-                                        <td class="duration-col">
-                                            <span class="duration-badge" style="background-color: var(--info-color);">
-                                                {{ orden.duracion_total|default:"-" }}
-                                            </span>
-                                        </td>
-                                    </tr>
-                                </tfoot>
-                            </table>
-                            {% else %}
-                            <div class="alert alert-warning py-2 px-3 mb-0">
-                                <i class="fas fa-exclamation-triangle mr-1"></i>
-                                Sin servicios registrados.
-                            </div>
-                            {% endif %}
-                        </td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
+                            </td>
+                        </tr>
+
+                        {# Fila de Detalles (Colapsable) - Dentro del MISMO tbody #}
+                        <tr class="collapse-row">
+                            <td colspan="6" class="p-0"> {# Colspan = número total de columnas #}
+                                <div class="collapse" id="collapse-{{ orden.id }}">
+                                    <div class="p-3" style="background-color: var(--color-background-light-gray);">
+                                        {# Contenido Colapsado (Tabla Anidada) - Sin cambios aquí #}
+                                        {% if orden.servicios_detalle.all %}
+                                            <h6 class="mb-2 text-muted"><i class="fas fa-tools"></i> Detalle de Servicios:</h6>
+                                            <table class="table table-sm services-table mb-0">
+                                                <thead style="background-color: rgba(0,0,0,0.05);">
+                                                    <tr>
+                                                        <th>Servicio</th>
+                                                        <th class="date-col">Inicio</th>
+                                                        <th class="date-col">Fin</th>
+                                                        <th class="duration-col">Duración Servicio</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                {% for servicio in orden.servicios_detalle.all %}
+                                                    {% if servicio.fecha_inicio and servicio.fecha_fin %}
+                                                        <tr>
+                                                            <td><i class="fas fa-cog text-secondary mr-1"></i>{{ servicio.catalogo_servicio.nombre }}</td>
+                                                            <td class="date-col">{{ servicio.fecha_inicio|date:"d/m H:i" }}</td>
+                                                            <td class="date-col">{{ servicio.fecha_fin|date:"d/m H:i" }}</td>
+                                                            <td class="duration-col"><span class="duration-badge" style="background-color: var(--secondary-color);">{{ servicio.duracion|default:"-" }}</span></td>
+                                                        </tr>
+                                                    {% endif %}
+                                                {% endfor %}
+                                                </tbody>
+                                            </table>
+                                        {% else %}
+                                            <div class="alert alert-warning py-2 px-3 mb-0"><i class="fas fa-exclamation-triangle mr-1"></i>Sin servicios con duración registrada.</div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                    {# FIN: TBODY INDIVIDUAL PARA CADA ORDEN #}
+                {% empty %}
+                    {# No hay 'tbody' aquí si no hay órdenes #}
+                    <tbody> {# Añadimos un tbody para el mensaje de no órdenes por consistencia #}
+                        <tr>
+                            <td colspan="6"> {# Ajusta el colspan #}
+                                <div class="no-data">
+                                    <i class="fas fa-search"></i>
+                                    <h4>No se encontraron órdenes</h4>
+                                    <p>No hay órdenes terminadas que coincidan con los criterios de búsqueda.</p>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                {% endfor %}
             </table>
         </div>
         
@@ -281,25 +290,50 @@
 {% endblock %}
 
 {% block extra_scripts %}
-<script>
-    $(document).ready(function() {
-        // Tooltip de Bootstrap para íconos de info
-        $('[data-toggle="tooltip"], .info-tooltip').tooltip();
-        
-        // Toggle del panel de filtros
-        $('.filter-header button').click(function() {
-            $(this).find('i').toggleClass('fa-chevron-up fa-chevron-down');
+    {{ block.super }} {# Incluye scripts de bloques padre si los hay #}
+    <script>
+        $(document).ready(function() {
+            // Tooltips y Filtros (Mantenemos lo que tenías)
+            $('[data-toggle="tooltip"], .info-tooltip').tooltip();
+            $('.filter-header button').click(function() {
+                $(this).find('i').toggleClass('fa-chevron-up fa-chevron-down');
+            });
+            // Hover en fila (Mantenemos lo que tenías, ajustado al TR principal)
+             $('.table-report').on('mouseenter', 'tr.accordion-toggle', function() {
+                 $(this).addClass('highlight-row');
+             }).on('mouseleave', 'tr.accordion-toggle', function() {
+                 $(this).removeClass('highlight-row');
+             });
+
+
+            // --- INICIO: Lógica Manual para Colapso (SELECTOR CORREGIDO) ---
+            $('.js-collapse-trigger').on('click', function(e) {
+                e.stopPropagation(); // Detener propagación para evitar comportamientos inesperados
+                
+                // Obtener el ID del elemento a colapsar desde el atributo data-target de la celda
+                var targetId = $(this).data('target');
+                
+                // Verificar que el targetId exista para depuración
+                console.log("Target ID: " + targetId);
+                
+                // Llamar manualmente al método 'toggle' de Bootstrap Collapse
+                $(targetId).collapse('toggle');
+            });
+
+            // Escuchadores de eventos para cambiar el icono
+            $('.collapse').on('show.bs.collapse', function() {
+                // Encontrar la celda trigger asociada y cambiar su icono
+                var id = this.id;
+                $('td[data-target="#' + id + '"]').find('.indicator-icon')
+                    .removeClass('fa-chevron-right').addClass('fa-chevron-down');
+            });
+
+            $('.collapse').on('hide.bs.collapse', function() {
+                // Encontrar la celda trigger asociada y cambiar su icono
+                var id = this.id;
+                $('td[data-target="#' + id + '"]').find('.indicator-icon')
+                    .removeClass('fa-chevron-down').addClass('fa-chevron-right');
+            });
         });
-        
-        // Destacar filas al pasar el mouse
-        $('.table-report tbody tr').hover(
-            function() {
-                $(this).addClass('highlight-row');
-            },
-            function() {
-                $(this).removeClass('highlight-row');
-            }
-        );
-    });
-</script>
-{% endblock %}
+    </script>
+{% endblock extra_scripts %}

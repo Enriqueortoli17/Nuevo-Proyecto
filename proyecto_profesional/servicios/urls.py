@@ -53,4 +53,5 @@ urlpatterns = [
     path("<int:order_id>/", views.orden_detalle, name="orden_detalle"),
     # Reportes
     path("reportes/duracion-por-orden/", views.reporte_duracion_orden, name="reporte_duracion_orden"),
+    path("reportes/productividad-por-servicio/", views.reporte_productividad_servicio, name="reporte_productividad_servicio"),
 ]

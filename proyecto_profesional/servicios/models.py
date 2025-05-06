@@ -229,12 +229,15 @@ class Orden(models.Model):
     @property
     def duracion_total_orden(self):
         """Calcula la duración total desde el inicio real del trabajo hasta la terminación."""
-        # Usa fecha_inicio_real en lugar de fecha_aceptacion
         if self.fecha_inicio_real and self.fecha_terminacion:
-            delta = self.fecha_terminacion - self.fecha_inicio_real
+            # Asegurarse que fecha_terminacion es posterior a fecha_inicio_real
+            if self.fecha_terminacion > self.fecha_inicio_real:
+                delta = self.fecha_terminacion - self.fecha_inicio_real
+            else:
+                # Si las fechas son iguales o inicio es posterior, duración es 0 o mínima
+                return "0m" # O puedes retornar '-' o lo que prefieras
 
             days = delta.days
-            # Evita mostrar segundos negativos si delta es muy pequeño
             total_seconds = max(0, int(delta.total_seconds()))
             hours, remainder = divmod(total_seconds - (days * 86400), 3600)
             minutes, seconds = divmod(remainder, 60)
@@ -244,19 +247,18 @@ class Orden(models.Model):
                 parts.append(f"{days}d")
             if hours > 0:
                 parts.append(f"{hours}h")
-            # Mostrar minutos solo si no hay días o si es la única unidad > 0
-            if minutes > 0 and (days == 0 or not parts):
-                 parts.append(f"{minutes}m")
-            # Si no hay días, horas ni minutos, pero sí segundos, mostrar "0m" o segundos
-            if not parts and total_seconds > 0:
-                # parts.append(f"{seconds}s") # Opcional: mostrar segundos
-                parts.append("0m") # O simplemente mostrar 0m para duraciones muy cortas
-            elif not parts: # Si delta fue 0 o negativo
-                 parts.append("0m")
+            # Mostrar minutos si es la única unidad > 0 o si no hay días
+            if minutes > 0 and (days == 0 or hours == 0 or not parts):
+                parts.append(f"{minutes}m")
 
+            # Si el delta fue muy pequeño (menos de 1 minuto) y no se añadió nada, mostrar "0m"
+            if not parts:
+                parts.append("0m")
 
             return " ".join(parts)
-        return None # Devuelve None si falta alguna fecha
+
+        # Si falta alguna de las fechas necesarias, devuelve un guion
+        return "-"
 
 class OrdenImagen(models.Model):
     orden = models.ForeignKey(Orden, related_name='imagenes', on_delete=models.CASCADE)

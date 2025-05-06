@@ -1,0 +1,38 @@
+# -------------------------------------
+# Herramientas de Formateo y Calidad de Código
+# -------------------------------------
+black==24.4.2            # Formateador de código Python
+flake8==7.1.0            # Linter (pycodestyle, pyflakes, mccabe)
+# Dependencias de black y flake8 (algunas pueden ser también de otras herramientas):
+click==8.1.8             # Utilizado por black y flake8
+mccabe==0.7.0            # Parte de flake8 (complejidad ciclomática)
+mypy-extensions==1.0.0   # Utilizado por black
+pathspec==0.12.1         # Utilizado por black
+platformdirs==4.3.7      # Utilizado por black y flake8
+pycodestyle==2.12.1      # Parte de flake8 (estilo de código)
+pyflakes==3.2.0          # Parte de flake8 (errores lógicos)
+typing_extensions==4.13.0 # Utilizado por black y otras herramientas de tipado
+
+# -------------------------------------
+# Herramientas de Pruebas
+# -------------------------------------
+coverage==7.8.0          # Medición de cobertura de pruebas
+
+# -------------------------------------
+# IPython y sus dependencias (para una shell de Python mejorada)
+# -------------------------------------
+ipython==8.26.0          # Shell interactiva avanzada
+# Dependencias de ipython:
+asttokens==3.0.0
+colorama==0.4.6          # Para colores en la consola (especialmente Windows)
+decorator==5.2.1
+executing==2.2.0
+jedi==0.19.2             # Autocompletado para IPython
+matplotlib-inline==0.1.7 # Para plots inline en IPython/Jupyter
+parso==0.8.4             # Parser Python usado por Jedi
+prompt_toolkit==3.0.50   # Para construir interfaces de línea de comandos interactivas
+pure_eval==0.2.3
+Pygments==2.19.1         # Resaltado de sintaxis
+stack-data==0.6.3        # Tracebacks mejorados para IPython
+traitlets==5.14.3        # Framework de configuración para IPython
+wcwidth==0.2.13          # Ancho de caracteres Unicode en terminales

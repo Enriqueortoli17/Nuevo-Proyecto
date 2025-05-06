@@ -9,7 +9,8 @@ from django.views.decorators.http import require_POST
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib import messages
 from django.forms import inlineformset_factory, NumberInput
-from django.db.models import Q, F
+from django.db.models import Q, F, Avg, Min, Max, Count, F, ExpressionWrapper, DurationField, Sum, Case, When, Value, CharField 
+from django.db.models.functions import Coalesce
 from channels.layers import get_channel_layer
 from datetime import date, timedelta, datetime
 from django.utils import timezone
@@ -1950,3 +1951,183 @@ def reporte_duracion_orden(request):
         'page_icon': 'chart-line' # Icono para la plantilla base
     }
     return render(request, "servicios/reporte_duracion_orden.html", context)
+
+@login_required
+@user_passes_test(lambda u: u.is_superuser) # O el permiso adecuado
+def reporte_productividad_servicio(request):
+    """
+    Reporte de productividad agregada por tipo de servicio,
+    filtrable por Tipo de Motor, Tipo de Servicio y Rango de Fechas.
+    Prepara datos para tabla y tres gráficos.
+    """
+    # --- Obtener Parámetros de Filtro ---
+    selected_motor_id = request.GET.get('motor_id', None)
+    selected_servicio_id = request.GET.get('servicio_id', None)
+    fecha_desde_str = request.GET.get('fecha_desde', None)
+    fecha_hasta_str = request.GET.get('fecha_hasta', None)
+
+    # Convertir IDs
+    try: selected_motor_id = int(selected_motor_id) if selected_motor_id else None
+    except ValueError: selected_motor_id = None
+    try: selected_servicio_id = int(selected_servicio_id) if selected_servicio_id else None
+    except ValueError: selected_servicio_id = None
+
+    # --- Query Base (Servicios con duración) ---
+    servicios_completados_base = Servicio.objects.filter(
+        fecha_inicio__isnull=False,
+        fecha_fin__isnull=False
+    ).select_related(
+        'catalogo_servicio',
+        'orden__motor_registrado',
+        'orden__cliente_registrado', # Añadir cliente si lo usas en filtros o tabla
+    ).annotate(
+        duracion_servicio=ExpressionWrapper(F('fecha_fin') - F('fecha_inicio'), output_field=DurationField())
+    )
+
+    # --- Aplicar Filtros ---
+    servicios_filtrados = servicios_completados_base
+    if selected_motor_id:
+        servicios_filtrados = servicios_filtrados.filter(orden__motor_registrado_id=selected_motor_id)
+    if selected_servicio_id:
+        servicios_filtrados = servicios_filtrados.filter(catalogo_servicio_id=selected_servicio_id)
+    # Filtrado por fecha
+    fecha_desde, fecha_hasta = None, None
+    if fecha_desde_str:
+        fecha_desde = parse_date(fecha_desde_str)
+        if fecha_desde:
+            servicios_filtrados = servicios_filtrados.filter(fecha_fin__date__gte=fecha_desde)
+    if fecha_hasta_str:
+        fecha_hasta = parse_date(fecha_hasta_str)
+        if fecha_hasta:
+            servicios_filtrados = servicios_filtrados.filter(fecha_fin__date__lte=fecha_hasta)
+
+    # --- Agregación para la Tabla ---
+    report_data = servicios_filtrados.values(
+        'catalogo_servicio__nombre',
+        'orden__motor_registrado__nombre',
+        'orden__motor_registrado__num_cilindros',
+        'orden__motor_registrado__num_cabezas'
+    ).annotate(
+        avg_duration=Avg('duracion_servicio'),
+        min_duration=Min('duracion_servicio'),
+        max_duration=Max('duracion_servicio'),
+        count=Count('id')
+    ).order_by(
+        'catalogo_servicio__nombre',
+        'orden__motor_registrado__nombre',
+        'orden__motor_registrado__num_cilindros',
+        'orden__motor_registrado__num_cabezas'
+    )
+
+    # --- Preparación Datos para Gráficos ---
+
+    # 1. Gráfico AVG Duration (por Tipo de Servicio - Promedio general)
+    chart_data_avg = servicios_filtrados.values( # Usa queryset filtrado
+        'catalogo_servicio__nombre'
+    ).annotate(
+        avg_duration_agg=Avg('duracion_servicio')
+    ).order_by('catalogo_servicio__nombre') # Ordenar alfabéticamente por servicio
+
+    avg_labels = [item['catalogo_servicio__nombre'] for item in chart_data_avg]
+    avg_values_minutes = []
+    for item in chart_data_avg:
+        avg_duration = item.get('avg_duration_agg')
+        avg_values_minutes.append(round(avg_duration.total_seconds() / 60, 2) if avg_duration else 0)
+
+    chart_data_avg_json = json.dumps({'labels': avg_labels, 'values': avg_values_minutes})
+
+    # 2. Gráfico Min/Max Duration (por Tipo de Servicio)
+    chart_data_minmax = servicios_filtrados.values( # Usa queryset filtrado
+        'catalogo_servicio__nombre'
+    ).annotate(
+        min_duration_agg=Min('duracion_servicio'),
+        max_duration_agg=Max('duracion_servicio')
+    ).order_by('catalogo_servicio__nombre')
+
+    minmax_labels = [item['catalogo_servicio__nombre'] for item in chart_data_minmax]
+    min_values_minutes = []
+    max_values_minutes = []
+    for item in chart_data_minmax:
+        min_duration = item.get('min_duration_agg')
+        max_duration = item.get('max_duration_agg')
+        min_values_minutes.append(round(min_duration.total_seconds() / 60, 2) if min_duration else 0)
+        max_values_minutes.append(round(max_duration.total_seconds() / 60, 2) if max_duration else 0)
+
+    chart_data_minmax_json = json.dumps({
+        'labels': minmax_labels,
+        'min_values': min_values_minutes,
+        'max_values': max_values_minutes
+    })
+
+    # 3. Gráfico Count (por Tipo de Servicio)
+    chart_data_count = servicios_filtrados.values( # Usa queryset filtrado
+        'catalogo_servicio__nombre'
+    ).annotate(
+        count_agg=Count('id')
+    ).order_by('-count_agg') # Ordenar por los más frecuentes primero
+
+    count_labels = [item['catalogo_servicio__nombre'] for item in chart_data_count]
+    count_values = [item['count_agg'] for item in chart_data_count]
+
+    chart_data_count_json = json.dumps({'labels': count_labels, 'values': count_values})
+
+    # --- Cálculos para Tarjetas de Resumen ---
+    total_servicios_realizados = servicios_filtrados.count() # Total de servicios que cumplen el filtro
+
+    # Calcular tiempo promedio global (convirtiendo el tiempo a formato legible)
+    tiempo_promedio_global = None
+    if servicios_filtrados.exists():
+        tiempo_promedio = servicios_filtrados.aggregate(Avg('duracion_servicio'))['duracion_servicio__avg']
+        if tiempo_promedio:
+            # Convertir a minutos para mostrar de forma más legible
+            minutos_promedio = int(tiempo_promedio.total_seconds() / 60)
+            if minutos_promedio > 60:
+                horas = minutos_promedio // 60
+                minutos = minutos_promedio % 60
+                tiempo_promedio_global = f"{horas}h {minutos}m"
+            else:
+                tiempo_promedio_global = f"{minutos_promedio}m"
+
+    # Calcular eficiencia comparativa con periodo anterior (ejemplo)
+    # Esto sería normalmente un cálculo basado en datos históricos
+    # Por simplicidad, usaremos un valor estático
+    eficiencia = "92%"  # Puedes reemplazar esto con un cálculo real si tienes datos históricos
+
+    # --- Obtener datos para los selectores del filtro ---
+    motores_disponibles = Motor.objects.all().order_by('nombre')
+    servicios_disponibles = CatalogoServicio.objects.all().order_by('nombre')
+    # Podrías añadir Clientes si añades ese filtro
+    # clientes_disponibles = Cliente.objects.all().order_by('nombre')
+
+    context = {
+        'report_data': report_data,
+        # Nuevos JSON para gráficos
+        'chart_data_avg_json': chart_data_avg_json,
+        'chart_data_minmax_json': chart_data_minmax_json,
+        'chart_data_count_json': chart_data_count_json,
+        # Para compatibilidad con la plantilla
+        'chart_data_json': chart_data_avg_json,
+        # Combinar los datos para los múltiples gráficos
+        'chart_data_full_json': json.dumps({
+            'labels': avg_labels,
+            'values': avg_values_minutes,
+            'minValues': min_values_minutes,
+            'maxValues': max_values_minutes,
+            'counts': count_values
+        }),
+        # Datos para filtros
+        'motores_disponibles': motores_disponibles,
+        'servicios_disponibles': servicios_disponibles,
+        'selected_motor_id': selected_motor_id,
+        'selected_servicio_id': selected_servicio_id,
+        'fecha_desde': fecha_desde_str or '',
+        'fecha_hasta': fecha_hasta_str or '',
+        # Datos para tarjetas resumen
+        'total_servicios': total_servicios_realizados,
+        'tiempo_promedio_global': tiempo_promedio_global or "N/A",
+        'eficiencia': eficiencia,
+        # Info de página
+        'page_title': 'Reporte de Productividad por Servicio',
+        'page_icon': 'tachometer-alt'
+    }
+    return render(request, "servicios/reporte_productividad_servicio.html", context)
